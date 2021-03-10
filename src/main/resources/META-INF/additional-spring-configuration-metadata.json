@@ -1,0 +1,40 @@
+{
+  "properties": [
+    {
+      "name": "blast-wrapper.blast-commands.blast-db-directory",
+      "type": "java.lang.Integer",
+      "description": "Path to $HOME/blastdb on host machine."
+    },
+    {
+      "name": "blast-wrapper.task-status-checking.thread-amount",
+      "type": "java.lang.Integer",
+      "description": "Amount of threads allowed to run command to blast simultaneously."
+    },
+    {
+      "name": "blast-wrapper.task-status-checking.interval",
+      "type": "java.lang.String",
+      "description": "Check frequency of new tasks on database."
+    },
+    {
+      "name": "blast-wrapper.blast-commands.blast-results-directory",
+      "type": "java.lang.String",
+      "description": "Path to $HOME/results on host machine."
+    },
+
+    {
+      "name": "blast-wrapper.blast-db.defaultDbType",
+      "type": "java.lang.String",
+      "description": "Molecule type of input, values can be nucl or prot."
+    },
+    {
+      "name": "blast-wrapper.blast-db.defaultDbVersion",
+      "type": "java.lang.String",
+      "description": "Version 5 (taxonomy aware) is the default starting with the 2.10.0 release."
+    },
+
+    {
+      "name": "blast-wrapper.command.defaultParseSeqIds",
+      "type": "java.lang.String",
+      "description": "Parse bar delimited sequence identifiers (e.g., gi)."
+    }
+  ] }
