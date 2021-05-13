@@ -27,7 +27,7 @@ package com.epam.blast.manager.commands;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
-import com.epam.blast.manager.commands.runners.BlastPRunner;
+import com.epam.blast.manager.commands.runners.BlastToolRunner;
 import com.epam.blast.manager.commands.runners.MakeBlastDbRunner;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -48,18 +48,18 @@ public class CommandExecutionService {
 
     private final TaskService taskService;
     private final MakeBlastDbRunner makeBlastDbRunner;
-    private final BlastPRunner blastPRunner;
+    private final BlastToolRunner blastToolRunner;
     private final MessageHelper messageHelper;
 
     @Autowired
     public CommandExecutionService(
             final TaskServiceImpl taskService,
             final MakeBlastDbRunner makeBlastDbRunner,
-            final BlastPRunner blastPRunner,
+            final BlastToolRunner blastToolRunner,
             final MessageHelper messageHelper) {
         this.taskService = taskService;
         this.makeBlastDbRunner = makeBlastDbRunner;
-        this.blastPRunner = blastPRunner;
+        this.blastToolRunner = blastToolRunner;
         this.messageHelper = messageHelper;
     }
 
@@ -72,11 +72,11 @@ public class CommandExecutionService {
         int exitValue;
         if (type != null) {
             switch (type) {
-                case MAKEBLASTDB:
+                case MAKE_BLAST_DB:
                     exitValue = makeBlastDbRunner.runTask(taskEntity);
                     break;
-                case BLASTP:
-                    exitValue = blastPRunner.runTask(taskEntity);
+                case BLAST_TOOL:
+                    exitValue = blastToolRunner.runTask(taskEntity);
                     break;
                 default:
                     log.error(messageHelper.getMessage(

@@ -91,7 +91,7 @@ class MakeBlastDbRunnerTest {
         MockitoAnnotations.openMocks(this);
         makeBlastDbRunner = new MakeBlastDbRunner(TEST_BLAST_DB_DIRECTORY, DEFAULT_DB_DATATYPE_TEST,
                 TEST_BLAST_FASTA_DIRECTORY, DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, commandPerformerMock);
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKEBLASTDB, true, AMOUNT_TASKS_VALID));
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
 
@@ -101,7 +101,7 @@ class MakeBlastDbRunnerTest {
         for (TaskEntity task : taskList) {
             try {
                 makeBlastDbRunner.runTask(task);
-                if (task.getTaskType() == TaskType.MAKEBLASTDB) {
+                if (task.getTaskType() == TaskType.MAKE_BLAST_DB) {
                     verify(commandPerformerMock, atLeastOnce()).perform(anyString());
                 }
             } catch (Exception e) {

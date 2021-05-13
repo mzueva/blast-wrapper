@@ -27,6 +27,7 @@ package com.epam.blast.manager.commands.runners;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -53,7 +54,7 @@ import static org.mockito.Mockito.when;
 
 
 @ExtendWith(MockitoExtension.class)
-public class BlastPRunnerTest {
+public class BlastToolRunnerTest {
     public static final Integer AMOUNT_TASKS_VALID = 6;
     public static final Integer AMOUNT_TASKS_NOT_VALID = 3;
     public static final Integer AMOUNT_TASKS_TOTAL = AMOUNT_TASKS_VALID + AMOUNT_TASKS_NOT_VALID;
@@ -64,31 +65,36 @@ public class BlastPRunnerTest {
 
     @Mock
     private SimpleCommandPerformer commandPerformerMock;
+
     @Mock
     private TemporaryFileWriter temporaryFileWriterMock;
-    private BlastPRunner blastPRunner;
+
+    @Mock
+    private MessageHelper messageHelper;
+
+    private BlastToolRunner blastToolRunner;
     private final List<TaskEntity> taskList = new ArrayList<>(AMOUNT_TASKS_TOTAL);
     private File temporaryFile = spy(new File(TEST_BLAST_QUERIES_DIRECTORY));
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        blastPRunner = new BlastPRunner(TEST_BLAST_DB_DIRECTORY, TEST_BLAST_QUERIES_DIRECTORY,
-                TEST_BLAST_RESULTS_DIRECTORY, commandPerformerMock, temporaryFileWriterMock);
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLASTP, true, AMOUNT_TASKS_VALID));
+        blastToolRunner = new BlastToolRunner(TEST_BLAST_DB_DIRECTORY, TEST_BLAST_QUERIES_DIRECTORY,
+                TEST_BLAST_RESULTS_DIRECTORY, commandPerformerMock, temporaryFileWriterMock, messageHelper);
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
 
     @Test
-    void testBlastPRunner() throws IOException, InterruptedException {
+    void testBlastToolRunner() throws IOException, InterruptedException {
         int npeCounter = 0;
         when(temporaryFileWriterMock.writeToDisk(anyString(), anyString(), anyLong()))
                 .thenReturn(temporaryFile);
 
         for (TaskEntity task : taskList) {
             try {
-                blastPRunner.runTask(task);
-                if (task.getTaskType() == TaskType.BLASTP) {
+                blastToolRunner.runTask(task);
+                if (task.getTaskType() == TaskType.BLAST_TOOL) {
                     verify(commandPerformerMock, atLeastOnce()).perform(anyString());
                     verify(temporaryFileWriterMock, atLeastOnce()).writeToDisk(anyString(), anyString(), anyLong());
                     verify(temporaryFileWriterMock, atLeastOnce()).removeFile(any(File.class));

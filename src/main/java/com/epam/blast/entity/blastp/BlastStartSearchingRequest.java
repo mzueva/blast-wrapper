@@ -29,12 +29,20 @@ import lombok.Builder;
 import lombok.NoArgsConstructor;
 import lombok.Value;
 
+import java.util.List;
+
 @Value
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @Builder
-public class BlastpStartSearchingRequest {
-
-    String query;
+public class BlastStartSearchingRequest {
+    String blastTool;
+    String algorithm;
     String dbName;
+    List<String> taxIds;
+    List<String> excludedTaxIds;
+    String query;
+    Long maxTargetSequence;
+    Double expectedThreshold;
+    String options;
 }

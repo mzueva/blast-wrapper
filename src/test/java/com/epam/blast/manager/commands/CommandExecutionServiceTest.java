@@ -28,7 +28,7 @@ package com.epam.blast.manager.commands;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
-import com.epam.blast.manager.commands.runners.BlastPRunner;
+import com.epam.blast.manager.commands.runners.BlastToolRunner;
 import com.epam.blast.manager.commands.runners.MakeBlastDbRunner;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.manager.task.TaskServiceImpl;
@@ -65,7 +65,7 @@ class CommandExecutionServiceTest {
     private MakeBlastDbRunner makeBlastDbRunner;
 
     @Mock
-    private BlastPRunner blastPRunner;
+    private BlastToolRunner blastToolRunner;
 
     @Mock
     private TaskServiceImpl taskService;
@@ -79,9 +79,9 @@ class CommandExecutionServiceTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        commandService = new CommandExecutionService(taskService, makeBlastDbRunner, blastPRunner, messageHelper);
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKEBLASTDB,true, AMOUNT_TASKS_MAKEDB));
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLASTP,true, AMOUNT_TASKS_BLASTP));
+        commandService = new CommandExecutionService(taskService, makeBlastDbRunner, blastToolRunner, messageHelper);
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB,true, AMOUNT_TASKS_MAKEDB));
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL,true, AMOUNT_TASKS_BLASTP));
         taskList.addAll(TestTaskMaker.makeTasks(null,true, AMOUNT_TASKS_NOT_VALID));
     }
 
@@ -92,17 +92,17 @@ class CommandExecutionServiceTest {
             if (type != null) {
                 commandService.runTask(taskEntity);
                 switch (type) {
-                    case MAKEBLASTDB:
+                    case MAKE_BLAST_DB:
                         verify(makeBlastDbRunner, times(1)).runTask(taskEntity);
                         verify(taskEntity, times(1)).setStatus(Status.RUNNING);
                         break;
-                    case BLASTP:
-                        verify(blastPRunner, times(1)).runTask(taskEntity);
+                    case BLAST_TOOL:
+                        verify(blastToolRunner, times(1)).runTask(taskEntity);
                         verify(taskEntity, times(1)).setStatus(Status.RUNNING);
                         break;
                     default:
                         verify(makeBlastDbRunner, never()).runTask(taskEntity);
-                        verify(blastPRunner, never()).runTask(taskEntity);
+                        verify(blastToolRunner, never()).runTask(taskEntity);
                         assertEquals(UNRECOGNIZED_COMMAND_TYPE, commandService.runTask(taskEntity));
                         break;
                 }
@@ -111,7 +111,7 @@ class CommandExecutionServiceTest {
             }
         }
         verify(makeBlastDbRunner, times(AMOUNT_TASKS_MAKEDB)).runTask(any(TaskEntity.class));
-        verify(blastPRunner, times(AMOUNT_TASKS_BLASTP)).runTask(any(TaskEntity.class));
+        verify(blastToolRunner, times(AMOUNT_TASKS_BLASTP)).runTask(any(TaskEntity.class));
         verify(taskService, times(AMOUNT_TASKS_TOTAL)).updateTask(any(TaskEntity.class));
     }
 

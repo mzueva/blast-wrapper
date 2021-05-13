@@ -35,7 +35,15 @@ public final class TaskEntityParams {
     public static final String DB_TITLE = "title";
     public static final String PARSE_SEQ_ID = "parseSeqIds";
     public static final String BLAST_DB_VERSION = "blastDbVersion";
+
     public static final String TAX_ID = "taxId";
+    public static final String TAX_IDS = "taxIds";
+    public static final String EXCLUDED_TAX_IDS = "excludedTaxIds";
     public static final String QUERY = "query";
+    public static final String BLAST_TOOL = "blastTool";
+    public static final String ALGORITHM = "algorithm";
+    public static final String MAX_TARGET_SEQS = "maxTargetSeqs";
+    public static final String EXPECTED_THRESHOLD = "expectedThreshold";
+    public static final String OPTIONS = "options";
 
 }

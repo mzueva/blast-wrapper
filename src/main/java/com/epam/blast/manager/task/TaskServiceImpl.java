@@ -24,7 +24,7 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blastp.BlastpStartSearchingRequest;
+import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
@@ -34,27 +34,39 @@ import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
 import com.epam.blast.repo.task.TaskRepository;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
+import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
+import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
+import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
+import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
 import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
 import static com.epam.blast.entity.task.TaskEntityParams.PATH_TO_FILE;
 import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
+import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 
 @Service("taskService")
 @Transactional
 public class TaskServiceImpl implements TaskService {
+
+    public static final String DELIMITER = ",";
     private final TaskRepository taskRepository;
 
     @Autowired
@@ -84,25 +96,25 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskStatus createTaskForBlastP(final BlastpStartSearchingRequest request) {
-        if (request.getQuery().isBlank() || request.getDbName().isBlank()) {
+    public TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request) {
+        if (StringUtils.isBlank(request.getQuery()) || StringUtils.isBlank(request.getDbName())
+                || StringUtils.isBlank(request.getBlastTool())) {
             return TaskStatus.builder()
                     .requestId(null)
                     .createdDate(null)
                     .status(Status.FAILED)
-                    .taskType(TaskType.BLASTP)
+                    .taskType(TaskType.BLAST_TOOL)
                     .build();
         } else {
             final TaskEntity taskEntity = saveTask(createTask(
-                    TaskType.BLASTP,
-                    Map.of(
-                            QUERY, request.getQuery(),
-                            DB_NAME, request.getDbName())));
+                    TaskType.BLAST_TOOL,
+                    mapBlastToolParameters(request)
+            ));
             return TaskStatus.builder()
                     .requestId(taskEntity.getId())
                     .createdDate(taskEntity.getCreatedAt())
                     .status(taskEntity.getStatus())
-                    .taskType(TaskType.BLASTP)
+                    .taskType(TaskType.BLAST_TOOL)
                     .build();
         }
     }
@@ -122,7 +134,7 @@ public class TaskServiceImpl implements TaskService {
         } else {
             final TaskEntity taskEntity = saveTask(
                     createTask(
-                            TaskType.MAKEBLASTDB,
+                            TaskType.MAKE_BLAST_DB,
                             Map.of(
                                     PATH_TO_FILE, request.getPathToFile(),
                                     DB_TYPE, (request.getDbType() == null)
@@ -165,5 +177,52 @@ public class TaskServiceImpl implements TaskService {
 
         taskRepository.save(taskEntity);
         return taskEntity;
+    }
+
+    private Map<String, String> mapBlastToolParameters(final BlastStartSearchingRequest request) {
+        final Map<String, String> result = new HashMap<>(
+                Map.of(
+                        BLAST_TOOL, request.getBlastTool(),
+                        DB_NAME, request.getDbName(),
+                        QUERY, request.getQuery()
+                )
+        );
+
+        if (StringUtils.isNotBlank(request.getAlgorithm())) {
+            result.put(ALGORITHM, request.getAlgorithm());
+        }
+
+        if (StringUtils.isNotBlank(request.getOptions())) {
+            result.put(OPTIONS, request.getOptions());
+        }
+
+        if (CollectionUtils.isNotEmpty(request.getExcludedTaxIds())) {
+            result.put(
+                    EXCLUDED_TAX_IDS,
+                    String.join(DELIMITER, CollectionUtils.emptyIfNull(request.getExcludedTaxIds()))
+            );
+        }
+
+        if (CollectionUtils.isNotEmpty(request.getTaxIds())) {
+            result.put(
+                    TAX_IDS,
+                    String.join(DELIMITER, CollectionUtils.emptyIfNull(request.getTaxIds()))
+            );
+        }
+
+        if (request.getExpectedThreshold() != null) {
+            result.put(
+                    EXPECTED_THRESHOLD,
+                    String.join(DELIMITER, request.getExpectedThreshold().toString())
+            );
+        }
+
+        if (request.getMaxTargetSequence() != null) {
+            result.put(
+                    MAX_TARGET_SEQS,
+                    String.join(DELIMITER, request.getMaxTargetSequence().toString())
+            );
+        }
+        return result;
     }
 }

@@ -22,10 +22,10 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.controller.blastp;
+package com.epam.blast.controller.blasttool;
 
 import com.epam.blast.controller.common.Result;
-import com.epam.blast.entity.blastp.BlastpStartSearchingRequest;
+import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,14 +35,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-public class BlastpController {
+public class BlastToolController {
 
     @Autowired
     private TaskServiceImpl taskServiceImpl;
 
-    @PostMapping("/blastp")
-    public Result<TaskStatus> createTask(@RequestBody final BlastpStartSearchingRequest request) {
-        return Result.success(taskServiceImpl.createTaskForBlastP(request));
+    @PostMapping("/blast")
+    public Result<TaskStatus> createTask(@RequestBody final BlastStartSearchingRequest request) {
+        return Result.success(taskServiceImpl.createTaskForBlastToolExecution(request));
     }
 
 }

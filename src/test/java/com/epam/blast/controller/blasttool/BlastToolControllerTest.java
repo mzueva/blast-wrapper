@@ -22,10 +22,10 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.controller.blastp;
+package com.epam.blast.controller.blasttool;
 
 import com.epam.blast.controller.common.Result;
-import com.epam.blast.entity.blastp.BlastpStartSearchingRequest;
+import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.task.TaskType;
@@ -44,7 +44,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class BlastpControllerTest {
+class BlastToolControllerTest {
     private static final Long ID = 1L;
     private static final String VALUE_DB_NAME = "db name";
     private static final String VALUE_QUERY = "ACGT";
@@ -52,28 +52,28 @@ class BlastpControllerTest {
     @Mock
     private TaskServiceImpl mockTaskService;
     @InjectMocks
-    private BlastpController controller;
+    private BlastToolController controller;
 
     @Test
     void shouldReturnCreateDbResponseWithId() {
-        when(mockTaskService.createTaskForBlastP(any())).thenReturn(createBlastpStatus());
+        when(mockTaskService.createTaskForBlastToolExecution(any())).thenReturn(createBlastpStatus());
         final Result<TaskStatus> result = controller.createTask(createRequest());
 
         assertNotNull(result);
-        verify(mockTaskService).createTaskForBlastP(any());
+        verify(mockTaskService).createTaskForBlastToolExecution(any());
     }
 
     private TaskStatus createBlastpStatus() {
         return TaskStatus.builder()
                 .requestId(ID)
-                .taskType(TaskType.BLASTP)
+                .taskType(TaskType.BLAST_TOOL)
                 .createdDate(LocalDateTime.now())
                 .status(Status.CREATED)
                 .build();
     }
 
-    private BlastpStartSearchingRequest createRequest() {
-        return BlastpStartSearchingRequest.builder()
+    private BlastStartSearchingRequest createRequest() {
+        return BlastStartSearchingRequest.builder()
                 .dbName(VALUE_DB_NAME)
                 .query(VALUE_QUERY)
                 .build();

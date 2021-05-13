@@ -25,9 +25,11 @@
 package com.epam.blast.manager.commands.runners;
 
 import com.epam.blast.entity.task.TaskEntity;
-import com.epam.blast.manager.commands.commands.BlastPCommand;
+import com.epam.blast.manager.commands.commands.BlastToolCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.helper.MessageConstants;
+import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
@@ -44,26 +46,30 @@ import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 
 @Slf4j
 @Service
-public class BlastPRunner implements CommandRunner {
+public class BlastToolRunner implements CommandRunner {
+
+    public static final String BLAST_TOOL = "blastTool";
     private final String blastDbDirectory;
     private final String blastQueryDirectory;
     private final String blastResultsDirectory;
     private final CommandPerformer commandPerformer;
     private final TemporaryFileWriter temporaryFileWriter;
+    private final MessageHelper messageHelper;
 
     @Autowired
-    public BlastPRunner(
+    public BlastToolRunner(
             @Value("${blast-wrapper.blast-commands.blast-db-directory}") String blastDbDirectory,
             @Value("${blast-wrapper.blast-commands.blast-queries-directory}") String blastQueryDirectory,
             @Value("${blast-wrapper.blast-commands.blast-results-directory}") String blastResultsDirectory,
             final SimpleCommandPerformer simpleCommandPerformer,
-            final TemporaryFileWriter temporaryFileWriter
-    ) {
+            final TemporaryFileWriter temporaryFileWriter,
+            MessageHelper messageHelper) {
         this.blastDbDirectory = blastDbDirectory;
         this.blastQueryDirectory = blastQueryDirectory;
         this.blastResultsDirectory = blastResultsDirectory;
         this.commandPerformer = simpleCommandPerformer;
         this.temporaryFileWriter = temporaryFileWriter;
+        this.messageHelper = messageHelper;
     }
 
     @Override
@@ -73,13 +79,15 @@ public class BlastPRunner implements CommandRunner {
         final File queryFile = getQueryFile(taskEntity, params);
         final String queryFileName = getQueryFileName(queryFile);
         final String dbName = getDbName(params);
+        final String blastTool = getToolName(params);
         final Long taskId = getTaskId(taskEntity);
 
         final String command =
-                BlastPCommand.builder()
+                BlastToolCommand.builder()
                         .blastDbDirectory(blastDbDirectory)
                         .blastQueriesDirectory(blastQueryDirectory)
                         .blastResultsDirectory(blastResultsDirectory)
+                        .blastTool(blastTool)
                         .queryFileName(queryFileName)
                         .dbName(dbName)
                         .taskId(taskId)
@@ -91,20 +99,27 @@ public class BlastPRunner implements CommandRunner {
         return exitValue;
     }
 
-    private File getQueryFile(TaskEntity taskEntity, Map<String, String> params) {
+    private String getToolName(final Map<String, String> params) {
+        if (!params.containsKey(BLAST_TOOL)) {
+            throw new IllegalArgumentException(messageHelper.getMessage(MessageConstants.ERROR_BLAST_TOOL_NOT_SET));
+        }
+        return params.get(BLAST_TOOL);
+    }
+
+    private File getQueryFile(final TaskEntity taskEntity, final Map<String, String> params) {
         return temporaryFileWriter
                 .writeToDisk(blastQueryDirectory, params.get(QUERY), taskEntity.getId());
     }
 
-    private String getQueryFileName(File queryFile) {
+    private String getQueryFileName(final File queryFile) {
         return FilenameUtils.removeExtension(queryFile.getName());
     }
 
-    private String getDbName(Map<String, String> params) {
+    private String getDbName(final Map<String, String> params) {
         return params.get(DB_NAME);
     }
 
-    private Long getTaskId(TaskEntity taskEntity) {
+    private Long getTaskId(final TaskEntity taskEntity) {
         return taskEntity.getId();
     }
 }

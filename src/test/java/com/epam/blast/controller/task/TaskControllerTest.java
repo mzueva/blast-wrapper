@@ -68,7 +68,7 @@ public class TaskControllerTest {
     private TaskStatus createBlastpStatus() {
         return TaskStatus.builder()
                 .requestId(ID)
-                .taskType(TaskType.MAKEBLASTDB)
+                .taskType(TaskType.MAKE_BLAST_DB)
                 .createdDate(LocalDateTime.now())
                 .status(Status.CREATED)
                 .build();

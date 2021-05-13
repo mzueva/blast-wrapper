@@ -93,8 +93,8 @@ class ScheduledServiceTest {
                 THREADS_AMOUNT, THREADS_PENDING, executorService, taskService, commandService, messageHelper);
         when(taskService.findAllTasksByStatus(any(Status.class))).thenReturn(taskList);
 
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKEBLASTDB, true, AMOUNT_TASKS_MAKEDB));
-        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLASTP, true, AMOUNT_TASKS_BLASTP));
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_MAKEDB));
+        taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL, true, AMOUNT_TASKS_BLASTP));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
 
@@ -107,7 +107,7 @@ class ScheduledServiceTest {
 
     @Test
     void testHandlingException() throws InterruptedException, IOException {
-        TaskEntity taskEntity = TestTaskMaker.makeTask(TaskType.BLASTP, true);
+        TaskEntity taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(IOException.class);
         scheduledService.runNewTasks();
@@ -115,7 +115,7 @@ class ScheduledServiceTest {
         verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
         assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
 
-        taskEntity = TestTaskMaker.makeTask(TaskType.BLASTP, true);
+        taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(InterruptedException.class);
         scheduledService.runNewTasks();
@@ -123,7 +123,7 @@ class ScheduledServiceTest {
         verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
         assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
 
-        taskEntity = TestTaskMaker.makeTask(TaskType.BLASTP, true);
+        taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(RuntimeException.class);
         scheduledService.runNewTasks();
@@ -131,7 +131,7 @@ class ScheduledServiceTest {
         verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
         assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
 
-        taskEntity = TestTaskMaker.makeTask(TaskType.BLASTP, true);
+        taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         doThrow(RuntimeException.class).when(taskEntity).setStatus(any());
         scheduledService.runNewTasks();

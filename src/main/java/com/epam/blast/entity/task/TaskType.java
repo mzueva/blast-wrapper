@@ -25,6 +25,6 @@
 package com.epam.blast.entity.task;
 
 public enum TaskType {
-    MAKEBLASTDB,
-    BLASTP
+    MAKE_BLAST_DB,
+    BLAST_TOOL
 }

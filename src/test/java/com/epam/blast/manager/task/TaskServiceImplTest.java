@@ -24,7 +24,7 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blastp.BlastpStartSearchingRequest;
+import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
@@ -65,7 +65,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class TaskServiceImplTest {
     public static final TaskEntity TASK_MAKE_BLAST_DB_01 =
-            TestTaskMaker.makeTask(TaskType.MAKEBLASTDB, false);
+            TestTaskMaker.makeTask(TaskType.MAKE_BLAST_DB, false);
     public static final String TASK_01_PATH = "/Test/Task_01/Path/To/File.fsa";
     public static final Long TASK_01_ID = Objects.requireNonNull(TASK_MAKE_BLAST_DB_01).getId();
     public static final Status TASK_01_STATUS = TASK_MAKE_BLAST_DB_01.getStatus();
@@ -77,7 +77,7 @@ public class TaskServiceImplTest {
     public static final String TASK_01_DB_TITLE = TASK_01_PARAMS.get(DB_TITLE);
 
     public static final TaskEntity TASK_BLAST_P_02 =
-            TestTaskMaker.makeTask(TaskType.BLASTP, false);
+            TestTaskMaker.makeTask(TaskType.BLAST_TOOL, false);
     public static final Long TASK_02_ID = Objects.requireNonNull(TASK_BLAST_P_02).getId();
     public static final TaskType TASK_02_TYPE = TASK_BLAST_P_02.getTaskType();
     public static final LocalDateTime TASK_02_CREATED = TASK_BLAST_P_02.getCreatedAt();
@@ -86,10 +86,11 @@ public class TaskServiceImplTest {
     public static final String TASK_02_DB_NAME = "dbName";
 
     public static final List<TaskEntity> TASK_ENTITY_LIST =
-            TestTaskMaker.makeTasks(TaskType.BLASTP, true, 3);
+            TestTaskMaker.makeTasks(TaskType.BLAST_TOOL, true, 3);
 
     public static final String INCORRECT_STRING_INPUT_VALUE = "Incorrect input value.";
     public static final Integer INCORRECT_INTEGER_INPUT_VALUE = -1;
+    public static final String BLAST_TOOL = "blastn";
 
     @Mock
     TaskRepository taskRepository;
@@ -109,10 +110,10 @@ public class TaskServiceImplTest {
     }
 
     @Test
-    void testCreateTaskForBlastP() {
+    void testCreateTaskForBlastTool() {
         when(taskRepository.save(any(TaskEntity.class))).thenReturn(TASK_BLAST_P_02);
         ArgumentCaptor<TaskEntity> savedTaskCaptor = ArgumentCaptor.forClass(TaskEntity.class);
-        BlastpStartSearchingRequest request;
+        BlastStartSearchingRequest request;
         TaskStatus taskStatus;
         int validTasksCounter = 0;
 
@@ -123,11 +124,12 @@ public class TaskServiceImplTest {
         );
         for (String queryFromInput : queries.keySet()) {
             request =
-                    BlastpStartSearchingRequest.builder()
+                    BlastStartSearchingRequest.builder()
                             .query(queryFromInput)
                             .dbName(TASK_02_DB_NAME)
+                            .blastTool(BLAST_TOOL)
                             .build();
-            taskStatus = taskService.createTaskForBlastP(request);
+            taskStatus = taskService.createTaskForBlastToolExecution(request);
 
             if (!queries.get(queryFromInput).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 validTasksCounter++;
@@ -143,7 +145,7 @@ public class TaskServiceImplTest {
                 assertNull(taskStatus.getRequestId());
                 assertNull(taskStatus.getCreatedDate());
                 assertEquals(Status.FAILED, taskStatus.getStatus());
-                assertEquals(TaskType.BLASTP, taskStatus.getTaskType());
+                assertEquals(TaskType.BLAST_TOOL, taskStatus.getTaskType());
             }
         }
 
@@ -154,11 +156,12 @@ public class TaskServiceImplTest {
         );
         for (String dbNameFromInput : dbNames.keySet()) {
             request =
-                    BlastpStartSearchingRequest.builder()
+                    BlastStartSearchingRequest.builder()
                             .query(TASK_02_QUERY)
                             .dbName(dbNameFromInput)
+                            .blastTool(BLAST_TOOL)
                             .build();
-            taskStatus = taskService.createTaskForBlastP(request);
+            taskStatus = taskService.createTaskForBlastToolExecution(request);
 
             if (!dbNames.get(dbNameFromInput).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 validTasksCounter++;
@@ -174,7 +177,7 @@ public class TaskServiceImplTest {
                 assertNull(taskStatus.getRequestId());
                 assertNull(taskStatus.getCreatedDate());
                 assertEquals(Status.FAILED, taskStatus.getStatus());
-                assertEquals(TaskType.BLASTP, taskStatus.getTaskType());
+                assertEquals(TaskType.BLAST_TOOL, taskStatus.getTaskType());
             }
         }
 

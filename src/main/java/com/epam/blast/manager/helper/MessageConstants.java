@@ -46,4 +46,5 @@ public final class MessageConstants {
     public static final String ERROR_COMMAND_TYPE_IS_NULL = "error.command.type.is.null";
     public static final String INFO_RUN_NEW_TASK_LOOP = "info.run.new.tasks.loop";
     public static final String INFO_RUN_COMMAND = "info.run.command";
+    public static final String ERROR_BLAST_TOOL_NOT_SET = "error.blast.tool.not.specified";
 }

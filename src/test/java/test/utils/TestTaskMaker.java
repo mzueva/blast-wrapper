@@ -35,7 +35,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
@@ -77,10 +79,10 @@ public final class TestTaskMaker {
     private static TaskEntity makeSimpleTask(TaskType type) {
         if (type != null) {
             switch (type) {
-                case MAKEBLASTDB:
+                case MAKE_BLAST_DB:
                     return makeMakeBlastDbTask();
-                case BLASTP:
-                    return makeBlastPTask();
+                case BLAST_TOOL:
+                    return makeBlastToolTask();
                 default:
                     log.error("Unrecognized command type! Creation of new task was failed.");
                     return null;
@@ -95,7 +97,7 @@ public final class TestTaskMaker {
                         .id(TaskCounter.taskId++)
                         .status(Status.CREATED)
                         .createdAt(LocalDateTime.now())
-                        .taskType(TaskType.MAKEBLASTDB)
+                        .taskType(TaskType.MAKE_BLAST_DB)
                         .params(Map.of(
                                 PATH_TO_FILE, blastFastaDirectoryTest,
                                 DB_TYPE, "PROTEIN",
@@ -107,15 +109,17 @@ public final class TestTaskMaker {
                         ).build();
     }
 
-    private static TaskEntity makeBlastPTask() {
+    private static TaskEntity makeBlastToolTask() {
         return TaskEntity.builder()
                 .id(TaskCounter.taskId++)
                 .status(Status.CREATED)
                 .createdAt(LocalDateTime.now())
-                .taskType(TaskType.BLASTP)
+                .taskType(TaskType.BLAST_TOOL)
                 .params(Map.of(
                         QUERY, "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC",
-                        DB_NAME, "Nurse-shark-proteins")
+                        DB_NAME, "Nurse-shark-proteins",
+                        BLAST_TOOL, "blastn",
+                        ALGORITHM, "megablast")
                 ).build();
     }
 

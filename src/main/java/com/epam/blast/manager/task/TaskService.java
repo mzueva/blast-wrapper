@@ -24,7 +24,7 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blastp.BlastpStartSearchingRequest;
+import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
 import com.epam.blast.entity.blastp.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
@@ -41,7 +41,7 @@ public interface TaskService {
 
     TaskEntity createTask(final TaskType reason, final Map<String, String> incomeParams);
 
-    TaskStatus createTaskForBlastP(final BlastpStartSearchingRequest request);
+    TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request);
 
     CreateDbResponse createTaskForNewDb(final CreateDbRequest request);
 
