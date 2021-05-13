@@ -24,8 +24,9 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
-import com.epam.blast.entity.blastp.Status;
+import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.task.TaskEntity;
@@ -52,5 +53,7 @@ public interface TaskService {
     List<TaskEntity> findAllTasksByStatus(final Status status);
 
     TaskEntity updateTask(final TaskEntity taskEntity);
+
+    BlastResult getBlastResult(final Long id);
 
 }

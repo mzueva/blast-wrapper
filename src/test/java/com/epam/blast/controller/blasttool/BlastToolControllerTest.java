@@ -25,9 +25,9 @@
 package com.epam.blast.controller.blasttool;
 
 import com.epam.blast.controller.common.Result;
-import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
-import com.epam.blast.entity.blastp.Status;
+import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.task.TaskServiceImpl;
 import org.junit.jupiter.api.Test;

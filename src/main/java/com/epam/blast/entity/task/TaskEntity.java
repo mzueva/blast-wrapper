@@ -25,7 +25,7 @@
 package com.epam.blast.entity.task;
 
 
-import com.epam.blast.entity.blastp.Status;
+import com.epam.blast.entity.blasttool.Status;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

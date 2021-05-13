@@ -24,8 +24,8 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
-import com.epam.blast.entity.blastp.Status;
+import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.db.Reason;

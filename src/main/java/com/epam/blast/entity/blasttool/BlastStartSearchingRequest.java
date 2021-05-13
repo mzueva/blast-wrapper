@@ -22,17 +22,27 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.repo.task;
+package com.epam.blast.entity.blasttool;
 
-
-import com.epam.blast.entity.blasttool.Status;
-import com.epam.blast.entity.task.TaskEntity;
-
-import org.springframework.data.jpa.repository.JpaRepository;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+import lombok.Value;
 
 import java.util.List;
 
-public interface TaskRepository extends JpaRepository<TaskEntity, Long> {
-
-    List<TaskEntity> findTaskEntityByStatusEqualsOrderByCreatedAt(final Status status);
+@Value
+@AllArgsConstructor
+@NoArgsConstructor(force = true)
+@Builder
+public class BlastStartSearchingRequest {
+    String blastTool;
+    String algorithm;
+    String dbName;
+    List<Long> taxIds;
+    List<Long> excludedTaxIds;
+    String query;
+    Long maxTargetSequence;
+    Double expectedThreshold;
+    String options;
 }

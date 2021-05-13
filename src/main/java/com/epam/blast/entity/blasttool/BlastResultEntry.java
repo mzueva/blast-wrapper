@@ -22,27 +22,39 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.entity.blastp;
+package com.epam.blast.entity.blasttool;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.NoArgsConstructor;
 import lombok.Value;
 
-import java.util.List;
-
 @Value
-@AllArgsConstructor
-@NoArgsConstructor(force = true)
 @Builder
-public class BlastStartSearchingRequest {
-    String blastTool;
-    String algorithm;
-    String dbName;
-    List<String> taxIds;
-    List<String> excludedTaxIds;
-    String query;
-    Long maxTargetSequence;
-    Double expectedThreshold;
-    String options;
+public class BlastResultEntry {
+    String queryAccVersion;
+    Long queryStart;
+    Long queryEnd;
+    Long queryLen;
+    String seqAccVersion;
+    String seqSeqId;
+    Long seqLen;
+    Long seqStart;
+    Long seqEnd;
+    Double expValue;
+    Double bitScore;
+    Double score;
+    Long length;
+    Double percentIdent;
+    Long numIdent;
+    Long mismatch;
+    Long positive;
+    Long gapOpen;
+    Long gaps;
+    Double percentPos;
+    Long seqTaxId;
+    String seqSciName;
+    String seqComName;
+    String seqStrand;
+    Double queryCovS;
+    Double queryCovHsp;
+    Double queryCovUs;
 }

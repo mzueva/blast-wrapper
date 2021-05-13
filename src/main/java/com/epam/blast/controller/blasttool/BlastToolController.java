@@ -25,10 +25,13 @@
 package com.epam.blast.controller.blasttool;
 
 import com.epam.blast.controller.common.Result;
-import com.epam.blast.entity.blastp.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -43,6 +46,11 @@ public class BlastToolController {
     @PostMapping("/blast")
     public Result<TaskStatus> createTask(@RequestBody final BlastStartSearchingRequest request) {
         return Result.success(taskServiceImpl.createTaskForBlastToolExecution(request));
+    }
+
+    @GetMapping("/blast/{id}")
+    public Result<BlastResult> getResult(@PathVariable Long id) {
+        return Result.success(taskServiceImpl.getBlastResult(id));
     }
 
 }

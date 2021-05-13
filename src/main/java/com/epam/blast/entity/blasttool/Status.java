@@ -22,7 +22,7 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.entity.blastp;
+package com.epam.blast.entity.blasttool;
 
 public enum Status {
     CREATED,

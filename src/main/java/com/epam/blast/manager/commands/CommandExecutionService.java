@@ -24,7 +24,7 @@
 
 package com.epam.blast.manager.commands;
 
-import com.epam.blast.entity.blastp.Status;
+import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.commands.runners.BlastToolRunner;
