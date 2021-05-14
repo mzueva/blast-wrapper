@@ -24,7 +24,15 @@
 
 package com.epam.blast.utils;
 
-public interface FileExtensions {
-    String FSA_EXT = ".fsa";
-    String OUT_EXT = ".out";
+import lombok.Getter;
+
+public enum FileExtensions {
+    FSA_EXT(".fsa"), OUT_EXT(".out");
+
+    @Getter
+    private final String value;
+
+    FileExtensions(final String value) {
+        this.value = value;
+    }
 }

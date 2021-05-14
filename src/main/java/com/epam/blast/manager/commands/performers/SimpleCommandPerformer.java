@@ -29,12 +29,13 @@ import com.epam.blast.manager.helper.MessageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @Slf4j
@@ -43,16 +44,53 @@ public class SimpleCommandPerformer implements CommandPerformer {
 
     private static final String SPLIT_CHAR = " ";
     private static final char NEW_LINE = '\n';
+    public static final String QUOT = "'";
+    public static final String DOUBLE_QUOT = "\"";
+    public static final String EMPTY = "";
 
     private final MessageHelper messageHelper;
 
     @Override
     public int perform(final String command) throws IOException, InterruptedException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_COMMAND, command));
-        final Process process = new ProcessBuilder().inheritIO().command(command.split(SPLIT_CHAR)).start();
+        final Process process = new ProcessBuilder().inheritIO().command(splitCommandByArguments(command)).start();
         logOutPut(process);
         process.waitFor();
         return process.exitValue();
+    }
+
+    List<String> splitCommandByArguments(final String command) {
+        final List<String> result = new ArrayList<>();
+        boolean unionPhase = false;
+        StringBuilder compositeArg = new StringBuilder();
+        for (String part : command.trim().split(SPLIT_CHAR)) {
+            // It can be just simple arg or middle of the composite arg
+            if (!isEdgeOfCompositeArg(part)) {
+                if (unionPhase) {
+                    // we at the middle of the composite arg lets append it
+                    compositeArg.append(part).append(SPLIT_CHAR);
+                } else {
+                    //simple argument - just add to the result list
+                    result.add(part);
+                }
+            } else {
+                compositeArg.append(
+                        part.replace(DOUBLE_QUOT, EMPTY).replace(QUOT, EMPTY)
+                ).append(SPLIT_CHAR);
+                if (unionPhase) {
+                    // if we already it the merge phase - we need to end it and append to the result
+                    result.add(compositeArg.toString().trim());
+                    compositeArg = new StringBuilder();
+                }
+                unionPhase = !unionPhase;
+            }
+        }
+        return result;
+    }
+
+    private boolean isEdgeOfCompositeArg(String part) {
+        return part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT)
+                || part.endsWith(QUOT) || part.endsWith(DOUBLE_QUOT);
     }
 
     private static void logOutPut(final Process process) throws IOException {

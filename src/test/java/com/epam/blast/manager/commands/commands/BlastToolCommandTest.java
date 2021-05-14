@@ -43,25 +43,34 @@ public class BlastToolCommandTest {
     public static final Long[] TEST_TASK_IDS = {0L, 200L, 43647L};
     public static final String[] COMMANDS_SAMPLES =
         {"docker run --rm "
-                    + "-v blastdb_custom:/blast/blastdb_custom:ro "
-                    + "-v queries:/blast/queries:ro "
-                    + "-v results:/blast/results:rw "
-                    + "ncbi/blast "
-                    + "blastn -query /blast/queries/Test_query_file_name.fsa -db Nurse-shark-proteins "
-                    + "-out /blast/results/task_0_results.out",
+                + "-v blastdb_custom:/blast/blastdb_custom:ro "
+                + "-v queries:/blast/queries:ro "
+                + "-v results:/blast/results:rw "
+                + "ncbi/blast "
+                + "blastn -query /blast/queries/Test_query_file_name.fsa -db Nurse-shark-proteins "
+                + "-out /blast/results/task_0_results.out "
+                + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+                + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
+                + "qcovs qcovhsp qcovus\"",
         "docker run --rm "
-                    + "-v blastdb_custom:/blast/blastdb_custom:ro "
-                    + "-v queries:/blast/queries:ro "
-                    + "-v results:/blast/results:rw "
-                    + "ncbi/blast "
-                    + "blastn -query /blast/queries/52345-45-213123.fsa -db Felis-silvestris-proteins "
-                    + "-out /blast/results/task_200_results.out",
-            "docker run --rm "
-                    + "-v blastdb_custom:/blast/blastdb_custom:ro "
-                    + "-v queries:/blast/queries:ro "
-                    + "-v results:/blast/results:rw ncbi/blast blastn "
-                    + "-query /blast/queries/++++....,,,::;;;```----.fsa -db Rattus-norvegicus-proteins "
-                    + "-out /blast/results/task_43647_results.out"};
+                + "-v blastdb_custom:/blast/blastdb_custom:ro "
+                + "-v queries:/blast/queries:ro "
+                + "-v results:/blast/results:rw "
+                + "ncbi/blast "
+                + "blastn -query /blast/queries/52345-45-213123.fsa -db Felis-silvestris-proteins "
+                + "-out /blast/results/task_200_results.out "
+                + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+                + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
+                + "qcovs qcovhsp qcovus\"",
+        "docker run --rm "
+            + "-v blastdb_custom:/blast/blastdb_custom:ro "
+            + "-v queries:/blast/queries:ro "
+            + "-v results:/blast/results:rw ncbi/blast blastn "
+            + "-query /blast/queries/++++....,,,::;;;```----.fsa -db Rattus-norvegicus-proteins "
+            + "-out /blast/results/task_43647_results.out "
+            + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+            + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
+            + "qcovs qcovhsp qcovus\""};
 
     @Test
     void testMakeBlastToolCommand() {
@@ -77,7 +86,7 @@ public class BlastToolCommandTest {
                             .taskId(TEST_TASK_IDS[i])
                             .build()
                             .generateCmd();
-            assertEquals(command, COMMANDS_SAMPLES[i], command);
+            assertEquals(COMMANDS_SAMPLES[i], command, command);
         }
     }
 

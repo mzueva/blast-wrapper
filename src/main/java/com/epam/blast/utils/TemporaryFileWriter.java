@@ -36,7 +36,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 
-import static com.epam.blast.utils.FileExtensions.FSA_EXT;
 import static java.lang.String.format;
 
 @Slf4j
@@ -49,7 +48,7 @@ public class TemporaryFileWriter {
     private final MessageHelper messageHelper;
 
     public File writeToDisk(final @NonNull String directory, @NonNull final String query, @NonNull final Long id) {
-        final String fileName = format(STRING_NAME_FORMAT, id, FSA_EXT);
+        final String fileName = format(STRING_NAME_FORMAT, id, FileExtensions.FSA_EXT.getValue());
         final File directoryFile = new File(directory);
         if (!directoryFile.exists()) {
             directoryFile.mkdir();

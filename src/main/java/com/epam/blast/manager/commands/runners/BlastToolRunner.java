@@ -24,6 +24,7 @@
 
 package com.epam.blast.manager.commands.runners;
 
+import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
@@ -41,7 +42,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
+import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
+import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
+import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
+import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
 import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 
 @Slf4j
@@ -49,6 +54,9 @@ import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 public class BlastToolRunner implements CommandRunner {
 
     public static final String BLAST_TOOL = "blastTool";
+    public static final String SPACE = " ";
+    public static final String TASK_ARG = "-task";
+    public static final String EMPTY = "";
 
     private final String blastDbDirectory;
     private final String blastQueryDirectory;
@@ -80,31 +88,39 @@ public class BlastToolRunner implements CommandRunner {
         final File queryFile = getQueryFile(taskEntity, params);
         final String queryFileName = getQueryFileName(queryFile);
         final String dbName = getDbName(params);
-        final String blastTool = getToolName(params);
+        final String blastTool = getToolWithAlgorithm(params);
         final Long taskId = getTaskId(taskEntity);
 
-        final String command =
-                BlastToolCommand.builder()
-                        .blastDbDirectory(blastDbDirectory)
-                        .blastQueriesDirectory(blastQueryDirectory)
-                        .blastResultsDirectory(blastResultsDirectory)
-                        .blastTool(blastTool)
-                        .queryFileName(queryFileName)
-                        .dbName(dbName)
-                        .taskId(taskId)
-                        .build()
-                        .generateCmd();
-
-        final int exitValue = commandPerformer.perform(command);
-        temporaryFileWriter.removeFile(queryFile);
-        return exitValue;
+        try {
+            final String command =
+                    BlastToolCommand.builder()
+                            .blastDbDirectory(blastDbDirectory)
+                            .blastQueriesDirectory(blastQueryDirectory)
+                            .blastResultsDirectory(blastResultsDirectory)
+                            .blastTool(blastTool)
+                            .queryFileName(queryFileName)
+                            .dbName(dbName)
+                            .taskId(taskId)
+                            .maxTargetSequence(params.getOrDefault(MAX_TARGET_SEQS, EMPTY))
+                            .expectedThreshold(params.getOrDefault(EXPECTED_THRESHOLD, EMPTY))
+                            .options(params.getOrDefault(OPTIONS, EMPTY))
+                            .build()
+                            .generateCmd();
+            return commandPerformer.perform(command);
+        } finally {
+            temporaryFileWriter.removeFile(queryFile);
+        }
     }
 
-    private String getToolName(final Map<String, String> params) {
+    private String getToolWithAlgorithm(final Map<String, String> params) {
         if (!params.containsKey(BLAST_TOOL)) {
             throw new IllegalArgumentException(messageHelper.getMessage(MessageConstants.ERROR_BLAST_TOOL_NOT_SET));
         }
-        return params.get(BLAST_TOOL);
+        final BlastTool tool = BlastTool.getByValue(params.get(BLAST_TOOL));
+        if (tool.isSupportsAlg() && params.containsKey(ALGORITHM))  {
+            return String.join(SPACE, tool.getValue(), TASK_ARG, params.get(ALGORITHM));
+        }
+        return tool.getValue();
     }
 
     private File getQueryFile(final TaskEntity taskEntity, final Map<String, String> params) {
