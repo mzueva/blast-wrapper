@@ -30,28 +30,29 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.thymeleaf.context.Context;
 
-import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
-import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
-import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
-import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
+import static com.epam.blast.entity.task.TaskEntityParams.*;
 import static java.io.File.separator;
 
 @Builder
 public class BlastToolCommand implements BlastWrapperCommand {
 
     private static final String EMPTY_STRING = "";
+    private static final String PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME = "pathSeparator";
+
     private static final String BLAST_COMMAND_TEMPLATE = "blast_command_template";
-    private static final String E_VALUE_BLAST_PARAM = "evalue";
-    private static final String MAX_TARGET_SEQS_BLAST_PARAM = "max_target_seqs";
-    private static final String RESULT_FILE_EXTENSION = "resultFileExtension";
-    private static final String TASK_ID = "taskId";
-    private static final String FSA_FILE_EXTENSION = "fsaFileExtension";
-    private static final String QUERY_FILE_NAME = "queryFileName";
-    private static final String PATH_SEPARATOR = "pathSeparator";
+
+    private static final String TASK_ID_TEMPLATE_NAME = "taskId";
+    private static final String RESULT_FILE_EXTENSION_TEMPLATE_NAME = "resultFileExtension";
+    private static final String FSA_FILE_EXTENSION_TEMPLATE_NAME = "fsaFileExtension";
+    private static final String QUERY_FILE_NAME_TEMPLATE_NAME = "queryFileName";
     private static final String BLAST_RESULTS_DIRECTORY = "blastResultsDirectory";
     private static final String QUERIES_FILE_PATH = "queriesFilePath";
     private static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
+
+    private static final String TAXIDS_BLAST_PARAM_NAME = "taxids";
+    private static final String E_VALUE_BLAST_PARAM_NAME = "evalue";
+    private static final String MAX_TARGET_SEQS_BLAST_PARAM_NAME = "max_target_seqs";
+    private static final String NEGATIVE_TAXIDS_BLAST_PARAM_NAME = "negative_taxids";
 
     private final String blastDbDirectory;
     private final String blastQueriesDirectory;
@@ -69,6 +70,8 @@ public class BlastToolCommand implements BlastWrapperCommand {
     @NonNull
     private final String blastTool;
 
+    private final String taxIds;
+    private final String excludedTaxIds;
     private final String maxTargetSequence;
     private final String expectedThreshold;
     private final String options;
@@ -83,28 +86,31 @@ public class BlastToolCommand implements BlastWrapperCommand {
 
     private Context buildContext() {
         Context context = new Context();
-        context.setVariable(TASK_ID, taskId);
+        context.setVariable(TASK_ID_TEMPLATE_NAME, taskId);
         context.setVariable(BLAST_TOOL, blastTool);
         context.setVariable(QUERIES_FILE_PATH, blastQueriesDirectory);
-        context.setVariable(QUERY_FILE_NAME, queryFileName);
+        context.setVariable(QUERY_FILE_NAME_TEMPLATE_NAME, queryFileName);
         context.setVariable(BLAST_DB_DIRECTORY, blastDbDirectory);
         context.setVariable(DB_NAME, dbName);
         context.setVariable(BLAST_RESULTS_DIRECTORY, blastResultsDirectory);
-        context.setVariable(PATH_SEPARATOR, separator);
-        context.setVariable(FSA_FILE_EXTENSION, FileExtensions.FSA_EXT.getValue());
-        context.setVariable(RESULT_FILE_EXTENSION,  FileExtensions.OUT_EXT.getValue());
+        context.setVariable(PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME, separator);
+        context.setVariable(FSA_FILE_EXTENSION_TEMPLATE_NAME, FileExtensions.FSA_EXT.getValue());
+        context.setVariable(RESULT_FILE_EXTENSION_TEMPLATE_NAME,  FileExtensions.OUT_EXT.getValue());
+        context.setVariable(TAX_IDS, getCommandParameterOrEmpty(TAXIDS_BLAST_PARAM_NAME, taxIds));
+        context.setVariable(EXCLUDED_TAX_IDS,
+                getCommandParameterOrEmpty(NEGATIVE_TAXIDS_BLAST_PARAM_NAME, excludedTaxIds));
         context.setVariable(MAX_TARGET_SEQS,
-                getMaxTargetSequenceCommandParameter(MAX_TARGET_SEQS_BLAST_PARAM, maxTargetSequence)
+                getCommandParameterOrEmpty(MAX_TARGET_SEQS_BLAST_PARAM_NAME, maxTargetSequence)
         );
         context.setVariable(EXPECTED_THRESHOLD,
-                getMaxTargetSequenceCommandParameter(E_VALUE_BLAST_PARAM, expectedThreshold)
+                getCommandParameterOrEmpty(E_VALUE_BLAST_PARAM_NAME, expectedThreshold)
         );
-        context.setVariable(OPTIONS, getMaxTargetSequenceCommandParameter(EMPTY_STRING, options));
+        context.setVariable(OPTIONS, getCommandParameterOrEmpty(EMPTY_STRING, options));
 
         return context;
     }
 
-    private String getMaxTargetSequenceCommandParameter(final String parameter, final String value) {
+    private String getCommandParameterOrEmpty(final String parameter, final String value) {
         if (StringUtils.isBlank(value)) {
             return EMPTY_STRING;
         }

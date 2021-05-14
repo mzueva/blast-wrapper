@@ -42,12 +42,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
-import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
-import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
-import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
-import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
+import static com.epam.blast.entity.task.TaskEntityParams.*;
 
 @Slf4j
 @Service
@@ -101,6 +96,8 @@ public class BlastToolRunner implements CommandRunner {
                             .queryFileName(queryFileName)
                             .dbName(dbName)
                             .taskId(taskId)
+                            .taxIds(params.getOrDefault(TAX_IDS, EMPTY))
+                            .excludedTaxIds(params.getOrDefault(EXCLUDED_TAX_IDS, EMPTY))
                             .maxTargetSequence(params.getOrDefault(MAX_TARGET_SEQS, EMPTY))
                             .expectedThreshold(params.getOrDefault(EXPECTED_THRESHOLD, EMPTY))
                             .options(params.getOrDefault(OPTIONS, EMPTY))
