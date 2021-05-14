@@ -24,6 +24,7 @@
 
 package com.epam.blast.config;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -45,6 +46,7 @@ public class JsonMappingConfiguration {
     public ObjectMapper createObjectMapper() {
         final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
         mapper.registerModule(getTimeModule());
         return mapper;
     }
