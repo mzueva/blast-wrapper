@@ -30,9 +30,9 @@ import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.db.Reason;
 import com.epam.blast.entity.task.TaskEntity;
-import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.repo.task.TaskRepository;
+import com.epam.blast.validators.BlastStartSearchingRequestValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -42,7 +42,6 @@ import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
 import test.utils.TestTaskMaker;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -52,7 +51,6 @@ import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
 import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
 import static com.epam.blast.entity.task.TaskEntityParams.PATH_TO_FILE;
-import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -78,10 +76,6 @@ public class TaskServiceImplTest {
 
     public static final TaskEntity TASK_BLAST_P_02 =
             TestTaskMaker.makeTask(TaskType.BLAST_TOOL, false);
-    public static final Long TASK_02_ID = Objects.requireNonNull(TASK_BLAST_P_02).getId();
-    public static final TaskType TASK_02_TYPE = TASK_BLAST_P_02.getTaskType();
-    public static final LocalDateTime TASK_02_CREATED = TASK_BLAST_P_02.getCreatedAt();
-    public static final Status TASK_02_STATUS = TASK_BLAST_P_02.getStatus();
     public static final String TASK_02_QUERY = "TestQueryWithSomeNucleotides";
     public static final String TASK_02_DB_NAME = "dbName";
 
@@ -94,12 +88,14 @@ public class TaskServiceImplTest {
 
     @Mock
     TaskRepository taskRepository;
+    @Mock
+    BlastStartSearchingRequestValidator blastStartSearchingRequestValidator;
     TaskServiceImpl taskService;
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        taskService = new TaskServiceImpl(taskRepository);
+        taskService = new TaskServiceImpl(taskRepository, blastStartSearchingRequestValidator);
     }
 
     @Test
@@ -112,76 +108,15 @@ public class TaskServiceImplTest {
     @Test
     void testCreateTaskForBlastTool() {
         when(taskRepository.save(any(TaskEntity.class))).thenReturn(TASK_BLAST_P_02);
-        ArgumentCaptor<TaskEntity> savedTaskCaptor = ArgumentCaptor.forClass(TaskEntity.class);
-        BlastStartSearchingRequest request;
-        TaskStatus taskStatus;
-        int validTasksCounter = 0;
+        BlastStartSearchingRequest request = BlastStartSearchingRequest.builder()
+                .query(TASK_02_QUERY)
+                .dbName(TASK_02_DB_NAME)
+                .blastTool(BLAST_TOOL)
+                .build();
+        taskService.createTaskForBlastToolExecution(request);
 
-        Map<String, String> queries = Map.of(
-                "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC", "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC",
-                "qwrwefqfdrfragsdfer", "qwrwefqfdrfragsdfer",
-                "", INCORRECT_STRING_INPUT_VALUE
-        );
-        for (String queryFromInput : queries.keySet()) {
-            request =
-                    BlastStartSearchingRequest.builder()
-                            .query(queryFromInput)
-                            .dbName(TASK_02_DB_NAME)
-                            .blastTool(BLAST_TOOL)
-                            .build();
-            taskStatus = taskService.createTaskForBlastToolExecution(request);
-
-            if (!queries.get(queryFromInput).equals(INCORRECT_STRING_INPUT_VALUE)) {
-                validTasksCounter++;
-                assertEquals(TASK_02_ID, taskStatus.getRequestId());
-                assertEquals(TASK_02_CREATED, taskStatus.getCreatedDate());
-                assertEquals(TASK_02_STATUS, taskStatus.getStatus());
-                assertEquals(TASK_02_TYPE, taskStatus.getTaskType());
-                verify(taskRepository, atLeastOnce()).save(savedTaskCaptor.capture());
-                TaskEntity savedTaskEntity = savedTaskCaptor.getValue();
-                assertEquals(queries.get(queryFromInput), savedTaskEntity.getParams().get(QUERY));
-                assertEquals(TASK_02_DB_NAME, savedTaskEntity.getParams().get(DB_NAME));
-            } else {
-                assertNull(taskStatus.getRequestId());
-                assertNull(taskStatus.getCreatedDate());
-                assertEquals(Status.FAILED, taskStatus.getStatus());
-                assertEquals(TaskType.BLAST_TOOL, taskStatus.getTaskType());
-            }
-        }
-
-        Map<String, String> dbNames = Map.of(
-                "Db Name 01", "Db Name 01",
-                "Db-Name-01-", "Db-Name-01-",
-                "", INCORRECT_STRING_INPUT_VALUE
-        );
-        for (String dbNameFromInput : dbNames.keySet()) {
-            request =
-                    BlastStartSearchingRequest.builder()
-                            .query(TASK_02_QUERY)
-                            .dbName(dbNameFromInput)
-                            .blastTool(BLAST_TOOL)
-                            .build();
-            taskStatus = taskService.createTaskForBlastToolExecution(request);
-
-            if (!dbNames.get(dbNameFromInput).equals(INCORRECT_STRING_INPUT_VALUE)) {
-                validTasksCounter++;
-                assertEquals(TASK_02_ID, taskStatus.getRequestId());
-                assertEquals(TASK_02_CREATED, taskStatus.getCreatedDate());
-                assertEquals(TASK_02_STATUS, taskStatus.getStatus());
-                assertEquals(TASK_02_TYPE, taskStatus.getTaskType());
-                verify(taskRepository, atLeastOnce()).save(savedTaskCaptor.capture());
-                TaskEntity savedTaskEntity = savedTaskCaptor.getValue();
-                assertEquals(TASK_02_QUERY, savedTaskEntity.getParams().get(QUERY));
-                assertEquals(dbNames.get(dbNameFromInput), savedTaskEntity.getParams().get(DB_NAME));
-            } else {
-                assertNull(taskStatus.getRequestId());
-                assertNull(taskStatus.getCreatedDate());
-                assertEquals(Status.FAILED, taskStatus.getStatus());
-                assertEquals(TaskType.BLAST_TOOL, taskStatus.getTaskType());
-            }
-        }
-
-        verify(taskRepository, times(validTasksCounter)).save(any());
+        verify(blastStartSearchingRequestValidator, times(1)).validate(any());
+        verify(taskRepository, times(1)).save(any());
     }
 
 

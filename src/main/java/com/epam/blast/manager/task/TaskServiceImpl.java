@@ -36,6 +36,7 @@ import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
 import com.epam.blast.repo.task.TaskRepository;
+import com.epam.blast.validators.BlastStartSearchingRequestValidator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,10 +73,13 @@ public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
     private final TaskRepository taskRepository;
+    private final BlastStartSearchingRequestValidator blastStartSearchingRequestValidator;
 
     @Autowired
-    public TaskServiceImpl(final TaskRepository taskRepository) {
+    public TaskServiceImpl(final TaskRepository taskRepository,
+                           final BlastStartSearchingRequestValidator blastStartSearchingRequestValidator) {
         this.taskRepository = taskRepository;
+        this.blastStartSearchingRequestValidator = blastStartSearchingRequestValidator;
     }
 
     @Override
@@ -101,15 +105,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request) {
-        if (StringUtils.isBlank(request.getQuery()) || StringUtils.isBlank(request.getDbName())
-                || StringUtils.isBlank(request.getBlastTool())) {
-            return TaskStatus.builder()
-                    .requestId(null)
-                    .createdDate(null)
-                    .status(Status.FAILED)
-                    .taskType(TaskType.BLAST_TOOL)
-                    .build();
-        } else {
+        try {
+            blastStartSearchingRequestValidator.validate(request);
             final TaskEntity taskEntity = saveTask(createTask(
                     TaskType.BLAST_TOOL,
                     mapBlastToolParameters(request)
@@ -118,6 +115,13 @@ public class TaskServiceImpl implements TaskService {
                     .requestId(taskEntity.getId())
                     .createdDate(taskEntity.getCreatedAt())
                     .status(taskEntity.getStatus())
+                    .taskType(TaskType.BLAST_TOOL)
+                    .build();
+        } catch (javax.validation.ValidationException e) {
+            return TaskStatus.builder()
+                    .requestId(null)
+                    .createdDate(null)
+                    .status(Status.FAILED)
                     .taskType(TaskType.BLAST_TOOL)
                     .build();
         }
