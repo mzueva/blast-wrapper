@@ -7,7 +7,6 @@ plugins {
 }
 
 group = 'com.epam.blast'
-version = '0.0.1-SNAPSHOT'
 sourceCompatibility = '11'
 
 configurations {
@@ -84,14 +83,21 @@ test {
     useJUnitPlatform()
 }
 
+jar {
+    archiveName "blast-wrapper.jar"
+    manifest {
+        attributes(
+                "Implementation-Version": "$archiveVersion")
+    }
+}
+
 checkstyle {
     toolVersion "$checkstyleVersion"
-    configDirectory = file("$rootDir/$checkstyledir")
 }
 
 pmd {
     toolVersion = "$pmdVersion"
-    ruleSetFiles = files("$rootDir/$pmdRuleset")
+    ruleSetFiles = files("$rootDir/config/pmd/pmd-ruleset.xml")
     ruleSets = []
     consoleOutput = true
 }

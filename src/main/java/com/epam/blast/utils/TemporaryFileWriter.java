@@ -49,8 +49,12 @@ public class TemporaryFileWriter {
     public static final String STRING_NAME_FORMAT = "Temporary_query_file_for_task_%d%s";
 
     public File writeToDisk(final @NonNull String directory, @NonNull final String query, @NonNull final Long id) {
-        String fileName = format(STRING_NAME_FORMAT, id, FSA_EXT);
-        File file = new File(directory, fileName);
+        final String fileName = format(STRING_NAME_FORMAT, id, FSA_EXT);
+        final File directoryFile = new File(directory);
+        if (!directoryFile.exists()) {
+            directoryFile.mkdir();
+        }
+        final File file = new File(directory, fileName);
         try (FileWriter writer = new FileWriter(file.getAbsoluteFile())) {
             writer.write(query);
         } catch (IOException e) {
