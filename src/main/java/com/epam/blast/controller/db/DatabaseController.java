@@ -27,20 +27,20 @@ package com.epam.blast.controller.db;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
-import com.epam.blast.manager.task.TaskServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.epam.blast.manager.task.TaskService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequiredArgsConstructor
 public class DatabaseController {
 
-    @Autowired
-    private TaskServiceImpl taskServiceImpl;
+    private final TaskService taskService;
 
     @PostMapping("/createdb")
     public Result<CreateDbResponse> createDatabase(@RequestBody final CreateDbRequest request) {
-        return Result.success(taskServiceImpl.createTaskForNewDb(request));
+        return Result.success(taskService.createTaskForNewDb(request));
     }
 }

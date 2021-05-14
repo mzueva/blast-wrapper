@@ -34,7 +34,7 @@ import static com.epam.blast.utils.FileExtensions.OUT_EXT;
 import static java.io.File.separator;
 
 @Builder
-public class BlastToolCommand extends AbstractCommand {
+public class BlastToolCommand implements BlastWrapperCommand {
 
     private static final String BLAST_COMMAND_TEMPLATE = "blast_command_template";
     private static final String QUERY_FILE_EXTENSION = FSA_EXT;
@@ -59,7 +59,7 @@ public class BlastToolCommand extends AbstractCommand {
     @Override
     public String generateCmd() {
         Context context = buildContext();
-        return templateEngine.process(BLAST_COMMAND_TEMPLATE, context);
+        return TEMPLATE_ENGINE.process(BLAST_COMMAND_TEMPLATE, context);
     }
 
     private Context buildContext() {

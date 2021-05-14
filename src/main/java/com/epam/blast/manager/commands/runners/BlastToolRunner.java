@@ -49,6 +49,7 @@ import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 public class BlastToolRunner implements CommandRunner {
 
     public static final String BLAST_TOOL = "blastTool";
+
     private final String blastDbDirectory;
     private final String blastQueryDirectory;
     private final String blastResultsDirectory;

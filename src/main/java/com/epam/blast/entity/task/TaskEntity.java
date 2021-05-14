@@ -65,10 +65,11 @@ public class TaskEntity {
 
     @Enumerated(EnumType.STRING)
     Status status;
+
     @Enumerated(EnumType.STRING)
     TaskType taskType;
-    LocalDateTime createdAt;
 
+    LocalDateTime createdAt;
 
     @ElementCollection
     @CollectionTable(name = "query_db_mapping",

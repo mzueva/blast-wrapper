@@ -26,17 +26,15 @@ package com.epam.blast.manager.helper;
 
 import java.util.Locale;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class MessageHelper {
 
     private final MessageSource messageSource;
-
-    public MessageHelper(final MessageSource messageSource) {
-        this.messageSource = messageSource;
-    }
 
     public MessageSource getMessageSource() {
         return messageSource;

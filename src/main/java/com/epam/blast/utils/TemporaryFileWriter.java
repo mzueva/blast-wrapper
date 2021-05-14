@@ -44,9 +44,9 @@ import static java.lang.String.format;
 @AllArgsConstructor
 public class TemporaryFileWriter {
 
-    private final MessageHelper messageHelper;
-
     public static final String STRING_NAME_FORMAT = "Temporary_query_file_for_task_%d%s";
+
+    private final MessageHelper messageHelper;
 
     public File writeToDisk(final @NonNull String directory, @NonNull final String query, @NonNull final Long id) {
         final String fileName = format(STRING_NAME_FORMAT, id, FSA_EXT);

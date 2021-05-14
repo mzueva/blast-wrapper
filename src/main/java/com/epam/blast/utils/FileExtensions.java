@@ -24,12 +24,7 @@
 
 package com.epam.blast.utils;
 
-public final class FileExtensions {
-
-    private FileExtensions() {
-    }
-
-    public static final String FSA_EXT = ".fsa";
-    public static final String OUT_EXT = ".out";
-
+public interface FileExtensions {
+    String FSA_EXT = ".fsa";
+    String OUT_EXT = ".out";
 }
