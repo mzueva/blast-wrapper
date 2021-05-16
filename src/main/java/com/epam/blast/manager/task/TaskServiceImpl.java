@@ -37,6 +37,9 @@ import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
 import com.epam.blast.repo.task.TaskRepository;
 import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+
+import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,8 +70,9 @@ import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 
-@Service("taskService")
+@Service
 @Transactional
+@RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
@@ -129,10 +133,8 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public CreateDbResponse createTaskForNewDb(final CreateDbRequest request) {
-        if (request.getPathToFile() == null
-                || request.getPathToFile().isBlank()
-                || request.getDbName().isBlank()
-                || request.getTaxId() == 0) {
+        if (request.getPathToFile() == null || request.getPathToFile().isBlank()
+                || request.getDbName().isBlank() || request.getTaxId() == null) {
             return CreateDbResponse.builder()
                     .status(Reason.ERROR_IN_QUERY_SEQUENCE_OR_BLAST_OPTIONS.getBlastCode())
                     .taskId(null)
