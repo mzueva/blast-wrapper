@@ -29,8 +29,6 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.manager.task.TaskServiceImpl;
-import lombok.Getter;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -57,9 +55,7 @@ public class ScheduledService {
 
     private static final String EXCEPTION_MESSAGE_PATTERN = "Exception: %1$s Message: %2$s %n StackTrace: %3$s";
 
-    @Getter
-    @Setter
-    private ExecutorService executorService;
+    private final ExecutorService executorService;
     private final TaskServiceImpl taskService;
     private final CommandExecutionService commandService;
     private final Semaphore semaphore;

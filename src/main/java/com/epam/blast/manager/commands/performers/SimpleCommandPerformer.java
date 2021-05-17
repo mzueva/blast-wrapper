@@ -26,6 +26,7 @@ package com.epam.blast.manager.commands.performers;
 
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,17 +38,13 @@ import java.io.InputStreamReader;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class SimpleCommandPerformer implements CommandPerformer {
 
     private static final String SPLIT_CHAR = " ";
     private static final char NEW_LINE = '\n';
 
     private final MessageHelper messageHelper;
-
-    @Autowired
-    public SimpleCommandPerformer(MessageHelper messageHelper) {
-        this.messageHelper = messageHelper;
-    }
 
     @Override
     public int perform(final String command) throws IOException, InterruptedException {

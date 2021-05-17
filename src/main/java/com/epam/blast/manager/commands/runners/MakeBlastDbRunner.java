@@ -56,6 +56,7 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 @Slf4j
 @Service
 public class MakeBlastDbRunner implements CommandRunner {
+
     private final String blastDbDirectory;
     private final DbType defaultDbType;
     private final Integer defaultDbVersion;

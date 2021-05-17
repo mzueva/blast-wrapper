@@ -37,7 +37,8 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 import static com.epam.blast.utils.FileExtensions.FSA_EXT;
 
 @Builder
-public class MakeBlastDbCommand extends AbstractCommand {
+public class MakeBlastDbCommand implements BlastWrapperCommand {
+
     private static final String MAKEDB_COMMAND_TEMPLATE = "makedb_command_template";
 
     @NonNull
@@ -57,7 +58,7 @@ public class MakeBlastDbCommand extends AbstractCommand {
     @Override
     public String generateCmd() {
         Context context = buildContext();
-        return templateEngine.process(MAKEDB_COMMAND_TEMPLATE, context);
+        return TEMPLATE_ENGINE.process(MAKEDB_COMMAND_TEMPLATE, context);
     }
 
     private Context buildContext() {
