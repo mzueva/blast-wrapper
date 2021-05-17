@@ -56,4 +56,5 @@ public interface TaskService {
 
     BlastResult getBlastResult(final Long id);
 
+    TaskStatus cancelTask(Long id);
 }
