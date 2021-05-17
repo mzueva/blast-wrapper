@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.epam.blast.utils.FileExtensions.FSA_EXT;
 import static com.epam.blast.utils.TemporaryFileWriter.STRING_NAME_FORMAT;
 import static java.nio.file.Files.createTempDirectory;
 import static java.nio.file.Files.isReadable;
@@ -54,7 +53,8 @@ public class TemporaryFileWriterTest {
     private static final Long LONG_TASK_ID = 0L;
     public static String testTemporaryFilesDirectory;
 
-    private static final String TEMPORARY_FILE_NAME = String.format(STRING_NAME_FORMAT, LONG_TASK_ID, FSA_EXT);
+    private static final String TEMPORARY_FILE_NAME =
+            String.format(STRING_NAME_FORMAT, LONG_TASK_ID, FileExtensions.FSA_EXT.getValue());
     public static final String TEST_QUERY = "Fake query string.";
     private File temporaryFile;
 

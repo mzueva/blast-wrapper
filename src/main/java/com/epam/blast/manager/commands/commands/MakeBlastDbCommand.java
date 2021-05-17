@@ -24,6 +24,7 @@
 
 package com.epam.blast.manager.commands.commands;
 
+import com.epam.blast.utils.FileExtensions;
 import lombok.Builder;
 import lombok.NonNull;
 import org.thymeleaf.context.Context;
@@ -34,7 +35,6 @@ import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
 import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
-import static com.epam.blast.utils.FileExtensions.FSA_EXT;
 
 @Builder
 public class MakeBlastDbCommand implements BlastWrapperCommand {
@@ -66,7 +66,7 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
         context.setVariable("blastDbDirectory", blastDbDirectory);
         context.setVariable("inputFilePath", inputFilePath);
         context.setVariable("inputFileName", inputFileName);
-        context.setVariable("queryFileExtension", FSA_EXT);
+        context.setVariable("queryFileExtension", FileExtensions.FSA_EXT.getValue());
         context.setVariable(DB_TYPE, dbType);
         context.setVariable(PARSE_SEQ_ID, parseSeqIds);
         context.setVariable(DB_NAME, dbName);
