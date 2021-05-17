@@ -59,7 +59,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
         return process.exitValue();
     }
 
-    List<String> splitCommandByArguments(final String command) {
+    static List<String> splitCommandByArguments(final String command) {
         final List<String> result = new ArrayList<>();
         boolean unionPhase = false;
         StringBuilder compositeArg = new StringBuilder();
@@ -74,6 +74,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
                     result.add(part);
                 }
             } else {
+                // delete quota from composite arg because we pass it to process as parsed argument, no need for quotas
                 compositeArg.append(
                         part.replace(DOUBLE_QUOT, EMPTY).replace(QUOT, EMPTY)
                 ).append(SPLIT_CHAR);
@@ -88,7 +89,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
         return result;
     }
 
-    private boolean isEdgeOfCompositeArg(String part) {
+    private static boolean isEdgeOfCompositeArg(String part) {
         return part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT)
                 || part.endsWith(QUOT) || part.endsWith(DOUBLE_QUOT);
     }

@@ -42,7 +42,14 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Map;
 
-import static com.epam.blast.entity.task.TaskEntityParams.*;
+import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
+import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
+import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
+import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
+import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
+import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
+import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
+import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 
 @Slf4j
 @Service

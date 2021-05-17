@@ -30,7 +30,13 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.thymeleaf.context.Context;
 
-import static com.epam.blast.entity.task.TaskEntityParams.*;
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
+import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
+import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
+import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
+import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
+import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
+import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 import static java.io.File.separator;
 
 @Builder
