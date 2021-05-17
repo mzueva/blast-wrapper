@@ -41,6 +41,12 @@ public class BlastToolCommandTest {
     public static final String[] TEST_DB_NAMES =
         {"Nurse-shark-proteins", "Felis-silvestris-proteins", "Rattus-norvegicus-proteins"};
     public static final Long[] TEST_TASK_IDS = {0L, 200L, 43647L};
+    public static final String[] TAX_IDS = {"", "", "4,5,90"};
+    public static final String[] EXCLUDED_TAX_IDS = {"", "1,5,495", ""};
+    public static final String[] MAX_TARGET_SEQUENCES = {null, "200", "43647"};
+    public static final String[] EXPECTED_THRESHOLDS = {"0.1", "0.001", null};
+    public static final String[] OPTIONS = {"", "", "-testoption testvalue"};
+
     public static final String[] COMMANDS_SAMPLES =
         {"docker run --rm "
                 + "-v blastdb_custom:/blast/blastdb_custom:ro "
@@ -51,7 +57,7 @@ public class BlastToolCommandTest {
                 + "-out /blast/results/task_0_results.out "
                 + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-                + "qcovs qcovhsp qcovus\"",
+                + "qcovs qcovhsp qcovus\" -evalue 0.1",
         "docker run --rm "
                 + "-v blastdb_custom:/blast/blastdb_custom:ro "
                 + "-v queries:/blast/queries:ro "
@@ -61,7 +67,7 @@ public class BlastToolCommandTest {
                 + "-out /blast/results/task_200_results.out "
                 + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-                + "qcovs qcovhsp qcovus\"",
+                + "qcovs qcovhsp qcovus\" -negative_taxids 1,5,495 -max_target_seqs 200 -evalue 0.001",
         "docker run --rm "
             + "-v blastdb_custom:/blast/blastdb_custom:ro "
             + "-v queries:/blast/queries:ro "
@@ -70,11 +76,11 @@ public class BlastToolCommandTest {
             + "-out /blast/results/task_43647_results.out "
             + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
             + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-            + "qcovs qcovhsp qcovus\""};
+            + "qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"};
 
     @Test
     void testMakeBlastToolCommand() {
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < TEST_TASK_IDS.length; i++) {
             String command =
                     BlastToolCommand.builder()
                             .blastDbDirectory(TEST_BLAST_DB_DIRECTORY)
@@ -84,6 +90,11 @@ public class BlastToolCommandTest {
                             .queryFileName(TEST_QUERY_FILE_NAMES[i])
                             .dbName(TEST_DB_NAMES[i])
                             .taskId(TEST_TASK_IDS[i])
+                            .expectedThreshold(EXPECTED_THRESHOLDS[i])
+                            .maxTargetSequence(MAX_TARGET_SEQUENCES[i])
+                            .taxIds(TAX_IDS[i])
+                            .excludedTaxIds(EXCLUDED_TAX_IDS[i])
+                            .options(OPTIONS[i])
                             .build()
                             .generateCmd();
             assertEquals(COMMANDS_SAMPLES[i], command, command);

@@ -90,8 +90,14 @@ public class SimpleCommandPerformer implements CommandPerformer {
     }
 
     private static boolean isEdgeOfCompositeArg(String part) {
-        return part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT)
-                || part.endsWith(QUOT) || part.endsWith(DOUBLE_QUOT);
+        // check that part of argument starts or ends with " or '
+        // if it contains quotas at the start and at the end (both)
+        // means that this is not a composite arg at all
+        return (part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT))
+                && !(part.endsWith(QUOT) || part.endsWith(DOUBLE_QUOT))
+               ||
+                (part.endsWith(QUOT) || part.endsWith(DOUBLE_QUOT))
+                 && !(part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT));
     }
 
     private static void logOutPut(final Process process) throws IOException {

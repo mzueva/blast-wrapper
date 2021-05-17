@@ -39,6 +39,11 @@ class SimpleCommandPerformerTest {
             + "-db /path/to/db "
             + "-query /path/to/query -out /path/to/out";
 
+    public static final String SIMPLE_COMMAND_WITH_QUOTAS = "docker run -v /path/to/volume1:/docker/path/to/volume1 "
+            + "blast/ncbi:latest blastp "
+            + "-db /path/to/db "
+            + "-query /path/to/query -out \"/path/to/out\"";
+
     public static final String COMPOSITE_COMMAND_ARG = "\"composite arg of a command\"";
     public static final String COMPOSITE_COMMAND_ARG_RESULT = "composite arg of a command";
 
@@ -72,6 +77,14 @@ class SimpleCommandPerformerTest {
         assertArrayEquals(
                 SIMPLE_COMMAND.split(" "),
                 SimpleCommandPerformer.splitCommandByArguments(SIMPLE_COMMAND).toArray()
+        );
+    }
+
+    @Test
+    void splitCommandByArgumentsShouldSpiltRightSimpleArgumentsOfACommandEvenIfItContainsQuotas() {
+        assertArrayEquals(
+                SIMPLE_COMMAND_WITH_QUOTAS.split(" "),
+                SimpleCommandPerformer.splitCommandByArguments(SIMPLE_COMMAND_WITH_QUOTAS).toArray()
         );
     }
 

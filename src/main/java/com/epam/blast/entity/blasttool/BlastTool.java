@@ -32,8 +32,8 @@ public enum BlastTool {
 
     BLASTN("blastn", true),
     BLASTP("blastp", true),
-    BLASTX("blastx", false),
-    TBLASTN("tblastn", false),
+    BLASTX("blastx", true),
+    TBLASTN("tblastn", true),
     TBLASTX("tblastx", false);
 
     @Getter
