@@ -22,32 +22,18 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.controller.task;
+package com.epam.blast.manager.file;
 
-import com.epam.blast.controller.AbstractRestController;
-import com.epam.blast.controller.common.Result;
-import com.epam.blast.entity.task.TaskStatus;
-import com.epam.blast.manager.task.TaskService;
-import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import com.epam.blast.entity.blasttool.BlastResult;
+import org.springframework.data.util.Pair;
 
-@RestController
-@RequiredArgsConstructor
-public class TaskController extends AbstractRestController {
+public interface BlastFileManager {
 
-    private final TaskService taskService;
+    String getResultFileName(Long taskId);
 
-    @GetMapping("/task/{id}")
-    public Result<TaskStatus> getTaskStatus(@PathVariable final Long id) {
-        return Result.success(taskService.getTaskStatus(id));
-    }
+    String getResultDelimiter();
 
-    @DeleteMapping("/task/{id}")
-    public Result<TaskStatus> cancelTask(@PathVariable final Long id) {
-        return Result.success(taskService.cancelTask(id));
-    }
+    BlastResult getResults(Long taskId, Long limit);
 
+    Pair<String, byte[]> getRawResults(Long taskId);
 }

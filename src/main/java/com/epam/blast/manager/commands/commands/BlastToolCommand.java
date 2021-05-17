@@ -24,7 +24,6 @@
 
 package com.epam.blast.manager.commands.commands;
 
-import com.epam.blast.utils.FileExtensions;
 import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
@@ -42,15 +41,22 @@ import static java.io.File.separator;
 @Builder
 public class BlastToolCommand implements BlastWrapperCommand {
 
+    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=, qaccver qlen qstart qend saccver sseqid slen "
+            + "sstart send evalue bitscore score length pident nident mismatch positive gapopen gaps ppos "
+            + "staxid ssciname scomname sstrand qcovs qcovhsp qcovus\"";
+    public static final int BLAST_FILE_FORMAT_PARTS = 27;
+
     private static final String EMPTY_STRING = "";
     private static final String PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME = "pathSeparator";
 
     private static final String BLAST_COMMAND_TEMPLATE = "blast_command_template";
 
-    private static final String TASK_ID_TEMPLATE_NAME = "taskId";
+    private static final String OUTPUT_FILE_NAME_TEMPLATE = "resultFileName";
     private static final String RESULT_FILE_EXTENSION_TEMPLATE_NAME = "resultFileExtension";
     private static final String FSA_FILE_EXTENSION_TEMPLATE_NAME = "fsaFileExtension";
     private static final String QUERY_FILE_NAME_TEMPLATE_NAME = "queryFileName";
+    private static final String BLAST_FILE_FORMAT_STRING_TEMPLATE = "fileFormatString";
+
     private static final String BLAST_RESULTS_DIRECTORY = "blastResultsDirectory";
     private static final String QUERIES_FILE_PATH = "queriesFilePath";
     private static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
@@ -65,7 +71,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
     private final String blastResultsDirectory;
 
     @NonNull
-    private final Long taskId;
+    private final String outputFileName;
 
     @NonNull
     private final String queryFileName;
@@ -92,7 +98,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
 
     private Context buildContext() {
         Context context = new Context();
-        context.setVariable(TASK_ID_TEMPLATE_NAME, taskId);
+        context.setVariable(OUTPUT_FILE_NAME_TEMPLATE, outputFileName);
         context.setVariable(BLAST_TOOL, blastTool);
         context.setVariable(QUERIES_FILE_PATH, blastQueriesDirectory);
         context.setVariable(QUERY_FILE_NAME_TEMPLATE_NAME, queryFileName);
@@ -100,8 +106,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
         context.setVariable(DB_NAME, dbName);
         context.setVariable(BLAST_RESULTS_DIRECTORY, blastResultsDirectory);
         context.setVariable(PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME, separator);
-        context.setVariable(FSA_FILE_EXTENSION_TEMPLATE_NAME, FileExtensions.FSA_EXT.getValue());
-        context.setVariable(RESULT_FILE_EXTENSION_TEMPLATE_NAME,  FileExtensions.OUT_EXT.getValue());
+        context.setVariable(BLAST_FILE_FORMAT_STRING_TEMPLATE, BLAST_FILE_FORMAT_STRING);
         context.setVariable(TAX_IDS, getCommandParameterOrEmpty(TAXIDS_BLAST_PARAM_NAME, taxIds));
         context.setVariable(EXCLUDED_TAX_IDS,
                 getCommandParameterOrEmpty(NEGATIVE_TAXIDS_BLAST_PARAM_NAME, excludedTaxIds));

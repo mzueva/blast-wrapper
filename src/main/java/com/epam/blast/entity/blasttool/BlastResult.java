@@ -32,6 +32,6 @@ import java.util.List;
 @Value
 @Builder
 public class BlastResult {
-    Long size;
+    Integer size;
     List<BlastResultEntry> entries;
 }

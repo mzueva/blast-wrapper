@@ -37,10 +37,10 @@ public class BlastToolCommandTest {
     public static final String BLAST_TOOL = "blastn";
     public static final String TEST_BLAST_RESULTS_DIRECTORY = "results";
     public static final String[] TEST_QUERY_FILE_NAMES =
-        {"Test_query_file_name", "52345-45-213123", "++++....,,,::;;;```----"};
+        {"Test_query_file_name", "52345-45-213123", "456"};
     public static final String[] TEST_DB_NAMES =
         {"Nurse-shark-proteins", "Felis-silvestris-proteins", "Rattus-norvegicus-proteins"};
-    public static final Long[] TEST_TASK_IDS = {0L, 200L, 43647L};
+    public static final String[] OUT_FILE_NAMES = {"0.out", "200.out", "43647.out"};
     public static final String[] TAX_IDS = {"", "", "4,5,90"};
     public static final String[] EXCLUDED_TAX_IDS = {"", "1,5,495", ""};
     public static final String[] MAX_TARGET_SEQUENCES = {null, "200", "43647"};
@@ -53,9 +53,9 @@ public class BlastToolCommandTest {
                 + "-v queries:/blast/queries:ro "
                 + "-v results:/blast/results:rw "
                 + "ncbi/blast "
-                + "blastn -query /blast/queries/Test_query_file_name.fsa -db Nurse-shark-proteins "
-                + "-out /blast/results/task_0_results.out "
-                + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+                + "blastn -query /blast/queries/Test_query_file_name -db Nurse-shark-proteins "
+                + "-out /blast/results/0.out "
+                + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
                 + "qcovs qcovhsp qcovus\" -evalue 0.1",
         "docker run --rm "
@@ -63,24 +63,24 @@ public class BlastToolCommandTest {
                 + "-v queries:/blast/queries:ro "
                 + "-v results:/blast/results:rw "
                 + "ncbi/blast "
-                + "blastn -query /blast/queries/52345-45-213123.fsa -db Felis-silvestris-proteins "
-                + "-out /blast/results/task_200_results.out "
-                + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+                + "blastn -query /blast/queries/52345-45-213123 -db Felis-silvestris-proteins "
+                + "-out /blast/results/200.out "
+                + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
                 + "qcovs qcovhsp qcovus\" -negative_taxids 1,5,495 -max_target_seqs 200 -evalue 0.001",
         "docker run --rm "
             + "-v blastdb_custom:/blast/blastdb_custom:ro "
             + "-v queries:/blast/queries:ro "
             + "-v results:/blast/results:rw ncbi/blast blastn "
-            + "-query /blast/queries/++++....,,,::;;;```----.fsa -db Rattus-norvegicus-proteins "
-            + "-out /blast/results/task_43647_results.out "
-            + "-outfmt \"10 delim=, qaccver qstart qend saccver qlen sseqid slen sstart send evalue bitscore "
+            + "-query /blast/queries/456 -db Rattus-norvegicus-proteins "
+            + "-out /blast/results/43647.out "
+            + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
             + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
             + "qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"};
 
     @Test
     void testMakeBlastToolCommand() {
-        for (int i = 0; i < TEST_TASK_IDS.length; i++) {
+        for (int i = 0; i < OUT_FILE_NAMES.length; i++) {
             String command =
                     BlastToolCommand.builder()
                             .blastDbDirectory(TEST_BLAST_DB_DIRECTORY)
@@ -89,7 +89,7 @@ public class BlastToolCommandTest {
                             .blastTool(BLAST_TOOL)
                             .queryFileName(TEST_QUERY_FILE_NAMES[i])
                             .dbName(TEST_DB_NAMES[i])
-                            .taskId(TEST_TASK_IDS[i])
+                            .outputFileName(OUT_FILE_NAMES[i])
                             .expectedThreshold(EXPECTED_THRESHOLDS[i])
                             .maxTargetSequence(MAX_TARGET_SEQUENCES[i])
                             .taxIds(TAX_IDS[i])
@@ -111,7 +111,7 @@ public class BlastToolCommandTest {
                     .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)
                     .queryFileName(null)
                     .dbName(TEST_DB_NAMES[0])
-                    .taskId(TEST_TASK_IDS[0])
+                    .outputFileName(OUT_FILE_NAMES[0])
                     .build()
                     .generateCmd();
         } catch (NullPointerException e) {
@@ -126,7 +126,7 @@ public class BlastToolCommandTest {
                     .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)
                     .queryFileName(TEST_QUERY_FILE_NAMES[0])
                     .dbName(null)
-                    .taskId(TEST_TASK_IDS[0])
+                    .outputFileName(OUT_FILE_NAMES[0])
                     .build()
                     .generateCmd();
         } catch (NullPointerException e) {
@@ -140,7 +140,7 @@ public class BlastToolCommandTest {
                     .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)
                     .queryFileName(TEST_QUERY_FILE_NAMES[0])
                     .dbName(TEST_DB_NAMES[0])
-                    .taskId(TEST_TASK_IDS[0])
+                    .outputFileName(OUT_FILE_NAMES[0])
                     .build()
                     .generateCmd();
         } catch (NullPointerException e) {
@@ -155,12 +155,12 @@ public class BlastToolCommandTest {
                     .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)
                     .queryFileName(TEST_QUERY_FILE_NAMES[0])
                     .dbName(TEST_DB_NAMES[0])
-                    .taskId(null)
+                    .outputFileName(null)
                     .build()
                     .generateCmd();
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
-            assertEquals("taskId is marked non-null but is null", e.getMessage());
+            assertEquals("outputFileName is marked non-null but is null", e.getMessage());
         }
     }
 }

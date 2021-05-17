@@ -29,6 +29,7 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
@@ -65,6 +66,7 @@ public class BlastToolRunner implements CommandRunner {
     private final String blastResultsDirectory;
     private final CommandPerformer commandPerformer;
     private final TemporaryFileWriter temporaryFileWriter;
+    private final BlastFileManager blastFileManager;
     private final MessageHelper messageHelper;
 
     @Autowired
@@ -74,12 +76,14 @@ public class BlastToolRunner implements CommandRunner {
             @Value("${blast-wrapper.blast-commands.blast-results-directory}") String blastResultsDirectory,
             final SimpleCommandPerformer simpleCommandPerformer,
             final TemporaryFileWriter temporaryFileWriter,
-            MessageHelper messageHelper) {
+            final BlastFileManager blastFileManager,
+            final MessageHelper messageHelper) {
         this.blastDbDirectory = blastDbDirectory;
         this.blastQueryDirectory = blastQueryDirectory;
         this.blastResultsDirectory = blastResultsDirectory;
         this.commandPerformer = simpleCommandPerformer;
         this.temporaryFileWriter = temporaryFileWriter;
+        this.blastFileManager = blastFileManager;
         this.messageHelper = messageHelper;
     }
 
@@ -102,7 +106,7 @@ public class BlastToolRunner implements CommandRunner {
                             .blastTool(blastTool)
                             .queryFileName(queryFileName)
                             .dbName(dbName)
-                            .taskId(taskId)
+                            .outputFileName(blastFileManager.getResultFileName(taskId))
                             .taxIds(params.getOrDefault(TAX_IDS, EMPTY))
                             .excludedTaxIds(params.getOrDefault(EXCLUDED_TAX_IDS, EMPTY))
                             .maxTargetSequence(params.getOrDefault(MAX_TARGET_SEQS, EMPTY))

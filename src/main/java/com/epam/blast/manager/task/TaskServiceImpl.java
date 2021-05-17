@@ -25,7 +25,6 @@
 package com.epam.blast.manager.task;
 
 import com.epam.blast.entity.blasttool.BlastResult;
-import com.epam.blast.entity.blasttool.BlastResultEntry;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
@@ -35,15 +34,19 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
+import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageConstants;
+import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -73,7 +76,9 @@ public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
 
+    private final MessageHelper messageHelper;
     private final TaskRepository taskRepository;
+    private final BlastFileManager blastFileManager;
 
     @Override
     public TaskStatus getTaskStatus(final Long id) {
@@ -170,39 +175,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public BlastResult getBlastResult(final Long id) {
-        return BlastResult.builder().size(1L)
-                .entries(Collections.singletonList(
-                        BlastResultEntry.builder()
-                                .queryAccVersion("2_S17_L001_R1_001_(paired)_trimmed_(paired)_contig_1")
-                                .queryStart(2397L)
-                                .queryEnd(4880L)
-                                .queryLen(4897L)
-                                .seqAccVersion("AP018441.1")
-                                .seqSeqId("gi|1798099803|dbj|AP018441.1|")
-                                .seqLen(6484812L)
-                                .seqStart(1529303L)
-                                .seqEnd(1531784L)
-                                .expValue(0.0)
-                                .bitScore(4220.0)
-                                .score(2285.0)
-                                .length(2486L)
-                                .percentIdent(97.345)
-                                .numIdent(2420L)
-                                .mismatch(60L)
-                                .positive(2420L)
-                                .gapOpen(6L)
-                                .gaps(6L)
-                                .percentPos(97.35)
-                                .seqTaxId(2058625L)
-                                .seqSciName("Undibacterium sp. YM2")
-                                .seqComName("Undibacterium sp. YM2")
-                                .seqStrand("plus")
-                                .queryCovS(92.0)
-                                .queryCovHsp(51.0)
-                                .queryCovUs(92.0)
-                                .build()
-                )).build();
+    public BlastResult getBlastResult(final Long id, final Long limit) {
+        final TaskEntity loaded = findTask(id);
+        Assert.isTrue(loaded.getStatus() == Status.DONE,
+                messageHelper.getMessage(
+                        MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
+                        id, loaded.getStatus().name()
+                )
+        );
+        return blastFileManager.getResults(id, limit == null ? Long.MAX_VALUE : limit);
+    }
+
+    @Override
+    public Pair<String, byte[]> getBlastRawResult(final Long id) {
+        final TaskEntity loaded = findTask(id);
+        Assert.isTrue(loaded.getStatus() == Status.DONE,
+                messageHelper.getMessage(
+                        MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
+                        id, loaded.getStatus().name()
+                )
+        );
+        return blastFileManager.getRawResults(id);
     }
 
     @Override

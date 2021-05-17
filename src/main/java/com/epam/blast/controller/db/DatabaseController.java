@@ -24,6 +24,7 @@
 
 package com.epam.blast.controller.db;
 
+import com.epam.blast.controller.AbstractRestController;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
@@ -35,7 +36,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class DatabaseController {
+public class DatabaseController extends AbstractRestController {
 
     private final TaskService taskService;
 
