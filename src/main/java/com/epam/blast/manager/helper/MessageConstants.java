@@ -42,6 +42,7 @@ public final class MessageConstants {
 
     // TASKS
     public static final String INFO_START_TASK_EXECUTION = "info.start.task.execution";
+    public static final String INFO_END_TASK_EXECUTION = "info.end.task.execution";
     public static final String ERROR_UNRECOGNIZED_COMMAND_TYPE = "error.unrecognized.command.type";
     public static final String ERROR_COMMAND_TYPE_IS_NULL = "error.command.type.is.null";
     public static final String INFO_RUN_NEW_TASK_LOOP = "info.run.new.tasks.loop";
