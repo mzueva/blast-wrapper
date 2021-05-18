@@ -22,33 +22,31 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.manager.file;
+package com.epam.blast.manager.commands.commands;
 
-import com.epam.blast.entity.blasttool.BlastResult;
-import com.epam.blast.entity.task.TaskEntity;
-import org.springframework.data.util.Pair;
+import lombok.Builder;
+import org.thymeleaf.context.Context;
 
-import java.io.File;
+@Builder
+public class TaskCancelCommand implements BlastWrapperCommand {
 
-public interface BlastFileManager {
+    private static final String BLAST_COMMAND_TEMPLATE = "cancel_command_template";
+    private static final String TASK_NAME = "taskName";
 
-    String getResultFileName(Long taskId);
+    private final String taskName;
 
-    BlastResult getResults(Long taskId, Integer limit);
+    @Override
+    public String generateCmd() {
+        Context context = buildContext();
+        return TEMPLATE_ENGINE.process(BLAST_COMMAND_TEMPLATE, context)
+                .replaceAll(" +", " ")
+                .trim();
+    }
 
-    Pair<String, byte[]> getRawResults(Long taskId);
+    private Context buildContext() {
+        Context context = new Context();
+        context.setVariable(TASK_NAME, taskName);
+        return context;
+    }
 
-    void removeQueryFile(Long taskId);
-
-    File getQueryFile(TaskEntity taskEntity);
-
-    String getBlastQueryDirectory();
-
-    String getBlastDbDirectory();
-
-    String getBlastResultsDirectory();
-
-    String defaultFastaDirectory();
-
-    void removeBlastOutput(Long taskId);
 }

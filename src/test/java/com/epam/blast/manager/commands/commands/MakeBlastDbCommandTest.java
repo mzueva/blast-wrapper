@@ -34,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class MakeBlastDbCommandTest {
     public static final String TEST_BLAST_DB_DIRECTORY = "blastdb_custom";
     public static final String TEST_INPUT_FILE_PATH = "input_files";
+    private static final String TASK_NAME = "makeBlastDb_";
     public static final String[] TEST_QUERY_FILE_NAMES =
         {"Test_query_file_name.fsa", "52345-45-213123.fsa", "++++....,,,::;;;```----.fsa"};
     public static final String[] TEST_DB_TYPES =
@@ -50,21 +51,21 @@ public class MakeBlastDbCommandTest {
         {0, 4, 5};
 
     public static final String[] COMMANDS_SAMPLES =
-        {"docker run --rm "
+        {"docker run --rm --name makeBlastDb_0 "
                     + "-v blastdb_custom:/blast/blastdb_custom:rw "
                     + "-v input_files:/blast/fasta:ro "
                     + "-w /blast/blastdb_custom "
                     + "ncbi/blast "
                     + "makeblastdb -in /blast/fasta/Test_query_file_name.fsa -dbtype prot true "
                     + "-out Nurse-shark-proteins -title \"Nurse shark proteins\" -taxid 7801 -blastdb_version 0",
-        "docker run --rm "
+        "docker run --rm --name makeBlastDb_1 "
                     + "-v blastdb_custom:/blast/blastdb_custom:rw "
                     + "-v input_files:/blast/fasta:ro "
                     + "-w /blast/blastdb_custom "
                     + "ncbi/blast "
                     + "makeblastdb -in /blast/fasta/52345-45-213123.fsa -dbtype nucl false "
                     + "-out Felis-silvestris-proteins -title \"Felis silvestris proteins\" -taxid 0 -blastdb_version 4",
-        "docker run --rm "
+        "docker run --rm --name makeBlastDb_2 "
                     + "-v blastdb_custom:/blast/blastdb_custom:rw "
                     + "-v input_files:/blast/fasta:ro "
                     + "-w /blast/blastdb_custom "
@@ -79,6 +80,7 @@ public class MakeBlastDbCommandTest {
         for (int i = 0; i < 3; i++) {
             String command =
                     MakeBlastDbCommand.builder()
+                            .taskName(TASK_NAME + i)
                             .blastDbDirectory(TEST_BLAST_DB_DIRECTORY)
                             .inputFilePath(TEST_INPUT_FILE_PATH)
                             .inputFileName(TEST_QUERY_FILE_NAMES[i])

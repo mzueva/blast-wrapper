@@ -24,12 +24,16 @@
 
 package com.epam.blast.manager.commands.runners;
 
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.db.DbType;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.MakeBlastDbCommand;
+import com.epam.blast.manager.commands.commands.TaskCancelCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageConstants;
+import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -64,6 +68,7 @@ public class MakeBlastDbRunner implements CommandRunner {
     private final BlastFileManager blastFileManager;
     private final CommandPerformer commandPerformer;
     private final Set<String> validDbVersions;
+    private final MessageHelper messageHelper;
 
     @Autowired
     public MakeBlastDbRunner(
@@ -71,13 +76,15 @@ public class MakeBlastDbRunner implements CommandRunner {
             @Value("${blast-wrapper.blast-db.defaultDbVersion}") Integer defaultDbVersion,
             @Value("${blast-wrapper.command.defaultParseSeqIds}") Boolean defaultParseSeqIds,
             final BlastFileManager blastFileManager,
-            final SimpleCommandPerformer simpleCommandPerformer) {
+            final SimpleCommandPerformer simpleCommandPerformer,
+            final MessageHelper messageHelper) {
         this.defaultDbType = defaultDbType;
         this.defaultDbVersion = defaultDbVersion;
         this.defaultParseSeqIds = defaultParseSeqIds;
         this.blastFileManager = blastFileManager;
         this.commandPerformer = simpleCommandPerformer;
         this.validDbVersions  = new HashSet<>(Arrays.asList(defaultDbVersion.toString(), "4"));
+        this.messageHelper = messageHelper;
     }
 
     @Override
@@ -95,6 +102,7 @@ public class MakeBlastDbRunner implements CommandRunner {
 
         final String command =
                 MakeBlastDbCommand.builder()
+                        .taskName(getTaskName(taskEntity.getId()))
                         .blastDbDirectory(blastFileManager.getBlastDbDirectory())
                         .inputFilePath(inputFilePath)
                         .inputFileName(inputFileName)
@@ -106,7 +114,26 @@ public class MakeBlastDbRunner implements CommandRunner {
                         .blastDbVersion(blastDbVersion)
                         .build()
                         .generateCmd();
-        return commandPerformer.perform(command);
+        return performCommand(command, taskEntity.getId());
+    }
+
+    private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
+        final int result = commandPerformer.perform(command);
+        if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
+            final String cancelCommand = TaskCancelCommand.builder()
+                    .taskName(getTaskName(taskId)).build().generateCmd();
+            if (StringUtils.isNotBlank(cancelCommand)) {
+                commandPerformer.perform(cancelCommand);
+            } else {
+                log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
+            }
+            Thread.currentThread().interrupt();
+        }
+        return result;
+    }
+
+    private String getTaskName(Long id) {
+        return "makeBlastDb_" + id;
     }
 
     private String getInputFileName(Map<String, String> params) {

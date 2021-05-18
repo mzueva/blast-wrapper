@@ -65,6 +65,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
     private static final String E_VALUE_BLAST_PARAM_NAME = "evalue";
     private static final String MAX_TARGET_SEQS_BLAST_PARAM_NAME = "max_target_seqs";
     private static final String NEGATIVE_TAXIDS_BLAST_PARAM_NAME = "negative_taxids";
+    private static final String TASK_NAME = "taskName";
 
     private final String blastDbDirectory;
     private final String blastQueriesDirectory;
@@ -82,6 +83,9 @@ public class BlastToolCommand implements BlastWrapperCommand {
     @NonNull
     private final String blastTool;
 
+    @NonNull
+    private final String taskName;
+
     private final String taxIds;
     private final String excludedTaxIds;
     private final String maxTargetSequence;
@@ -98,6 +102,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
 
     private Context buildContext() {
         Context context = new Context();
+        context.setVariable(TASK_NAME, taskName);
         context.setVariable(OUTPUT_FILE_NAME_TEMPLATE, outputFileName);
         context.setVariable(BLAST_TOOL, blastTool);
         context.setVariable(QUERIES_FILE_PATH, blastQueriesDirectory);

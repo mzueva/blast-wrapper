@@ -39,13 +39,19 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 public class MakeBlastDbCommand implements BlastWrapperCommand {
 
     private static final String MAKEDB_COMMAND_TEMPLATE = "makedb_command_template";
+    private static final String TASK_NAME = "taskName";
 
     @NonNull
     private final String inputFileName;
+
     @NonNull
     private final String dbName;
+
     @NonNull
     private final String inputFilePath;
+
+    @NonNull
+    private final String taskName;
 
     private final String blastDbDirectory;
     private final String dbType;
@@ -72,6 +78,7 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
         context.setVariable(DB_TITLE, dbTitle);
         context.setVariable(TAX_ID, taxId);
         context.setVariable(BLAST_DB_VERSION, blastDbVersion);
+        context.setVariable(TASK_NAME, taskName);
         return context;
     }
 }

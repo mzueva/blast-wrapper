@@ -24,6 +24,7 @@
 
 package com.epam.blast.manager.commands.performers;
 
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.RequiredArgsConstructor;
@@ -51,11 +52,17 @@ public class SimpleCommandPerformer implements CommandPerformer {
     private final MessageHelper messageHelper;
 
     @Override
-    public int perform(final String command) throws IOException, InterruptedException {
+    public int perform(final String command) throws IOException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_COMMAND, command));
-        final Process process = new ProcessBuilder().inheritIO().command(splitCommandByArguments(command)).start();
-        logOutPut(process);
-        process.waitFor();
+        Process process = new ProcessBuilder().inheritIO()
+                .command(splitCommandByArguments(command)).start();
+        try {
+            logOutPut(process);
+            process.waitFor();
+        } catch (InterruptedException e) {
+            process.destroyForcibly();
+            return ExitCodes.THREAD_INTERRUPTION_EXCEPTION;
+        }
         return process.exitValue();
     }
 

@@ -29,6 +29,7 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageHelper;
 import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -86,6 +87,9 @@ class MakeBlastDbRunnerTest {
     @Mock
     private BlastFileManager blastFileManager;
 
+    @Mock
+    private MessageHelper messageHelper;
+
     private MakeBlastDbRunner makeBlastDbRunner;
     private final List<TaskEntity> taskList = new ArrayList<>(AMOUNT_TASKS_TOTAL);
 
@@ -93,7 +97,7 @@ class MakeBlastDbRunnerTest {
     public void init() {
         MockitoAnnotations.openMocks(this);
         makeBlastDbRunner = new MakeBlastDbRunner(DEFAULT_DB_DATATYPE_TEST,
-                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock);
+                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock, messageHelper);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
@@ -252,18 +256,8 @@ class MakeBlastDbRunnerTest {
         try {
             when(commandPerformerMock.perform(anyString())).thenThrow(IOException.class);
             commandPerformerMock.perform(STRING_COMMAND);
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException e) {
             assertEquals(IOException.class, e.getClass());
-        }
-    }
-
-    @Test
-    void testThrowingInterruptedException() {
-        try {
-            when(commandPerformerMock.perform(anyString())).thenThrow(InterruptedException.class);
-            commandPerformerMock.perform(STRING_COMMAND);
-        } catch (IOException | InterruptedException e) {
-            assertEquals(InterruptedException.class, e.getClass());
         }
     }
 

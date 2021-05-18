@@ -26,6 +26,7 @@ package com.epam.blast.manager.commands;
 
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
+import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.manager.task.TaskServiceImpl;
@@ -37,7 +38,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -60,7 +60,7 @@ public class ScheduledService {
     private final CommandExecutionService commandService;
     private final Semaphore semaphore;
     private final MessageHelper messageHelper;
-    private final Map<Long, Future<Void>> tasksFutures = new ConcurrentHashMap<>();
+    private final Map<Long, Future<Integer>> tasksFutures = new ConcurrentHashMap<>();
 
     @Autowired
     public ScheduledService(@Value("${blast-wrapper.task-status-checking.thread-amount}") Integer threadsAmount,
@@ -79,6 +79,8 @@ public class ScheduledService {
     @Scheduled(initialDelay = 0, fixedDelayString = "${blast-wrapper.task-status-checking.interval}")
     public void runNewTasks() {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_NEW_TASK_LOOP));
+        log.info(messageHelper.getMessage(MessageConstants.INFO_CURRENT_ACTIVE_TASKS,
+                tasksFutures.size(), semaphore.availablePermits()));
 
         taskService
             .findAllTasksByStatus(Status.CREATED)
@@ -86,41 +88,45 @@ public class ScheduledService {
             .limit(semaphore.availablePermits())
             .filter(taskEntity -> !tasksFutures.containsKey(taskEntity.getId()))
             .forEach(taskEntity -> {
-                        try {
-                            semaphore.acquire();
-                            CompletableFuture<Void> result = CompletableFuture
-                                    .supplyAsync(() -> processTask(taskEntity), executorService)
-                                    .thenAccept(exitValue -> {
-                                                taskEntity.setStatus((exitValue == SUCCESSFUL_EXECUTION)
-                                                        ? Status.DONE : Status.FAILED);
-                                                taskService.updateTask(taskEntity);
-                                            }
-                                    );
-                            tasksFutures.put(taskEntity.getId(), result);
-                        } catch (InterruptedException e) {
-                            log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
-                            Thread.currentThread().interrupt();
-                        }
-                    }
-            );
+                try {
+                    semaphore.acquire();
+                    tasksFutures.put(taskEntity.getId(), executorService.submit(() -> processTask(taskEntity))
+                    );
+                } catch (InterruptedException e) {
+                    log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
+                    Thread.currentThread().interrupt();
+                }
+            });
     }
 
     private int processTask(TaskEntity taskEntity) {
+        int result = OTHER_EXCEPTION;
         try {
-            return commandService.runTask(taskEntity);
+            result = commandService.runTask(taskEntity);
         } catch (IOException e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
-            return IO_EXCEPTION;
+            result = IO_EXCEPTION;
         } catch (InterruptedException e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
             Thread.currentThread().interrupt();
-            return THREAD_INTERRUPTION_EXCEPTION;
+            result = THREAD_INTERRUPTION_EXCEPTION;
         } catch (Exception e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
-            return OTHER_EXCEPTION;
+            result = OTHER_EXCEPTION;
         } finally {
+            taskEntity.setStatus((result == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
+            taskService.updateTask(taskEntity);
             semaphore.release();
             tasksFutures.remove(taskEntity.getId());
         }
+        return result;
+    }
+
+    public TaskStatus cancelTask(Long id) {
+        final TaskEntity task = taskService.findTask(id);
+        if (task.getStatus() == Status.RUNNING) {
+            tasksFutures.get(task.getId()).cancel(true);
+        }
+        return taskService.getTaskStatus(id);
     }
 }

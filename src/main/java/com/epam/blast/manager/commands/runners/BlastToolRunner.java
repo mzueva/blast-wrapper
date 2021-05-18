@@ -25,8 +25,10 @@
 package com.epam.blast.manager.commands.runners;
 
 import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
+import com.epam.blast.manager.commands.commands.TaskCancelCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
@@ -86,6 +88,7 @@ public class BlastToolRunner implements CommandRunner {
         try {
             final String command =
                     BlastToolCommand.builder()
+                            .taskName(getTaskName(taskId))
                             .blastDbDirectory(db.getFirst())
                             .blastQueriesDirectory(blastFileManager.getBlastQueryDirectory())
                             .blastResultsDirectory(blastFileManager.getBlastResultsDirectory())
@@ -100,10 +103,31 @@ public class BlastToolRunner implements CommandRunner {
                             .options(params.getOrDefault(OPTIONS, EMPTY))
                             .build()
                             .generateCmd();
-            return commandPerformer.perform(command);
+            return performCommand(command, taskId);
         } finally {
             blastFileManager.removeQueryFile(taskId);
         }
+    }
+
+    private String getTaskName(Long taskId) {
+        return "blast_" + taskId;
+    }
+
+    private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
+        final int result = commandPerformer.perform(command);
+        if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
+            blastFileManager.removeQueryFile(taskId);
+            blastFileManager.removeBlastOutput(taskId);
+            final String cancelCommand = TaskCancelCommand.builder()
+                    .taskName(getTaskName(taskId)).build().generateCmd();
+            if (StringUtils.isNotBlank(cancelCommand)) {
+                commandPerformer.perform(cancelCommand);
+            } else {
+                log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
+            }
+            Thread.currentThread().interrupt();
+        }
+        return result;
     }
 
     private String getToolWithAlgorithm(final Map<String, String> params) {

@@ -59,5 +59,4 @@ public interface TaskService {
 
     Pair<String, byte[]> getBlastRawResult(final Long id);
 
-    TaskStatus cancelTask(Long id);
 }

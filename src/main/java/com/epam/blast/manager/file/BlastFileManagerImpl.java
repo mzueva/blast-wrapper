@@ -158,6 +158,18 @@ public class BlastFileManagerImpl implements BlastFileManager {
         return Path.of(defaultFastaDirectory).toAbsolutePath().toString();
     }
 
+    @Override
+    public void removeBlastOutput(Long taskId) {
+        try {
+            final String name = getResultFileName(taskId);
+            Files.deleteIfExists(Path.of(blastResultsDirectory, name));
+        } catch (IOException e) {
+            log.error(messageHelper.getMessage(MessageConstants.ERROR_WHILE_REMOVING_BLAST_OUTPUT,
+                    taskId, e.getMessage()));
+            e.printStackTrace();
+        }
+    }
+
     BlastResultEntry parseBlastResultEntry(final String line) {
         final String[] split = line.split(resultDelimiter);
         Assert.isTrue(split.length == BlastToolCommand.BLAST_FILE_FORMAT_PARTS,
