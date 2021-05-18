@@ -25,15 +25,28 @@
 package com.epam.blast.manager.file;
 
 import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.task.TaskEntity;
 import org.springframework.data.util.Pair;
+
+import java.io.File;
 
 public interface BlastFileManager {
 
     String getResultFileName(Long taskId);
 
-    String getResultDelimiter();
-
     BlastResult getResults(Long taskId, Long limit);
 
     Pair<String, byte[]> getRawResults(Long taskId);
+
+    void removeQueryFile(Long taskId);
+
+    File getQueryFile(TaskEntity taskEntity);
+
+    String getBlastQueryDirectory();
+
+    String getBlastDbDirectory();
+
+    String getBlastResultsDirectory();
+
+    String defaultFastaDirectory();
 }

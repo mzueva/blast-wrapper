@@ -29,6 +29,7 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.MakeBlastDbCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.file.BlastFileManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -57,30 +58,26 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 @Service
 public class MakeBlastDbRunner implements CommandRunner {
 
-    private final String blastDbDirectory;
     private final DbType defaultDbType;
     private final Integer defaultDbVersion;
-    private final String defaultFastaDirectory;
     private final Boolean defaultParseSeqIds;
+    private final BlastFileManager blastFileManager;
     private final CommandPerformer commandPerformer;
     private final Set<String> validDbVersions;
 
     @Autowired
     public MakeBlastDbRunner(
-            @Value("${blast-wrapper.blast-commands.blast-db-directory}") String blastDbDirectory,
             @Value("${blast-wrapper.blast-db.defaultDbType}") DbType defaultDbType,
-            @Value("${blast-wrapper.blast-commands.blast-fasta-directory}") String defaultFastaDirectory,
             @Value("${blast-wrapper.blast-db.defaultDbVersion}") Integer defaultDbVersion,
             @Value("${blast-wrapper.command.defaultParseSeqIds}") Boolean defaultParseSeqIds,
+            final BlastFileManager blastFileManager,
             final SimpleCommandPerformer simpleCommandPerformer) {
-        this.blastDbDirectory = blastDbDirectory;
         this.defaultDbType = defaultDbType;
-        this.defaultFastaDirectory = defaultFastaDirectory;
         this.defaultDbVersion = defaultDbVersion;
         this.defaultParseSeqIds = defaultParseSeqIds;
+        this.blastFileManager = blastFileManager;
         this.commandPerformer = simpleCommandPerformer;
-        String[] validDbVersions = new String[]{defaultDbVersion.toString(), "4"};
-        this.validDbVersions  = new HashSet<>(Arrays.asList(validDbVersions));
+        this.validDbVersions  = new HashSet<>(Arrays.asList(defaultDbVersion.toString(), "4"));
     }
 
     @Override
@@ -98,7 +95,7 @@ public class MakeBlastDbRunner implements CommandRunner {
 
         final String command =
                 MakeBlastDbCommand.builder()
-                        .blastDbDirectory(blastDbDirectory)
+                        .blastDbDirectory(blastFileManager.getBlastDbDirectory())
                         .inputFilePath(inputFilePath)
                         .inputFileName(inputFileName)
                         .dbType(dbType)
@@ -118,7 +115,7 @@ public class MakeBlastDbRunner implements CommandRunner {
 
     private String getInputFilePath(Map<String, String> params) {
         final String path = new File(params.get(PATH_TO_FILE)).getParent();
-        return path == null ? defaultFastaDirectory : path;
+        return path == null ? blastFileManager.defaultFastaDirectory() : path;
     }
 
     private String getDbType(Map<String, String> params) {

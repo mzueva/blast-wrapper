@@ -76,9 +76,9 @@ public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
 
-    private final MessageHelper messageHelper;
     private final TaskRepository taskRepository;
     private final BlastFileManager blastFileManager;
+    private final MessageHelper messageHelper;
 
     @Override
     public TaskStatus getTaskStatus(final Long id) {
@@ -176,30 +176,18 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public BlastResult getBlastResult(final Long id, final Long limit) {
-        final TaskEntity loaded = findTask(id);
-        Assert.isTrue(loaded.getStatus() == Status.DONE,
-                messageHelper.getMessage(
-                        MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
-                        id, loaded.getStatus().name()
-                )
-        );
+        checkTaskIsReady(id);
         return blastFileManager.getResults(id, limit == null ? Long.MAX_VALUE : limit);
     }
 
     @Override
     public Pair<String, byte[]> getBlastRawResult(final Long id) {
-        final TaskEntity loaded = findTask(id);
-        Assert.isTrue(loaded.getStatus() == Status.DONE,
-                messageHelper.getMessage(
-                        MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
-                        id, loaded.getStatus().name()
-                )
-        );
+        checkTaskIsReady(id);
         return blastFileManager.getRawResults(id);
     }
 
     @Override
-    public TaskStatus cancelTask(Long id) {
+    public TaskStatus cancelTask(final Long id) {
         return TaskStatus.builder()
                 .requestId(id)
                 .createdDate(LocalDateTime.now())
@@ -211,7 +199,6 @@ public class TaskServiceImpl implements TaskService {
     public TaskEntity updateTask(final TaskEntity taskEntity) {
         Long id = taskEntity.getId();
         findTask(id);
-
         taskRepository.save(taskEntity);
         return taskEntity;
     }
@@ -263,5 +250,15 @@ public class TaskServiceImpl implements TaskService {
             );
         }
         return result;
+    }
+
+    private void checkTaskIsReady(final Long id) {
+        final TaskEntity loaded = findTask(id);
+        Assert.isTrue(loaded.getStatus() == Status.DONE,
+                messageHelper.getMessage(
+                        MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
+                        id, loaded.getStatus().name()
+                )
+        );
     }
 }

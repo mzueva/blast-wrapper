@@ -35,24 +35,19 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 
-import static java.lang.String.format;
 
 @Slf4j
 @Service
 @AllArgsConstructor
 public class TemporaryFileWriter {
 
-    public static final String STRING_NAME_FORMAT = "Temporary_query_file_for_task_%d";
-
     private final MessageHelper messageHelper;
 
-    public File writeToDisk(final @NonNull String directory, @NonNull final String query, @NonNull final Long id) {
-        final String fileName = format(STRING_NAME_FORMAT, id);
-        final File directoryFile = new File(directory);
-        if (!directoryFile.exists()) {
-            directoryFile.mkdir();
-        }
+    public File writeToDisk(@NonNull final String directory,
+                            @NonNull final String query,
+                            @NonNull final String fileName) {
         final File file = new File(directory, fileName);
         try (FileWriter writer = new FileWriter(file.getAbsoluteFile())) {
             writer.write(query);
@@ -62,11 +57,15 @@ public class TemporaryFileWriter {
         return file;
     }
 
-    public void removeFile(File file) {
-        try {
-            Files.delete(file.toPath());
-        } catch (IOException e) {
-            log.error(messageHelper.getMessage(MessageConstants.ERROR_COULD_NOT_REMOVE_QUERY_FILE, file.getName()));
+    public void removeFile(final @NonNull String directory, @NonNull final String fileName) {
+        final Path toDelete = Path.of(directory, fileName);
+        if (Files.exists(toDelete)) {
+            try {
+                Files.delete(toDelete);
+            } catch (IOException e) {
+                log.error(messageHelper.getMessage(MessageConstants.ERROR_COULD_NOT_REMOVE_QUERY_FILE,
+                        toDelete.getFileName().toString()));
+            }
         }
     }
 }
