@@ -56,7 +56,7 @@ public class BlastToolController extends AbstractRestController {
 
     @GetMapping("/blast/{id}")
     public Result<BlastResult> getResult(@PathVariable Long id,
-                                         @RequestParam(required = false) Long limit) {
+                                         @RequestParam(required = false) Integer limit) {
         return Result.success(taskService.getBlastResult(id, limit));
     }
 

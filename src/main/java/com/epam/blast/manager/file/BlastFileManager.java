@@ -34,7 +34,7 @@ public interface BlastFileManager {
 
     String getResultFileName(Long taskId);
 
-    BlastResult getResults(Long taskId, Long limit);
+    BlastResult getResults(Long taskId, Integer limit);
 
     Pair<String, byte[]> getRawResults(Long taskId);
 

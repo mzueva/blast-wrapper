@@ -25,6 +25,7 @@
 package com.epam.blast.manager.task;
 
 import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.blasttool.BlastResultEntry;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
@@ -52,6 +53,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
@@ -175,9 +177,33 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public BlastResult getBlastResult(final Long id, final Long limit) {
+    public BlastResult getBlastResult(final Long id, final Integer limit) {
+        if (id == 42L) {
+            return BlastResult.builder().size(limit)
+                    .entries(IntStream.iterate(0, i -> i + 1).limit(limit)
+                            .boxed().map(this::buildStub).collect(Collectors.toList())).build();
+        } else if (id == 43L) {
+            throw  new IllegalStateException(messageHelper.getMessage(
+                            MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
+                            id, Status.RUNNING)
+            );
+        }
         checkTaskIsReady(id);
-        return blastFileManager.getResults(id, limit == null ? Long.MAX_VALUE : limit);
+        return blastFileManager.getResults(id, limit == null ? Integer.MAX_VALUE : limit);
+    }
+
+    private BlastResultEntry buildStub(Integer i) {
+        return BlastResultEntry.builder()
+                .queryAccVersion("2_S17_L001_R1_001_(paired)_trimmed_(paired)_contig_1")
+                .queryStart(2397L + i).queryEnd(4880L + i).queryLen(4897L)
+                .seqAccVersion("AP018441.1").seqSeqId("gi|1798099803|dbj|AP018441.1|")
+                .seqLen(6484812L).seqStart(1529303L + i).seqEnd(1531784L + i)
+                .expValue(0.0).bitScore(4220.0).score(2285.0).length(2486L)
+                .percentIdent(97.345).numIdent(2420L).mismatch(60L).positive(2420L)
+                .gapOpen(6L).gaps(6L).percentPos(97.35).seqTaxId(2058625L)
+                .seqSciName("Undibacterium sp. YM2").seqComName("Undibacterium sp. YM2")
+                .seqStrand("plus").queryCovS(92.0).queryCovHsp(51.0).queryCovUs(92.0)
+                .build();
     }
 
     @Override

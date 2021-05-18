@@ -55,7 +55,7 @@ public interface TaskService {
 
     TaskEntity updateTask(final TaskEntity taskEntity);
 
-    BlastResult getBlastResult(final Long id, final Long limit);
+    BlastResult getBlastResult(final Long id, final Integer limit);
 
     Pair<String, byte[]> getBlastRawResult(final Long id);
 

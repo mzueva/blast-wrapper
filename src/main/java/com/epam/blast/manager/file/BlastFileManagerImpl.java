@@ -97,7 +97,7 @@ public class BlastFileManagerImpl implements BlastFileManager {
     }
 
     @Override
-    public BlastResult getResults(final Long taskId, final Long limit) {
+    public BlastResult getResults(final Long taskId, final Integer limit) {
         try {
             final List<BlastResultEntry> entries = Files.lines(
                     Path.of(blastResultsDirectory, getResultFileName(taskId))

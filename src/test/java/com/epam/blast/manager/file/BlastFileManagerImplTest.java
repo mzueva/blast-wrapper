@@ -92,7 +92,7 @@ class BlastFileManagerImplTest {
 
     @Test
     public void getResultTest() {
-        BlastResult results = blastFileManager.getResults(1L, 100L);
+        BlastResult results = blastFileManager.getResults(1L, 100);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.getSize().intValue());
         Assertions.assertEquals(2, results.getEntries().size());
@@ -101,12 +101,12 @@ class BlastFileManagerImplTest {
     @Test
     public void getResultShouldFailWithAppropriateExceptionTest() {
         Assertions.assertThrows(IllegalStateException.class,
-                () ->  blastFileManager.getResults(2L, 100L));
+                () ->  blastFileManager.getResults(2L, 100));
     }
 
     @Test
     public void getResultLimitTest() {
-        BlastResult results = blastFileManager.getResults(1L, 1L);
+        BlastResult results = blastFileManager.getResults(1L, 1);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.getSize().intValue());
         Assertions.assertEquals(1, results.getEntries().size());
