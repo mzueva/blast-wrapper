@@ -42,7 +42,6 @@ import lombok.RequiredArgsConstructor;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,7 +133,7 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public CreateDbResponse createTaskForNewDb(final CreateDbRequest request) {
         if (request.getPathToFile() == null || request.getPathToFile().isBlank()
-                || request.getDbName().isBlank() || request.getTaxId() == null) {
+                || request.getDbName().isBlank() || request.getTaxId() == null || request.getTaxId() <= 0) {
             return CreateDbResponse.builder()
                     .status(Reason.ERROR_IN_QUERY_SEQUENCE_OR_BLAST_OPTIONS.getBlastCode())
                     .taskId(null)
@@ -214,6 +213,15 @@ public class TaskServiceImpl implements TaskService {
                                 .queryCovUs(92.0)
                                 .build()
                 )).build();
+    }
+
+    @Override
+    public TaskStatus cancelTask(Long id) {
+        return TaskStatus.builder()
+                .requestId(id)
+                .createdDate(LocalDateTime.now())
+                .status(Status.FAILED)
+                .build();
     }
 
     @Override
