@@ -24,7 +24,6 @@
 
 package com.epam.blast.manager.commands.commands;
 
-import com.epam.blast.utils.FileExtensions;
 import lombok.Builder;
 import lombok.NonNull;
 import org.thymeleaf.context.Context;
@@ -58,7 +57,8 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
     @Override
     public String generateCmd() {
         Context context = buildContext();
-        return TEMPLATE_ENGINE.process(MAKEDB_COMMAND_TEMPLATE, context);
+        return TEMPLATE_ENGINE.process(MAKEDB_COMMAND_TEMPLATE, context)
+                .trim().replaceAll(" +", " ");
     }
 
     private Context buildContext() {
@@ -66,7 +66,6 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
         context.setVariable("blastDbDirectory", blastDbDirectory);
         context.setVariable("inputFilePath", inputFilePath);
         context.setVariable("inputFileName", inputFileName);
-        context.setVariable("queryFileExtension", FileExtensions.FSA_EXT.getValue());
         context.setVariable(DB_TYPE, dbType);
         context.setVariable(PARSE_SEQ_ID, parseSeqIds);
         context.setVariable(DB_NAME, dbName);

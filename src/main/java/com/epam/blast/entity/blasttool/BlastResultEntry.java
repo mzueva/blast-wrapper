@@ -31,9 +31,9 @@ import lombok.Value;
 @Builder
 public class BlastResultEntry {
     String queryAccVersion;
+    Long queryLen;
     Long queryStart;
     Long queryEnd;
-    Long queryLen;
     String seqAccVersion;
     String seqSeqId;
     Long seqLen;

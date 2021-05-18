@@ -24,18 +24,19 @@
 
 package com.epam.blast.controller.task;
 
+import com.epam.blast.controller.AbstractRestController;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
-public class TaskController {
+public class TaskController extends AbstractRestController {
 
     private final TaskService taskService;
 
@@ -44,7 +45,7 @@ public class TaskController {
         return Result.success(taskService.getTaskStatus(id));
     }
 
-    @DeleteMapping("/task/{id}")
+    @PutMapping("/task/{id}/cancel")
     public Result<TaskStatus> cancelTask(@PathVariable final Long id) {
         return Result.success(taskService.cancelTask(id));
     }

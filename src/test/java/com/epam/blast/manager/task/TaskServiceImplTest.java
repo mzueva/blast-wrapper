@@ -32,6 +32,8 @@ import com.epam.blast.entity.db.Reason;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -94,12 +96,19 @@ public class TaskServiceImplTest {
 
     @Mock
     TaskRepository taskRepository;
+
+    @Mock
+    BlastFileManager blastFileManager;
+
+    @Mock
+    MessageHelper messageHelper;
+
     TaskServiceImpl taskService;
 
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        taskService = new TaskServiceImpl(taskRepository);
+        taskService = new TaskServiceImpl(taskRepository, blastFileManager, messageHelper);
     }
 
     @Test

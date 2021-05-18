@@ -32,6 +32,7 @@ import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
+import org.springframework.data.util.Pair;
 
 import java.util.List;
 import java.util.Map;
@@ -54,7 +55,9 @@ public interface TaskService {
 
     TaskEntity updateTask(final TaskEntity taskEntity);
 
-    BlastResult getBlastResult(final Long id);
+    BlastResult getBlastResult(final Long id, final Integer limit);
+
+    Pair<String, byte[]> getBlastRawResult(final Long id);
 
     TaskStatus cancelTask(Long id);
 }

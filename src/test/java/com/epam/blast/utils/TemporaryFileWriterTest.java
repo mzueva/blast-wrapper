@@ -37,7 +37,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import static com.epam.blast.utils.TemporaryFileWriter.STRING_NAME_FORMAT;
 import static java.nio.file.Files.createTempDirectory;
 import static java.nio.file.Files.isReadable;
 import static java.nio.file.Files.readAllLines;
@@ -53,8 +52,6 @@ public class TemporaryFileWriterTest {
     private static final Long LONG_TASK_ID = 0L;
     public static String testTemporaryFilesDirectory;
 
-    private static final String TEMPORARY_FILE_NAME =
-            String.format(STRING_NAME_FORMAT, LONG_TASK_ID, FileExtensions.FSA_EXT.getValue());
     public static final String TEST_QUERY = "Fake query string.";
     private File temporaryFile;
 
@@ -85,9 +82,8 @@ public class TemporaryFileWriterTest {
 
     @Test
     void testFileWriting() {
-        temporaryFile = fileWriter.writeToDisk(testTemporaryFilesDirectory, TEST_QUERY, LONG_TASK_ID);
+        temporaryFile = fileWriter.writeToDisk(testTemporaryFilesDirectory, TEST_QUERY, LONG_TASK_ID.toString());
         try {
-            assertEquals(TEMPORARY_FILE_NAME, temporaryFile.getName());
             assertTrue(isReadable(temporaryFile.toPath()));
             assertEquals(TEST_QUERY,
                     readAllLines(temporaryFile.toPath(), StandardCharsets.UTF_8).get(0));
@@ -101,12 +97,12 @@ public class TemporaryFileWriterTest {
     @Test
     void testNotNullArguments() {
         try {
-            temporaryFile = fileWriter.writeToDisk(null, TEST_QUERY, LONG_TASK_ID);
+            temporaryFile = fileWriter.writeToDisk(null, TEST_QUERY, LONG_TASK_ID.toString());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
         }
         try {
-            temporaryFile = fileWriter.writeToDisk(testTemporaryFilesDirectory, null, LONG_TASK_ID);
+            temporaryFile = fileWriter.writeToDisk(testTemporaryFilesDirectory, null, LONG_TASK_ID.toString());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
         }

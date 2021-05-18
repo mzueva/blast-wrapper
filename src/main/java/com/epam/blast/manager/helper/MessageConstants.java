@@ -42,9 +42,14 @@ public final class MessageConstants {
 
     // TASKS
     public static final String INFO_START_TASK_EXECUTION = "info.start.task.execution";
+    public static final String INFO_END_TASK_EXECUTION = "info.end.task.execution";
     public static final String ERROR_UNRECOGNIZED_COMMAND_TYPE = "error.unrecognized.command.type";
     public static final String ERROR_COMMAND_TYPE_IS_NULL = "error.command.type.is.null";
     public static final String INFO_RUN_NEW_TASK_LOOP = "info.run.new.tasks.loop";
     public static final String INFO_RUN_COMMAND = "info.run.command";
     public static final String ERROR_BLAST_TOOL_NOT_SET = "error.blast.tool.not.specified";
+    public static final String ERROR_WHILE_READ_TASK_OUTPUT = "error.while.read.task.output";
+    public static final String ERROR_WHILE_PARSE_TASK_OUTPUT = "error.while.parse.task.output";
+    public static final String ERROR_WRONG_FORMAT_OF_RESULT_STRING = "error.wrong.result.format";
+    public static final String ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE = "error.task.is.not.successfully.completed";
 }

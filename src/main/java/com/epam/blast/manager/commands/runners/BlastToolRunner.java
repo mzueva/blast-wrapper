@@ -29,13 +29,14 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
-import com.epam.blast.utils.TemporaryFileWriter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -48,7 +49,6 @@ import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
 import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
 import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
 import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
-import static com.epam.blast.entity.task.TaskEntityParams.QUERY;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 
 @Slf4j
@@ -60,49 +60,39 @@ public class BlastToolRunner implements CommandRunner {
     public static final String TASK_ARG = "-task";
     public static final String EMPTY = "";
 
-    private final String blastDbDirectory;
-    private final String blastQueryDirectory;
-    private final String blastResultsDirectory;
     private final CommandPerformer commandPerformer;
-    private final TemporaryFileWriter temporaryFileWriter;
+    private final BlastFileManager blastFileManager;
     private final MessageHelper messageHelper;
 
     @Autowired
     public BlastToolRunner(
-            @Value("${blast-wrapper.blast-commands.blast-db-directory}") String blastDbDirectory,
-            @Value("${blast-wrapper.blast-commands.blast-queries-directory}") String blastQueryDirectory,
-            @Value("${blast-wrapper.blast-commands.blast-results-directory}") String blastResultsDirectory,
             final SimpleCommandPerformer simpleCommandPerformer,
-            final TemporaryFileWriter temporaryFileWriter,
-            MessageHelper messageHelper) {
-        this.blastDbDirectory = blastDbDirectory;
-        this.blastQueryDirectory = blastQueryDirectory;
-        this.blastResultsDirectory = blastResultsDirectory;
+            final BlastFileManager blastFileManager,
+            final MessageHelper messageHelper) {
         this.commandPerformer = simpleCommandPerformer;
-        this.temporaryFileWriter = temporaryFileWriter;
+        this.blastFileManager = blastFileManager;
         this.messageHelper = messageHelper;
     }
 
     @Override
     public int runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         final Map<String, String> params = taskEntity.getParams();
-
-        final File queryFile = getQueryFile(taskEntity, params);
+        final File queryFile = blastFileManager.getQueryFile(taskEntity);
         final String queryFileName = getQueryFileName(queryFile);
-        final String dbName = getDbName(params);
+        final Pair<String, String> db = getDbDirectoryAndName(params);
         final String blastTool = getToolWithAlgorithm(params);
         final Long taskId = getTaskId(taskEntity);
 
         try {
             final String command =
                     BlastToolCommand.builder()
-                            .blastDbDirectory(blastDbDirectory)
-                            .blastQueriesDirectory(blastQueryDirectory)
-                            .blastResultsDirectory(blastResultsDirectory)
+                            .blastDbDirectory(db.getFirst())
+                            .blastQueriesDirectory(blastFileManager.getBlastQueryDirectory())
+                            .blastResultsDirectory(blastFileManager.getBlastResultsDirectory())
                             .blastTool(blastTool)
                             .queryFileName(queryFileName)
-                            .dbName(dbName)
-                            .taskId(taskId)
+                            .dbName(db.getSecond())
+                            .outputFileName(blastFileManager.getResultFileName(taskId))
                             .taxIds(params.getOrDefault(TAX_IDS, EMPTY))
                             .excludedTaxIds(params.getOrDefault(EXCLUDED_TAX_IDS, EMPTY))
                             .maxTargetSequence(params.getOrDefault(MAX_TARGET_SEQS, EMPTY))
@@ -112,7 +102,7 @@ public class BlastToolRunner implements CommandRunner {
                             .generateCmd();
             return commandPerformer.perform(command);
         } finally {
-            temporaryFileWriter.removeFile(queryFile);
+            blastFileManager.removeQueryFile(taskId);
         }
     }
 
@@ -127,17 +117,17 @@ public class BlastToolRunner implements CommandRunner {
         return tool.getValue();
     }
 
-    private File getQueryFile(final TaskEntity taskEntity, final Map<String, String> params) {
-        return temporaryFileWriter
-                .writeToDisk(blastQueryDirectory, params.get(QUERY), taskEntity.getId());
-    }
-
     private String getQueryFileName(final File queryFile) {
         return FilenameUtils.removeExtension(queryFile.getName());
     }
 
-    private String getDbName(final Map<String, String> params) {
-        return params.get(DB_NAME);
+    private Pair<String, String> getDbDirectoryAndName(final Map<String, String> params) {
+        final String dbPath = params.get(DB_NAME);
+        final String path = FilenameUtils.getFullPath(dbPath);
+        return Pair.of(
+                StringUtils.isNotBlank(path) ? path : blastFileManager.getBlastDbDirectory(),
+                FilenameUtils.getBaseName(dbPath)
+        );
     }
 
     private Long getTaskId(final TaskEntity taskEntity) {
