@@ -2,11 +2,13 @@ package com.epam.blast.validators;
 
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
@@ -19,19 +21,11 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.INCORRECT_ALGORITHM_FOR_BLASTN_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.INCORRECT_ALGORITHM_FOR_BLASTP_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.QUERY_IS_REQUIRED_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE;
-import static com.epam.blast.validators.BlastStartSearchingRequestValidator.TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -44,22 +38,22 @@ public class BlastStartSearchingRequestValidatorTest {
     public static final List<String> TEST_TAX_IDS = List.of("1", "2", "3");
     public static final List<String> TEST_EXECUTED_TAX_IDS = List.of("1", "2", "3");
 
-    public static final Set<String> TEST_VALID_ALGORITHMS_FOR_BLASTN = Set.of("megablast", "dc-megablast", "blastn");
-    public static final Set<String> TEST_VALID_ALGORITHMS_FOR_BLASTP = Set.of("blastp", "blastp-fast", "blastp-short");
     public static final Long TEST_TARGET_SEQUENCE_MAX_LIMIT = 1000L;
     public static final Long TEST_TARGET_SEQUENCE_MIN_LIMIT = 0L;
     public static final Double TEST_EXPECTED_THRESHOLD_MIN_LIMIT = 0.0;
 
     BlastStartSearchingRequestValidator validator;
     BlastStartSearchingRequest request;
+    @Mock
+    MessageHelper messageHelper;
 
     @BeforeEach
     public void init() {
-        validator = new BlastStartSearchingRequestValidator(TEST_TARGET_SEQUENCE_MAX_LIMIT);
+        validator = new BlastStartSearchingRequestValidator(TEST_TARGET_SEQUENCE_MAX_LIMIT, messageHelper);
     }
 
     /*
-    tool Validation
+    "tool" validation
     */
     @Test
     void testBlastToolIsExists() {
@@ -79,31 +73,31 @@ public class BlastStartSearchingRequestValidatorTest {
                     .blastTool(blastToolFromInput.equals(NULL_AS_STRING) ? null : blastToolFromInput)
                     .build();
 
-            if (request.getBlastTool() == null
-                    || request.getBlastTool().isBlank()
+            if (StringUtils.isBlank(request.getBlastTool())
                     || getTool(request) == null
                     || !Set.of(BlastTool.values()).contains(getTool(request))) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE, thrown.getMessage());
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             }
         }
     }
 
     /*
-    algorithm Validation
+    "algorithm" validation
     */
     @Test
-    void testOnlyBlastnAndBlastpHaveValidAlgorithms() {
+    void testOnlyToolsWithRequiredAlgorithmHaveValidAlgorithms() {
+        when(messageHelper.getMessage(anyString()))
+                .thenThrow(new IllegalArgumentException());
+
         final Map<String, String> blastToolsWithAlgorithm = new HashMap<>();
         final Set<String> tools = Arrays.stream(BlastTool.values())
                 .map(Enum::toString)
                 .collect(Collectors.toSet());
         for (String blastTool : tools) {
-            for (String algorithm : TEST_VALID_ALGORITHMS_FOR_BLASTN) {
+            for (String algorithm : BlastTool.BLASTN.getAlgorithms()) {
                 blastToolsWithAlgorithm.put(blastTool, algorithm);
             }
-            for (String algorithm : TEST_VALID_ALGORITHMS_FOR_BLASTP) {
+            for (String algorithm : BlastTool.BLASTP.getAlgorithms()) {
                 blastToolsWithAlgorithm.put(blastTool, algorithm);
             }
         }
@@ -118,34 +112,21 @@ public class BlastStartSearchingRequestValidatorTest {
                     .build();
 
             final BlastTool tool = getTool(request);
-            if (request.getAlgorithm() != null) {
-                if (tool == BlastTool.BLASTN) {
-                    if (!TEST_VALID_ALGORITHMS_FOR_BLASTN.contains(request.getAlgorithm())) {
-                        final Throwable thrown
-                                = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                        assertEquals(INCORRECT_ALGORITHM_FOR_BLASTN_EXCEPTION_MESSAGE, thrown.getMessage());
-                    } else {
-                        assertDoesNotThrow(() -> validator.validate(request));
-                    }
-                } else if (tool == BlastTool.BLASTP) {
-                    if (!TEST_VALID_ALGORITHMS_FOR_BLASTP.contains(request.getAlgorithm())) {
-                        final Throwable thrown
-                                = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                        assertEquals(INCORRECT_ALGORITHM_FOR_BLASTP_EXCEPTION_MESSAGE, thrown.getMessage());
-                    } else {
-                        assertDoesNotThrow(() -> validator.validate(request));
-                    }
+
+            if (StringUtils.isNotBlank(request.getAlgorithm())) {
+                if (!Objects.requireNonNull(tool).getAlgorithms().contains(request.getAlgorithm())) {
+                    assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
+                } else if (!Objects.requireNonNull(tool).isSupportsAlg()) {
+                    assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
                 } else {
-                    final Throwable thrown
-                            = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                    assertEquals(INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE, thrown.getMessage());
+                    assertDoesNotThrow(() -> validator.validate(request));
                 }
             }
         }
     }
 
     @Test
-    void testBlastnAndBlastpShouldHaveAlgorithms() {
+    void testToolsWithRequiredAlgorithmShouldHaveAlgorithms() {
         final Map<String, String> blastToolsWithAlgorithm = Map.of(
                 BlastTool.BLASTN.getValue(), NULL_AS_STRING,
                 BlastTool.BLASTP.getValue(), NULL_AS_STRING,
@@ -165,10 +146,8 @@ public class BlastStartSearchingRequestValidatorTest {
                     .build();
 
             if (Objects.requireNonNull(getTool(request)).isSupportsAlg()
-                    && request.getAlgorithm() == null) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE, thrown.getMessage());
+                    && StringUtils.isBlank(request.getAlgorithm())) {
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             } else {
                 assertDoesNotThrow(() -> validator.validate(request));
             }
@@ -176,7 +155,7 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     /*
-    dbName Validation
+    "dbName" validation
     */
     @Test
     void testDbNameIsNotBlank() {
@@ -188,13 +167,11 @@ public class BlastStartSearchingRequestValidatorTest {
             request = BlastStartSearchingRequest.builder()
                     .dbName(dbName)
                     .query(TEST_QUERY)
-                    .blastTool(BlastTool.BLASTX.toString())
+                    .blastTool(BlastTool.TBLASTX.toString())
                     .build();
 
             if (StringUtils.isBlank(request.getDbName())) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE, thrown.getMessage());
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             } else {
                 assertDoesNotThrow(() -> validator.validate(request));
             }
@@ -202,7 +179,7 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     /*
-    ids Validation
+    "ids" validation
     */
     @Test
     void testTaxIdsAndExcludedTaxIdsIsNotPresentSimultaneously() {
@@ -225,17 +202,14 @@ public class BlastStartSearchingRequestValidatorTest {
                 request = BlastStartSearchingRequest.builder()
                         .dbName(TEST_DB_NAME)
                         .query(TEST_QUERY)
-                        .blastTool(BlastTool.BLASTX.toString())
+                        .blastTool(BlastTool.TBLASTX.toString())
                         .taxIds(taxIds)
                         .excludedTaxIds(excludedTaxIds)
                         .build();
 
                 if (hasIds(request.getTaxIds())
                         && hasIds(request.getExcludedTaxIds())) {
-                    final Throwable thrown
-                            = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                    assertEquals(TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE,
-                            thrown.getMessage());
+                    assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
                 } else {
                     assertDoesNotThrow(() -> validator.validate(request));
                 }
@@ -244,7 +218,7 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     /*
-    queryValidation
+    "query" validation
     */
     @Test
     void testQueryIsNotBlank() {
@@ -256,13 +230,11 @@ public class BlastStartSearchingRequestValidatorTest {
             request = BlastStartSearchingRequest.builder()
                     .dbName(TEST_DB_NAME)
                     .query(queryFromInput)
-                    .blastTool(BlastTool.BLASTX.toString())
+                    .blastTool(BlastTool.TBLASTX.toString())
                     .build();
 
             if (StringUtils.isBlank(request.getQuery())) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(QUERY_IS_REQUIRED_EXCEPTION_MESSAGE, thrown.getMessage());
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             } else {
                 assertDoesNotThrow(() -> validator.validate(request));
             }
@@ -270,7 +242,7 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     /*
-    maxTargetSequenceValidation
+    "maxTargetSequence" validation
     */
     @Test
     void testMaxTargetSequenceLimitations() {
@@ -288,16 +260,13 @@ public class BlastStartSearchingRequestValidatorTest {
             request = BlastStartSearchingRequest.builder()
                     .dbName(TEST_DB_NAME)
                     .query(TEST_QUERY)
-                    .blastTool(BlastTool.BLASTX.toString())
+                    .blastTool(BlastTool.TBLASTX.toString())
                     .maxTargetSequence(maxTargetSequence)
                     .build();
 
             if (request.getMaxTargetSequence() <= TEST_TARGET_SEQUENCE_MIN_LIMIT
                     || request.getMaxTargetSequence() >= TEST_TARGET_SEQUENCE_MAX_LIMIT) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE,
-                        thrown.getMessage());
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             } else {
                 assertDoesNotThrow(() -> validator.validate(request));
             }
@@ -306,7 +275,7 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     /*
-    expectedThresholdValidation
+    "expectedThreshold" validation
     */
     @Test
     void testExpectedThresholdLimitations() {
@@ -324,21 +293,19 @@ public class BlastStartSearchingRequestValidatorTest {
             request = BlastStartSearchingRequest.builder()
                     .dbName(TEST_DB_NAME)
                     .query(TEST_QUERY)
-                    .blastTool(BlastTool.BLASTX.toString())
+                    .blastTool(BlastTool.TBLASTX.toString())
                     .expectedThreshold(expectedThreshold)
                     .build();
 
             if (request.getExpectedThreshold() <= TEST_EXPECTED_THRESHOLD_MIN_LIMIT) {
-                final Throwable thrown
-                        = assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
-                assertEquals(EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE, thrown.getMessage());
+                assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
             } else {
                 assertDoesNotThrow(() -> validator.validate(request));
             }
         }
     }
 
-    private BlastTool getTool(BlastStartSearchingRequest request) {
+    private BlastTool getTool(final BlastStartSearchingRequest request) {
         try {
             return BlastTool.valueOf(request.getBlastTool().toUpperCase(Locale.ROOT));
         } catch (IllegalArgumentException e) {
@@ -347,7 +314,7 @@ public class BlastStartSearchingRequestValidatorTest {
         }
     }
 
-    private boolean hasIds(List<Long> ids) {
+    private boolean hasIds(final List<Long> ids) {
         if (ids == null) {
             return false;
         }

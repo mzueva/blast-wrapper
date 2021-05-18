@@ -146,7 +146,7 @@ class ScheduledServiceTest {
             future.get(MAX_TEST_RUN_TIMEOUT, TimeUnit.SECONDS);
         } catch (ExecutionException | TimeoutException e) {
             e.printStackTrace();
-            fail("ExecutorService didn't finish in exexpected time!");
+            fail("ExecutorService didn't finish in expected time!");
         }
     }
 }

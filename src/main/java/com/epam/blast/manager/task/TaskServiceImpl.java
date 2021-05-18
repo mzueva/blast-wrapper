@@ -78,13 +78,6 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
     private final BlastStartSearchingRequestValidator blastStartSearchingRequestValidator;
 
-    @Autowired
-    public TaskServiceImpl(final TaskRepository taskRepository,
-                           final BlastStartSearchingRequestValidator blastStartSearchingRequestValidator) {
-        this.taskRepository = taskRepository;
-        this.blastStartSearchingRequestValidator = blastStartSearchingRequestValidator;
-    }
-
     @Override
     public TaskStatus getTaskStatus(final Long id) {
         Optional<TaskEntity> task = taskRepository.findById(id);
@@ -216,7 +209,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskStatus cancelTask(Long id) {
+    public TaskStatus cancelTask(final Long id) {
         return TaskStatus.builder()
                 .requestId(id)
                 .createdDate(LocalDateTime.now())
@@ -226,7 +219,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity updateTask(final TaskEntity taskEntity) {
-        Long id = taskEntity.getId();
+        final Long id = taskEntity.getId();
         findTask(id);
 
         taskRepository.save(taskEntity);
