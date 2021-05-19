@@ -27,14 +27,15 @@ package com.epam.blast.entity.blasttool;
 import lombok.Getter;
 
 import java.util.Locale;
+import java.util.Set;
 
 public enum BlastTool {
 
-    BLASTN("blastn", true),
-    BLASTP("blastp", true),
-    BLASTX("blastx", true),
-    TBLASTN("tblastn", true),
-    TBLASTX("tblastx", false);
+    BLASTN("blastn", true, Set.of("megablast", "dc-megablast", "blastn")),
+    BLASTP("blastp", true, Set.of("blastp", "blastp-fast", "blastp-short")),
+    BLASTX("blastx", true, Set.of("blastx", "blastx-fast")),
+    TBLASTN("tblastn", true, Set.of("tblastn", "tblastn-fast")),
+    TBLASTX("tblastx", false, Set.of());
 
     @Getter
     private final String value;
@@ -42,9 +43,13 @@ public enum BlastTool {
     @Getter
     private final boolean supportsAlg;
 
-    BlastTool(final String value, final boolean supportsAlg) {
+    @Getter
+    private final Set<String> algorithms;
+
+    BlastTool(final String value, final boolean supportsAlg, final Set<String> algorithms) {
         this.value = value;
         this.supportsAlg = supportsAlg;
+        this.algorithms = algorithms;
     }
 
     public static BlastTool getByValue(final String value) {

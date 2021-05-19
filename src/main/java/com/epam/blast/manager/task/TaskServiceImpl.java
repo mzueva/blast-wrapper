@@ -39,7 +39,10 @@ import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
+import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+
 import lombok.RequiredArgsConstructor;
+
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
@@ -80,6 +83,7 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final BlastFileManager blastFileManager;
+    private final BlastStartSearchingRequestValidator blastStartSearchingRequestValidator;
     private final MessageHelper messageHelper;
 
     @Override
@@ -105,26 +109,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request) {
-        if (StringUtils.isBlank(request.getQuery()) || StringUtils.isBlank(request.getDbName())
-                || StringUtils.isBlank(request.getBlastTool())) {
-            return TaskStatus.builder()
-                    .requestId(null)
-                    .createdDate(null)
-                    .status(Status.FAILED)
-                    .taskType(TaskType.BLAST_TOOL)
-                    .build();
-        } else {
-            final TaskEntity taskEntity = saveTask(createTask(
-                    TaskType.BLAST_TOOL,
-                    mapBlastToolParameters(request)
-            ));
-            return TaskStatus.builder()
-                    .requestId(taskEntity.getId())
-                    .createdDate(taskEntity.getCreatedAt())
-                    .status(taskEntity.getStatus())
-                    .taskType(TaskType.BLAST_TOOL)
-                    .build();
-        }
+        blastStartSearchingRequestValidator.validate(request);
+        final TaskEntity taskEntity = saveTask(
+                createTask(TaskType.BLAST_TOOL, mapBlastToolParameters(request))
+        );
+        return TaskStatus.builder()
+                .requestId(taskEntity.getId())
+                .createdDate(taskEntity.getCreatedAt())
+                .status(taskEntity.getStatus())
+                .taskType(TaskType.BLAST_TOOL)
+                .build();
     }
 
     @Override
@@ -139,19 +133,22 @@ public class TaskServiceImpl implements TaskService {
                     .build();
         } else {
             final TaskEntity taskEntity = saveTask(
-                    createTask(
-                            TaskType.MAKE_BLAST_DB,
-                            Map.of(
-                                    PATH_TO_FILE, request.getPathToFile(),
-                                    DB_TYPE, (request.getDbType() == null)
-                                            ? "" : request.getDbType().toString(),
-                                    DB_NAME, request.getDbName(),
-                                    DB_TITLE, request.getTitle(),
-                                    PARSE_SEQ_ID, (request.getParseSeqIds() == null)
-                                            ? "" : request.getParseSeqIds().toString(),
-                                    BLAST_DB_VERSION, (request.getBlastDbVersion() == null)
-                                            ? "" : request.getBlastDbVersion().toString(),
-                                    TAX_ID, request.getTaxId().toString())));
+                createTask(
+                    TaskType.MAKE_BLAST_DB,
+                    Map.of(
+                        PATH_TO_FILE, request.getPathToFile(),
+                        DB_TYPE, (request.getDbType() == null)
+                                ? "" : request.getDbType().toString(),
+                        DB_NAME, request.getDbName(),
+                        DB_TITLE, request.getTitle(),
+                        PARSE_SEQ_ID, (request.getParseSeqIds() == null)
+                                ? "" : request.getParseSeqIds().toString(),
+                        BLAST_DB_VERSION, (request.getBlastDbVersion() == null)
+                                ? "" : request.getBlastDbVersion().toString(),
+                        TAX_ID, request.getTaxId().toString()
+                    )
+                )
+            );
             return CreateDbResponse.builder()
                     .status(Reason.SUCCESS.getBlastCode())
                     .taskId(taskEntity.getId())
@@ -214,7 +211,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity updateTask(final TaskEntity taskEntity) {
-        Long id = taskEntity.getId();
+        final Long id = taskEntity.getId();
         findTask(id);
         taskRepository.save(taskEntity);
         return taskEntity;
@@ -222,11 +219,11 @@ public class TaskServiceImpl implements TaskService {
 
     private Map<String, String> mapBlastToolParameters(final BlastStartSearchingRequest request) {
         final Map<String, String> result = new HashMap<>(
-                Map.of(
-                        BLAST_TOOL, request.getBlastTool(),
-                        DB_NAME, request.getDbName(),
-                        QUERY, request.getQuery()
-                )
+            Map.of(
+                BLAST_TOOL, request.getBlastTool(),
+                DB_NAME, request.getDbName(),
+                QUERY, request.getQuery()
+            )
         );
 
         if (StringUtils.isNotBlank(request.getAlgorithm())) {
@@ -239,31 +236,31 @@ public class TaskServiceImpl implements TaskService {
 
         if (CollectionUtils.isNotEmpty(request.getExcludedTaxIds())) {
             result.put(
-                    EXCLUDED_TAX_IDS,
-                    CollectionUtils.emptyIfNull(request.getExcludedTaxIds()).stream()
-                            .map(Object::toString).collect(Collectors.joining(DELIMITER))
+                EXCLUDED_TAX_IDS,
+                CollectionUtils.emptyIfNull(request.getExcludedTaxIds()).stream()
+                        .map(Object::toString).collect(Collectors.joining(DELIMITER))
             );
         }
 
         if (CollectionUtils.isNotEmpty(request.getTaxIds())) {
             result.put(
-                    TAX_IDS,
-                    CollectionUtils.emptyIfNull(request.getTaxIds()).stream()
-                            .map(Object::toString).collect(Collectors.joining(DELIMITER))
+                TAX_IDS,
+                CollectionUtils.emptyIfNull(request.getTaxIds()).stream()
+                        .map(Object::toString).collect(Collectors.joining(DELIMITER))
             );
         }
 
         if (request.getExpectedThreshold() != null) {
             result.put(
-                    EXPECTED_THRESHOLD,
-                    String.join(DELIMITER, request.getExpectedThreshold().toString())
+                EXPECTED_THRESHOLD,
+                String.join(DELIMITER, request.getExpectedThreshold().toString())
             );
         }
 
         if (request.getMaxTargetSequence() != null) {
             result.put(
-                    MAX_TARGET_SEQS,
-                    String.join(DELIMITER, request.getMaxTargetSequence().toString())
+                MAX_TARGET_SEQS,
+                String.join(DELIMITER, request.getMaxTargetSequence().toString())
             );
         }
         return result;

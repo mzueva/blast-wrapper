@@ -63,6 +63,7 @@ dependencies {
     testCompileOnly 'org.projectlombok:lombok:1.18.16'
     testAnnotationProcessor 'org.projectlombok:lombok:1.18.16'
     testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
+    testImplementation "org.junit.platform:junit-platform-commons:$junitPlatformCommonsVersion"
     testImplementation "org.hamcrest:hamcrest-all:$hamcrestVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
     testImplementation "org.testng:testng:6.10", "org.easytesting:fest-assert:1.4"

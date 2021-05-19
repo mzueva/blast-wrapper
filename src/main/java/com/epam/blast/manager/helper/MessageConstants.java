@@ -55,4 +55,18 @@ public final class MessageConstants {
     public static final String ERROR_WHILE_REMOVING_BLAST_OUTPUT = "error.while.removing.blast.output";
     public static final String WARN_CANCEL_COMMAND_IS_BLANK = "warn.cancel.command.is.blank";
     public static final String INFO_CURRENT_ACTIVE_TASKS = "info.current.active.tasks";
+
+    // INPUT VALIDATION
+    public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";
+    public static final String INCORRECT_ALGORITHM_FOR_EXCEPTION_MESSAGE = "error.not.correct.algorithm.for.this.tool";
+    public static final String INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE = "error.tool.does.not.support.algorithm";
+    public static final String TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE
+            = "error.command.for.tool.should.have.algorithm";
+    public static final String QUERY_IS_REQUIRED_EXCEPTION_MESSAGE = "error.query.is.required";
+    public static final String DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE = "error.dbName.is.required";
+    public static final String TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE
+            = "error.taxIds.and.excludedTaxIds.are.both.presented";
+    public static final String TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.maxTargetSequence";
+    public static final String EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.expectedThreshold";
+
 }
