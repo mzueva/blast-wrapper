@@ -77,7 +77,7 @@ public class ScheduledService {
     }
 
     @Scheduled(initialDelay = 0, fixedDelayString = "${blast-wrapper.task-status-checking.interval}")
-    synchronized public void runNewTasks() {
+    public synchronized void runNewTasks() {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_NEW_TASK_LOOP));
         log.info(messageHelper.getMessage(MessageConstants.INFO_CURRENT_ACTIVE_TASKS,
                 tasksFutures.size(), semaphore.availablePermits()));
@@ -122,7 +122,7 @@ public class ScheduledService {
         return result;
     }
 
-    synchronized public TaskStatus cancelTask(Long id) {
+    public synchronized TaskStatus cancelTask(Long id) {
         final TaskEntity task = taskService.findTask(id);
         if (task.getStatus() == Status.RUNNING) {
             tasksFutures.get(task.getId()).cancel(true);
