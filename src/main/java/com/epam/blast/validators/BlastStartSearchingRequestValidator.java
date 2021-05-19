@@ -77,7 +77,9 @@ public class BlastStartSearchingRequestValidator {
     private void idsValidation(final BlastStartSearchingRequest request) {
         if (hasIds(request.getTaxIds()) && hasIds(request.getExcludedTaxIds())) {
             throw new IllegalArgumentException(
-                    messageHelper.getMessage(MessageConstants.TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE)
+                    messageHelper.getMessage(
+                            MessageConstants.TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE
+                    )
             );
         }
     }
