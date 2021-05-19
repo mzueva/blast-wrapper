@@ -23,9 +23,6 @@ import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
-
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
@@ -86,9 +83,6 @@ public class BlastStartSearchingRequestValidatorTest {
     */
     @Test
     void testOnlyToolsWithRequiredAlgorithmHaveValidAlgorithms() {
-        when(messageHelper.getMessage(anyString()))
-                .thenThrow(new IllegalArgumentException());
-
         final Map<String, String> blastToolsWithAlgorithm = new HashMap<>();
         final Set<String> tools = Arrays.stream(BlastTool.values())
                 .map(Enum::toString)
@@ -207,8 +201,7 @@ public class BlastStartSearchingRequestValidatorTest {
                         .excludedTaxIds(excludedTaxIds)
                         .build();
 
-                if (hasIds(request.getTaxIds())
-                        && hasIds(request.getExcludedTaxIds())) {
+                if (hasIds(request.getTaxIds()) && hasIds(request.getExcludedTaxIds())) {
                     assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
                 } else {
                     assertDoesNotThrow(() -> validator.validate(request));
@@ -315,14 +308,6 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     private boolean hasIds(final List<Long> ids) {
-        if (ids == null) {
-            return false;
-        }
-        for (Long id : ids) {
-            if (id > 0L) {
-                return true;
-            }
-        }
-        return false;
+        return ids != null && !ids.isEmpty();
     }
 }

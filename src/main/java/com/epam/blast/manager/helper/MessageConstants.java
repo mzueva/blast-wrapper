@@ -49,23 +49,16 @@ public final class MessageConstants {
     public static final String ERROR_BLAST_TOOL_NOT_SET = "error.blast.tool.not.specified";
 
     // INPUT VALIDATION
-    public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE
-            = "error.incorrect.tool.type";
-    public static final String INCORRECT_ALGORITHM_FOR_EXCEPTION_MESSAGE
-            = "error.not.correct.algorithm.for.this.tool";
-    public static final String INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE
-            = "error.tool.does.not.support.algorithm";
+    public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";
+    public static final String INCORRECT_ALGORITHM_FOR_EXCEPTION_MESSAGE = "error.not.correct.algorithm.for.this.tool";
+    public static final String INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE = "error.tool.does.not.support.algorithm";
     public static final String TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE
             = "error.command.for.tool.should.have.algorithm";
-    public static final String QUERY_IS_REQUIRED_EXCEPTION_MESSAGE
-            = "error.query.is.required";
-    public static final String DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE
-            = "error.dbName.is.required";
+    public static final String QUERY_IS_REQUIRED_EXCEPTION_MESSAGE = "error.query.is.required";
+    public static final String DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE = "error.dbName.is.required";
     public static final String TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE
             = "error.taxIds.and.excludedTaxIds.are.both.presented";
-    public static final String TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE
-            = "error.unappropriated.maxTargetSequence";
-    public static final String EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE
-            = "error.unappropriated.expectedThreshold";
+    public static final String TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.maxTargetSequence";
+    public static final String EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.expectedThreshold";
 
 }
