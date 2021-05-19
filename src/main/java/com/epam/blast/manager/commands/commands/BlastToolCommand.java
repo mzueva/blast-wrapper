@@ -41,7 +41,7 @@ import static java.io.File.separator;
 @Builder
 public class BlastToolCommand implements BlastWrapperCommand {
 
-    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=, qaccver qlen qstart qend saccver sseqid slen "
+    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=%s qaccver qlen qstart qend saccver sseqid slen "
             + "sstart send evalue bitscore score length pident nident mismatch positive gapopen gaps ppos "
             + "staxid ssciname scomname sstrand qcovs qcovhsp qcovus\"";
     public static final int BLAST_FILE_FORMAT_PARTS = 27;
@@ -86,6 +86,9 @@ public class BlastToolCommand implements BlastWrapperCommand {
     @NonNull
     private final String taskName;
 
+    @NonNull
+    private final String resultDelimiter;
+
     private final String taxIds;
     private final String excludedTaxIds;
     private final String maxTargetSequence;
@@ -111,7 +114,8 @@ public class BlastToolCommand implements BlastWrapperCommand {
         context.setVariable(DB_NAME, dbName);
         context.setVariable(BLAST_RESULTS_DIRECTORY, blastResultsDirectory);
         context.setVariable(PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME, separator);
-        context.setVariable(BLAST_FILE_FORMAT_STRING_TEMPLATE, BLAST_FILE_FORMAT_STRING);
+        context.setVariable(BLAST_FILE_FORMAT_STRING_TEMPLATE,
+                String.format(BLAST_FILE_FORMAT_STRING, resultDelimiter));
         context.setVariable(TAX_IDS, getCommandParameterOrEmpty(TAXIDS_BLAST_PARAM_NAME, taxIds));
         context.setVariable(EXCLUDED_TAX_IDS,
                 getCommandParameterOrEmpty(NEGATIVE_TAXIDS_BLAST_PARAM_NAME, excludedTaxIds));

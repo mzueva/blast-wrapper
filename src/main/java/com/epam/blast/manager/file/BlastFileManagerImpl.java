@@ -126,6 +126,11 @@ public class BlastFileManagerImpl implements BlastFileManager {
     }
 
     @Override
+    public String getResultDelimiter() {
+        return resultDelimiter;
+    }
+
+    @Override
     public void removeQueryFile(Long taskId) {
         temporaryFileWriter
                 .removeFile(getBlastQueryDirectory(), String.format(QUERY_NAME_FORMAT, taskId));

@@ -62,6 +62,7 @@ public class BlastToolRunnerTest {
     public static final String TEST_BLAST_DB_DIRECTORY = "blastdb_custom";
     public static final String TEST_BLAST_QUERIES_DIRECTORY = "queries";
     public static final String TEST_BLAST_RESULTS_DIRECTORY = "results";
+    public static final String DELIMITER = ",";
 
     @Mock
     private SimpleCommandPerformer commandPerformerMock;
@@ -87,6 +88,7 @@ public class BlastToolRunnerTest {
         when(blastFileManager.getBlastResultsDirectory()).thenReturn(TEST_BLAST_RESULTS_DIRECTORY);
         when(blastFileManager.getBlastQueryDirectory()).thenReturn(TEST_BLAST_QUERIES_DIRECTORY);
         when(blastFileManager.getBlastDbDirectory()).thenReturn(TEST_BLAST_DB_DIRECTORY);
+        when(blastFileManager.getResultDelimiter()).thenReturn(DELIMITER);
 
     }
 

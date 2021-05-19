@@ -78,6 +78,7 @@ public class BlastToolCommandTest {
             + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
             + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
             + "qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"};
+    public static final String RESULT_DELIMITER = ",";
 
     @Test
     void testMakeBlastToolCommand() {
@@ -85,6 +86,7 @@ public class BlastToolCommandTest {
             String command =
                     BlastToolCommand.builder()
                             .taskName(TASK_NAME + i)
+                            .resultDelimiter(RESULT_DELIMITER)
                             .blastDbDirectory(TEST_BLAST_DB_DIRECTORY)
                             .blastQueriesDirectory(TEST_BLAST_QUERIES_DIRECTORY)
                             .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)

@@ -77,7 +77,6 @@ class MakeBlastDbRunnerTest {
     public static final Integer AMOUNT_TASKS_VALID = 6;
     public static final Integer AMOUNT_TASKS_NOT_VALID = 3;
     public static final Integer AMOUNT_TASKS_TOTAL = AMOUNT_TASKS_VALID + AMOUNT_TASKS_NOT_VALID;
-    private static final String STRING_COMMAND = "Fake efetch command.";
     private static final Integer DEFAULT_DB_VERSION = 5;
     private static final Boolean DEFAULT_SEQ_IDS = true;
     private static final String TEST_BLAST_FASTA_DIRECTORY = "blast_home" + File.separator + "fasta";
@@ -106,7 +105,7 @@ class MakeBlastDbRunnerTest {
     }
 
     @Test
-    void testMakeBlastDbRunner() throws IOException, InterruptedException {
+    void testMakeBlastDbRunner() throws IOException {
         int npeCounter = 0;
         for (TaskEntity task : taskList) {
             try {

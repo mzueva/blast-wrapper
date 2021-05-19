@@ -80,10 +80,10 @@ public class BlastToolRunner implements CommandRunner {
     public int runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         final Map<String, String> params = taskEntity.getParams();
         final File queryFile = blastFileManager.getQueryFile(taskEntity);
-        final String queryFileName = getQueryFileName(queryFile);
+        final String queryFileName = queryFile.getName();
         final Pair<String, String> db = getDbDirectoryAndName(params);
         final String blastTool = getToolWithAlgorithm(params);
-        final Long taskId = getTaskId(taskEntity);
+        final Long taskId = taskEntity.getId();
 
         try {
             final String command =
@@ -93,6 +93,7 @@ public class BlastToolRunner implements CommandRunner {
                             .blastQueriesDirectory(blastFileManager.getBlastQueryDirectory())
                             .blastResultsDirectory(blastFileManager.getBlastResultsDirectory())
                             .blastTool(blastTool)
+                            .resultDelimiter(blastFileManager.getResultDelimiter())
                             .queryFileName(queryFileName)
                             .dbName(db.getSecond())
                             .outputFileName(blastFileManager.getResultFileName(taskId))
@@ -140,10 +141,6 @@ public class BlastToolRunner implements CommandRunner {
         return tool.getValue();
     }
 
-    private String getQueryFileName(final File queryFile) {
-        return FilenameUtils.removeExtension(queryFile.getName());
-    }
-
     private Pair<String, String> getDbDirectoryAndName(final Map<String, String> params) {
         final String dbPath = params.get(DB_NAME);
         final String path = FilenameUtils.getFullPath(dbPath);
@@ -151,9 +148,5 @@ public class BlastToolRunner implements CommandRunner {
                 StringUtils.isNotBlank(path) ? path : blastFileManager.getBlastDbDirectory(),
                 FilenameUtils.getBaseName(dbPath)
         );
-    }
-
-    private Long getTaskId(final TaskEntity taskEntity) {
-        return taskEntity.getId();
     }
 }

@@ -51,4 +51,6 @@ public interface BlastFileManager {
     String defaultFastaDirectory();
 
     void removeBlastOutput(Long taskId);
+
+    String getResultDelimiter();
 }
