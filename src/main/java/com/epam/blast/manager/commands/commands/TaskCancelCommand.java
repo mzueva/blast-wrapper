@@ -25,60 +25,28 @@
 package com.epam.blast.manager.commands.commands;
 
 import lombok.Builder;
-import lombok.NonNull;
 import org.thymeleaf.context.Context;
 
-import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
-import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
-import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
-
 @Builder
-public class MakeBlastDbCommand implements BlastWrapperCommand {
+public class TaskCancelCommand implements BlastWrapperCommand {
 
-    private static final String MAKEDB_COMMAND_TEMPLATE = "makedb_command_template";
+    private static final String BLAST_COMMAND_TEMPLATE = "cancel_command_template";
     private static final String TASK_NAME = "taskName";
 
-    @NonNull
-    private final String inputFileName;
-
-    @NonNull
-    private final String dbName;
-
-    @NonNull
-    private final String inputFilePath;
-
-    @NonNull
     private final String taskName;
-
-    private final String blastDbDirectory;
-    private final String dbType;
-    private final String parseSeqIds;
-    private final String dbTitle;
-    private final Integer taxId;
-    private final Integer blastDbVersion;
 
     @Override
     public String generateCmd() {
         Context context = buildContext();
-        return TEMPLATE_ENGINE.process(MAKEDB_COMMAND_TEMPLATE, context)
-                .trim().replaceAll(" +", " ");
+        return TEMPLATE_ENGINE.process(BLAST_COMMAND_TEMPLATE, context)
+                .replaceAll(" +", " ")
+                .trim();
     }
 
     private Context buildContext() {
         Context context = new Context();
-        context.setVariable("blastDbDirectory", blastDbDirectory);
-        context.setVariable("inputFilePath", inputFilePath);
-        context.setVariable("inputFileName", inputFileName);
-        context.setVariable(DB_TYPE, dbType);
-        context.setVariable(PARSE_SEQ_ID, parseSeqIds);
-        context.setVariable(DB_NAME, dbName);
-        context.setVariable(DB_TITLE, dbTitle);
-        context.setVariable(TAX_ID, taxId);
-        context.setVariable(BLAST_DB_VERSION, blastDbVersion);
         context.setVariable(TASK_NAME, taskName);
         return context;
     }
+
 }

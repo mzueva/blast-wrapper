@@ -25,8 +25,10 @@
 package com.epam.blast.manager.commands.runners;
 
 import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
+import com.epam.blast.manager.commands.commands.TaskCancelCommand;
 import com.epam.blast.manager.commands.performers.CommandPerformer;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
@@ -78,18 +80,20 @@ public class BlastToolRunner implements CommandRunner {
     public int runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         final Map<String, String> params = taskEntity.getParams();
         final File queryFile = blastFileManager.getQueryFile(taskEntity);
-        final String queryFileName = getQueryFileName(queryFile);
+        final String queryFileName = queryFile.getName();
         final Pair<String, String> db = getDbDirectoryAndName(params);
         final String blastTool = getToolWithAlgorithm(params);
-        final Long taskId = getTaskId(taskEntity);
+        final Long taskId = taskEntity.getId();
 
         try {
             final String command =
                     BlastToolCommand.builder()
+                            .taskName(getTaskName(taskId))
                             .blastDbDirectory(db.getFirst())
                             .blastQueriesDirectory(blastFileManager.getBlastQueryDirectory())
                             .blastResultsDirectory(blastFileManager.getBlastResultsDirectory())
                             .blastTool(blastTool)
+                            .resultDelimiter(blastFileManager.getResultDelimiter())
                             .queryFileName(queryFileName)
                             .dbName(db.getSecond())
                             .outputFileName(blastFileManager.getResultFileName(taskId))
@@ -100,10 +104,30 @@ public class BlastToolRunner implements CommandRunner {
                             .options(params.getOrDefault(OPTIONS, EMPTY))
                             .build()
                             .generateCmd();
-            return commandPerformer.perform(command);
+            return performCommand(command, taskId);
         } finally {
             blastFileManager.removeQueryFile(taskId);
         }
+    }
+
+    protected String getTaskName(Long taskId) {
+        return "blast_" + taskId;
+    }
+
+    private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
+        final int result = commandPerformer.perform(command);
+        if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
+            blastFileManager.removeBlastOutput(taskId);
+            final String cancelCommand = TaskCancelCommand.builder()
+                    .taskName(getTaskName(taskId)).build().generateCmd();
+            if (StringUtils.isNotBlank(cancelCommand)) {
+                commandPerformer.perform(cancelCommand);
+            } else {
+                log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
+            }
+            Thread.currentThread().interrupt();
+        }
+        return result;
     }
 
     private String getToolWithAlgorithm(final Map<String, String> params) {
@@ -117,10 +141,6 @@ public class BlastToolRunner implements CommandRunner {
         return tool.getValue();
     }
 
-    private String getQueryFileName(final File queryFile) {
-        return FilenameUtils.removeExtension(queryFile.getName());
-    }
-
     private Pair<String, String> getDbDirectoryAndName(final Map<String, String> params) {
         final String dbPath = params.get(DB_NAME);
         final String path = FilenameUtils.getFullPath(dbPath);
@@ -128,9 +148,5 @@ public class BlastToolRunner implements CommandRunner {
                 StringUtils.isNotBlank(path) ? path : blastFileManager.getBlastDbDirectory(),
                 FilenameUtils.getBaseName(dbPath)
         );
-    }
-
-    private Long getTaskId(final TaskEntity taskEntity) {
-        return taskEntity.getId();
     }
 }

@@ -52,6 +52,9 @@ public final class MessageConstants {
     public static final String ERROR_WHILE_PARSE_TASK_OUTPUT = "error.while.parse.task.output";
     public static final String ERROR_WRONG_FORMAT_OF_RESULT_STRING = "error.wrong.result.format";
     public static final String ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE = "error.task.is.not.successfully.completed";
+    public static final String ERROR_WHILE_REMOVING_BLAST_OUTPUT = "error.while.removing.blast.output";
+    public static final String WARN_CANCEL_COMMAND_IS_BLANK = "warn.cancel.command.is.blank";
+    public static final String INFO_CURRENT_ACTIVE_TASKS = "info.current.active.tasks";
 
     // INPUT VALIDATION
     public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";

@@ -126,6 +126,11 @@ public class BlastFileManagerImpl implements BlastFileManager {
     }
 
     @Override
+    public String getResultDelimiter() {
+        return resultDelimiter;
+    }
+
+    @Override
     public void removeQueryFile(Long taskId) {
         temporaryFileWriter
                 .removeFile(getBlastQueryDirectory(), String.format(QUERY_NAME_FORMAT, taskId));
@@ -156,6 +161,18 @@ public class BlastFileManagerImpl implements BlastFileManager {
     @Override
     public String defaultFastaDirectory() {
         return Path.of(defaultFastaDirectory).toAbsolutePath().toString();
+    }
+
+    @Override
+    public void removeBlastOutput(Long taskId) {
+        try {
+            final String name = getResultFileName(taskId);
+            Files.deleteIfExists(Path.of(blastResultsDirectory, name));
+        } catch (IOException e) {
+            log.error(messageHelper.getMessage(MessageConstants.ERROR_WHILE_REMOVING_BLAST_OUTPUT,
+                    taskId, e.getMessage()));
+            e.printStackTrace();
+        }
     }
 
     BlastResultEntry parseBlastResultEntry(final String line) {

@@ -210,15 +210,6 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TaskStatus cancelTask(final Long id) {
-        return TaskStatus.builder()
-                .requestId(id)
-                .createdDate(LocalDateTime.now())
-                .status(Status.FAILED)
-                .build();
-    }
-
-    @Override
     public TaskEntity updateTask(final TaskEntity taskEntity) {
         final Long id = taskEntity.getId();
         findTask(id);

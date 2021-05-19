@@ -24,11 +24,14 @@
 
 package com.epam.blast.manager.commands.runners;
 
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.db.DbType;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.commands.commands.TaskCancelCommand;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageHelper;
 import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -62,6 +65,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -73,7 +77,6 @@ class MakeBlastDbRunnerTest {
     public static final Integer AMOUNT_TASKS_VALID = 6;
     public static final Integer AMOUNT_TASKS_NOT_VALID = 3;
     public static final Integer AMOUNT_TASKS_TOTAL = AMOUNT_TASKS_VALID + AMOUNT_TASKS_NOT_VALID;
-    private static final String STRING_COMMAND = "Fake efetch command.";
     private static final Integer DEFAULT_DB_VERSION = 5;
     private static final Boolean DEFAULT_SEQ_IDS = true;
     private static final String TEST_BLAST_FASTA_DIRECTORY = "blast_home" + File.separator + "fasta";
@@ -86,6 +89,9 @@ class MakeBlastDbRunnerTest {
     @Mock
     private BlastFileManager blastFileManager;
 
+    @Mock
+    private MessageHelper messageHelper;
+
     private MakeBlastDbRunner makeBlastDbRunner;
     private final List<TaskEntity> taskList = new ArrayList<>(AMOUNT_TASKS_TOTAL);
 
@@ -93,13 +99,13 @@ class MakeBlastDbRunnerTest {
     public void init() {
         MockitoAnnotations.openMocks(this);
         makeBlastDbRunner = new MakeBlastDbRunner(DEFAULT_DB_DATATYPE_TEST,
-                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock);
+                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock, messageHelper);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
 
     @Test
-    void testMakeBlastDbRunner() throws IOException, InterruptedException {
+    void testMakeBlastDbRunner() throws IOException {
         int npeCounter = 0;
         for (TaskEntity task : taskList) {
             try {
@@ -248,23 +254,15 @@ class MakeBlastDbRunnerTest {
     }
 
     @Test
-    void testThrowingIoException() {
-        try {
-            when(commandPerformerMock.perform(anyString())).thenThrow(IOException.class);
-            commandPerformerMock.perform(STRING_COMMAND);
-        } catch (IOException | InterruptedException e) {
-            assertEquals(IOException.class, e.getClass());
-        }
-    }
-
-    @Test
-    void testThrowingInterruptedException() {
-        try {
-            when(commandPerformerMock.perform(anyString())).thenThrow(InterruptedException.class);
-            commandPerformerMock.perform(STRING_COMMAND);
-        } catch (IOException | InterruptedException e) {
-            assertEquals(InterruptedException.class, e.getClass());
-        }
+    void testMakeBlastDbRunnerRunsCancelCommand() throws IOException, InterruptedException {
+        when(commandPerformerMock.perform(any())).thenReturn(ExitCodes.THREAD_INTERRUPTION_EXCEPTION);
+        TaskEntity task = TestTaskMaker.makeTask(TaskType.MAKE_BLAST_DB, true);
+        makeBlastDbRunner.runTask(task);
+        verify(commandPerformerMock).perform(
+                TaskCancelCommand.builder()
+                        .taskName(makeBlastDbRunner.getTaskName(task.getId()))
+                        .build().generateCmd()
+        );
     }
 
     private Map<String, String> prepareTaskParams() {

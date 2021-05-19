@@ -27,6 +27,7 @@ package com.epam.blast.controller.task;
 import com.epam.blast.controller.AbstractRestController;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.task.TaskStatus;
+import com.epam.blast.manager.commands.ScheduledService;
 import com.epam.blast.manager.task.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,6 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class TaskController extends AbstractRestController {
 
     private final TaskService taskService;
+    private final ScheduledService scheduledService;
 
     @GetMapping("/task/{id}")
     public Result<TaskStatus> getTaskStatus(@PathVariable final Long id) {
@@ -47,7 +49,7 @@ public class TaskController extends AbstractRestController {
 
     @PutMapping("/task/{id}/cancel")
     public Result<TaskStatus> cancelTask(@PathVariable final Long id) {
-        return Result.success(taskService.cancelTask(id));
+        return Result.success(scheduledService.cancelTask(id));
     }
 
 }

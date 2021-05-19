@@ -35,6 +35,7 @@ public class BlastToolCommandTest {
     public static final String TEST_BLAST_DB_DIRECTORY = "blastdb_custom";
     public static final String TEST_BLAST_QUERIES_DIRECTORY = "queries";
     public static final String BLAST_TOOL = "blastn";
+    public static final String TASK_NAME = "blast_";
     public static final String TEST_BLAST_RESULTS_DIRECTORY = "results";
     public static final String[] TEST_QUERY_FILE_NAMES =
         {"Test_query_file_name", "52345-45-213123", "456"};
@@ -48,7 +49,7 @@ public class BlastToolCommandTest {
     public static final String[] OPTIONS = {"", "", "-testoption testvalue"};
 
     public static final String[] COMMANDS_SAMPLES =
-        {"docker run --rm "
+        {"docker run --rm --name blast_0 "
                 + "-v blastdb_custom:/blast/blastdb_custom:ro "
                 + "-v queries:/blast/queries:ro "
                 + "-v results:/blast/results:rw "
@@ -58,7 +59,7 @@ public class BlastToolCommandTest {
                 + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
                 + "qcovs qcovhsp qcovus\" -evalue 0.1",
-        "docker run --rm "
+        "docker run --rm --name blast_1 "
                 + "-v blastdb_custom:/blast/blastdb_custom:ro "
                 + "-v queries:/blast/queries:ro "
                 + "-v results:/blast/results:rw "
@@ -68,7 +69,7 @@ public class BlastToolCommandTest {
                 + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
                 + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
                 + "qcovs qcovhsp qcovus\" -negative_taxids 1,5,495 -max_target_seqs 200 -evalue 0.001",
-        "docker run --rm "
+        "docker run --rm --name blast_2 "
             + "-v blastdb_custom:/blast/blastdb_custom:ro "
             + "-v queries:/blast/queries:ro "
             + "-v results:/blast/results:rw ncbi/blast blastn "
@@ -77,12 +78,15 @@ public class BlastToolCommandTest {
             + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
             + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
             + "qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"};
+    public static final String RESULT_DELIMITER = ",";
 
     @Test
     void testMakeBlastToolCommand() {
         for (int i = 0; i < OUT_FILE_NAMES.length; i++) {
             String command =
                     BlastToolCommand.builder()
+                            .taskName(TASK_NAME + i)
+                            .resultDelimiter(RESULT_DELIMITER)
                             .blastDbDirectory(TEST_BLAST_DB_DIRECTORY)
                             .blastQueriesDirectory(TEST_BLAST_QUERIES_DIRECTORY)
                             .blastResultsDirectory(TEST_BLAST_RESULTS_DIRECTORY)
