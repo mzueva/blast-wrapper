@@ -24,22 +24,28 @@
 
 package com.epam.blast.controller.blasttool;
 
+import com.epam.blast.controller.AbstractRestController;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.blasttool.BlastResult;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 
 @RestController
 @RequiredArgsConstructor
-public class BlastToolController {
+public class BlastToolController extends AbstractRestController {
 
     private final TaskService taskService;
 
@@ -49,8 +55,15 @@ public class BlastToolController {
     }
 
     @GetMapping("/blast/{id}")
-    public Result<BlastResult> getResult(@PathVariable Long id) {
-        return Result.success(taskService.getBlastResult(id));
+    public Result<BlastResult> getResult(@PathVariable Long id,
+                                         @RequestParam(required = false) Integer limit) {
+        return Result.success(taskService.getBlastResult(id, limit));
+    }
+
+    @GetMapping("/blast/{id}/raw")
+    public void getRawResult(@PathVariable Long id, HttpServletResponse response) throws IOException {
+        Pair<String, byte[]> rawResult = taskService.getBlastRawResult(id);
+        writeFileToResponse(response, rawResult.getSecond(), rawResult.getFirst());
     }
 
 }

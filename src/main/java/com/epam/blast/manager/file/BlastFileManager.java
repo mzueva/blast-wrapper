@@ -22,17 +22,31 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.utils;
+package com.epam.blast.manager.file;
 
-import lombok.Getter;
+import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.task.TaskEntity;
+import org.springframework.data.util.Pair;
 
-public enum FileExtensions {
-    FSA_EXT(".fsa"), OUT_EXT(".out");
+import java.io.File;
 
-    @Getter
-    private final String value;
+public interface BlastFileManager {
 
-    FileExtensions(final String value) {
-        this.value = value;
-    }
+    String getResultFileName(Long taskId);
+
+    BlastResult getResults(Long taskId, Integer limit);
+
+    Pair<String, byte[]> getRawResults(Long taskId);
+
+    void removeQueryFile(Long taskId);
+
+    File getQueryFile(TaskEntity taskEntity);
+
+    String getBlastQueryDirectory();
+
+    String getBlastDbDirectory();
+
+    String getBlastResultsDirectory();
+
+    String defaultFastaDirectory();
 }

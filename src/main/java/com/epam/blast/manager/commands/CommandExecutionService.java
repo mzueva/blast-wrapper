@@ -64,7 +64,7 @@ public class CommandExecutionService {
     }
 
     public int runTask(TaskEntity taskEntity) throws IOException, InterruptedException {
-        log.info(messageHelper.getMessage(MessageConstants.INFO_START_TASK_EXECUTION));
+        log.info(messageHelper.getMessage(MessageConstants.INFO_START_TASK_EXECUTION, taskEntity.getId()));
 
         taskEntity.setStatus(Status.RUNNING);
         taskService.updateTask(taskEntity);
@@ -85,6 +85,7 @@ public class CommandExecutionService {
                     exitValue = UNRECOGNIZED_COMMAND_TYPE;
                     break;
             }
+            log.info(messageHelper.getMessage(MessageConstants.INFO_END_TASK_EXECUTION, taskEntity.getId()));
         } else {
             log.error(messageHelper.getMessage(MessageConstants.ERROR_COMMAND_TYPE_IS_NULL, taskEntity.getId()));
             exitValue = NULL_COMMAND_TYPE;

@@ -31,6 +31,8 @@ import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.db.Reason;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.file.BlastFileManager;
+import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
 import com.epam.blast.validators.BlastStartSearchingRequestValidator;
 import org.junit.jupiter.api.BeforeEach;
@@ -88,6 +90,13 @@ public class TaskServiceImplTest {
 
     @Mock
     TaskRepository taskRepository;
+
+    @Mock
+    BlastFileManager blastFileManager;
+
+    @Mock
+    MessageHelper messageHelper;
+
     @Mock
     BlastStartSearchingRequestValidator blastStartSearchingRequestValidator;
     TaskServiceImpl taskService;
@@ -95,7 +104,8 @@ public class TaskServiceImplTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        taskService = new TaskServiceImpl(taskRepository, blastStartSearchingRequestValidator);
+        taskService = new TaskServiceImpl(taskRepository, blastFileManager, blastStartSearchingRequestValidator,
+                messageHelper);
     }
 
     @Test

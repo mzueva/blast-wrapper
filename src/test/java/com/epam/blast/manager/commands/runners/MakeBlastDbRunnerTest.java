@@ -28,6 +28,7 @@ import com.epam.blast.entity.db.DbType;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
+import com.epam.blast.manager.file.BlastFileManager;
 import org.apache.commons.lang3.EnumUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,12 +77,14 @@ class MakeBlastDbRunnerTest {
     private static final Integer DEFAULT_DB_VERSION = 5;
     private static final Boolean DEFAULT_SEQ_IDS = true;
     private static final String TEST_BLAST_FASTA_DIRECTORY = "blast_home" + File.separator + "fasta";
-    private static final String TEST_BLAST_DB_DIRECTORY = "blast_home" + File.separator + "blastdb_custom";
     private static final DbType DEFAULT_DB_DATATYPE_TEST = DbType.PROTEIN;
     private static final String INCORRECT_STRING_INPUT_VALUE = "Incorrect input value.";
 
     @Mock
     private SimpleCommandPerformer commandPerformerMock;
+
+    @Mock
+    private BlastFileManager blastFileManager;
 
     private MakeBlastDbRunner makeBlastDbRunner;
     private final List<TaskEntity> taskList = new ArrayList<>(AMOUNT_TASKS_TOTAL);
@@ -89,8 +92,8 @@ class MakeBlastDbRunnerTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        makeBlastDbRunner = new MakeBlastDbRunner(TEST_BLAST_DB_DIRECTORY, DEFAULT_DB_DATATYPE_TEST,
-                TEST_BLAST_FASTA_DIRECTORY, DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, commandPerformerMock);
+        makeBlastDbRunner = new MakeBlastDbRunner(DEFAULT_DB_DATATYPE_TEST,
+                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
     }
