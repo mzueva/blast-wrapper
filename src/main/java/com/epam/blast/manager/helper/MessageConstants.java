@@ -55,6 +55,7 @@ public final class MessageConstants {
     public static final String ERROR_WHILE_REMOVING_BLAST_OUTPUT = "error.while.removing.blast.output";
     public static final String WARN_CANCEL_COMMAND_IS_BLANK = "warn.cancel.command.is.blank";
     public static final String INFO_CURRENT_ACTIVE_TASKS = "info.current.active.tasks";
+    public static final String ERROR_TASK_IS_NOT_RUNNING_DONE = "error.task.is.not.running";
 
     // INPUT VALIDATION
     public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";
