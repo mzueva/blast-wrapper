@@ -207,8 +207,7 @@ public class BlastStartSearchingRequestValidatorTest {
                         .excludedTaxIds(excludedTaxIds)
                         .build();
 
-                if (hasIds(request.getTaxIds())
-                        && hasIds(request.getExcludedTaxIds())) {
+                if (hasIds(request.getTaxIds()) && hasIds(request.getExcludedTaxIds())) {
                     assertThrows(IllegalArgumentException.class, () -> validator.validate(request));
                 } else {
                     assertDoesNotThrow(() -> validator.validate(request));
@@ -315,14 +314,6 @@ public class BlastStartSearchingRequestValidatorTest {
     }
 
     private boolean hasIds(final List<Long> ids) {
-        if (ids == null) {
-            return false;
-        }
-        for (Long id : ids) {
-            if (id > 0L) {
-                return true;
-            }
-        }
-        return false;
+        return ids != null && !ids.isEmpty();
     }
 }

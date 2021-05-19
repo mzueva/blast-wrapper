@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import static java.lang.String.format;
 
@@ -33,8 +32,7 @@ public class BlastStartSearchingRequestValidator {
     }
 
     public void validate(final BlastStartSearchingRequest request) {
-        toolValidation(request);
-        algorithmValidation(request);
+        toolAndAlgorithmValidation(request);
         dbNameValidation(request);
         idsValidation(request);
         queryValidation(request);
@@ -42,29 +40,18 @@ public class BlastStartSearchingRequestValidator {
         expectedThresholdValidation(request);
     }
 
-    private void toolValidation(final BlastStartSearchingRequest request) {
-        if (StringUtils.isBlank(request.getBlastTool())
-                || getTool(request) == null
-                || !Set.of(BlastTool.values()).contains(getTool(request))) {
-            throw new IllegalArgumentException(
-                    messageHelper.getMessage(MessageConstants.INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE)
-            );
-        }
-    }
 
-    private void algorithmValidation(final BlastStartSearchingRequest request) {
+    private void toolAndAlgorithmValidation(final BlastStartSearchingRequest request) {
         final BlastTool tool = getTool(request);
 
-        if (!tool.isSupportsAlg()
-                && StringUtils.isNotBlank(request.getAlgorithm())) {
+        if (!tool.isSupportsAlg() && StringUtils.isNotBlank(request.getAlgorithm())) {
             throw new IllegalArgumentException(
                     format(messageHelper.getMessage(MessageConstants.INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE),
                             tool.getValue())
             );
         }
 
-        if (tool.isSupportsAlg()
-                && StringUtils.isBlank(request.getAlgorithm())) {
+        if (tool.isSupportsAlg() && StringUtils.isBlank(request.getAlgorithm())) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE)
             );
@@ -90,8 +77,7 @@ public class BlastStartSearchingRequestValidator {
     }
 
     private void idsValidation(final BlastStartSearchingRequest request) {
-        if (hasIds(request.getTaxIds())
-                && hasIds(request.getExcludedTaxIds())) {
+        if (hasIds(request.getTaxIds()) && hasIds(request.getExcludedTaxIds())) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE)
             );
@@ -117,8 +103,7 @@ public class BlastStartSearchingRequestValidator {
     }
 
     private void expectedThresholdValidation(final BlastStartSearchingRequest request) {
-        if (request.getExpectedThreshold() != null
-                && request.getExpectedThreshold() <= EXPECTED_THRESHOLD_MIN_LIMIT) {
+        if (request.getExpectedThreshold() != null && request.getExpectedThreshold() <= EXPECTED_THRESHOLD_MIN_LIMIT) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE)
             );
@@ -126,8 +111,9 @@ public class BlastStartSearchingRequestValidator {
     }
 
     private BlastTool getTool(final BlastStartSearchingRequest request) {
+        final String stringValue = StringUtils.defaultString(request.getBlastTool()).toUpperCase(Locale.ROOT);
         try {
-            return BlastTool.valueOf(request.getBlastTool().toUpperCase(Locale.ROOT));
+            return BlastTool.valueOf(stringValue);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE, e)
@@ -136,14 +122,6 @@ public class BlastStartSearchingRequestValidator {
     }
 
     private boolean hasIds(final List<Long> ids) {
-        if (ids == null) {
-            return false;
-        }
-        for (Long id : ids) {
-            if (id > 0L) {
-                return true;
-            }
-        }
-        return false;
+        return ids != null && !ids.isEmpty();
     }
 }
