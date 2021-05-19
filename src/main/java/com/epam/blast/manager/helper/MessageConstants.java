@@ -52,4 +52,18 @@ public final class MessageConstants {
     public static final String ERROR_WHILE_PARSE_TASK_OUTPUT = "error.while.parse.task.output";
     public static final String ERROR_WRONG_FORMAT_OF_RESULT_STRING = "error.wrong.result.format";
     public static final String ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE = "error.task.is.not.successfully.completed";
+
+    // INPUT VALIDATION
+    public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";
+    public static final String INCORRECT_ALGORITHM_FOR_EXCEPTION_MESSAGE = "error.not.correct.algorithm.for.this.tool";
+    public static final String INCORRECT_TOOL_FOR_ALGORITHM_EXCEPTION_MESSAGE = "error.tool.does.not.support.algorithm";
+    public static final String TOOLS_SHOULD_HAVE_ALGORITHM_EXCEPTION_MESSAGE
+            = "error.command.for.tool.should.have.algorithm";
+    public static final String QUERY_IS_REQUIRED_EXCEPTION_MESSAGE = "error.query.is.required";
+    public static final String DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE = "error.dbName.is.required";
+    public static final String TAXIDS_AND_EXCLUDED_TAX_ID_BOTH_PRESENT_EXCEPTION_MESSAGE
+            = "error.taxIds.and.excludedTaxIds.are.both.presented";
+    public static final String TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.maxTargetSequence";
+    public static final String EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.expectedThreshold";
+
 }
