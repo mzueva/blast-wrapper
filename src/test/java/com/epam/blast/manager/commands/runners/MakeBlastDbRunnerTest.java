@@ -24,9 +24,11 @@
 
 package com.epam.blast.manager.commands.runners;
 
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.db.DbType;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.commands.commands.TaskCancelCommand;
 import com.epam.blast.manager.commands.performers.SimpleCommandPerformer;
 import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -63,6 +65,7 @@ import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.times;
@@ -252,13 +255,15 @@ class MakeBlastDbRunnerTest {
     }
 
     @Test
-    void testThrowingIoException() {
-        try {
-            when(commandPerformerMock.perform(anyString())).thenThrow(IOException.class);
-            commandPerformerMock.perform(STRING_COMMAND);
-        } catch (IOException e) {
-            assertEquals(IOException.class, e.getClass());
-        }
+    void testMakeBlastDbRunnerRunsCancelCommand() throws IOException, InterruptedException {
+        when(commandPerformerMock.perform(any())).thenReturn(ExitCodes.THREAD_INTERRUPTION_EXCEPTION);
+        TaskEntity task = TestTaskMaker.makeTask(TaskType.MAKE_BLAST_DB, true);
+        makeBlastDbRunner.runTask(task);
+        verify(commandPerformerMock).perform(
+                TaskCancelCommand.builder()
+                        .taskName(makeBlastDbRunner.getTaskName(task.getId()))
+                        .build().generateCmd()
+        );
     }
 
     private Map<String, String> prepareTaskParams() {

@@ -109,14 +109,13 @@ public class BlastToolRunner implements CommandRunner {
         }
     }
 
-    private String getTaskName(Long taskId) {
+    protected String getTaskName(Long taskId) {
         return "blast_" + taskId;
     }
 
     private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
         final int result = commandPerformer.perform(command);
         if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
-            blastFileManager.removeQueryFile(taskId);
             blastFileManager.removeBlastOutput(taskId);
             final String cancelCommand = TaskCancelCommand.builder()
                     .taskName(getTaskName(taskId)).build().generateCmd();

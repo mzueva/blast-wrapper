@@ -132,7 +132,7 @@ public class MakeBlastDbRunner implements CommandRunner {
         return result;
     }
 
-    private String getTaskName(Long id) {
+    protected String getTaskName(Long id) {
         return "makeBlastDb_" + id;
     }
 
