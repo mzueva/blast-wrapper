@@ -40,6 +40,7 @@ public class TaskStatus {
 
     Long requestId;
     Status status;
+    String reason;
     TaskType taskType;
     LocalDateTime createdDate;
 }

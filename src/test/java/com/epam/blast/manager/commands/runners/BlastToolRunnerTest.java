@@ -78,7 +78,7 @@ public class BlastToolRunnerTest {
     private final File temporaryFile = spy(new File(TEST_BLAST_QUERIES_DIRECTORY));
 
     @BeforeEach
-    public void init() {
+    public void init() throws IOException {
         MockitoAnnotations.openMocks(this);
         blastToolRunner = new BlastToolRunner(commandPerformerMock, blastFileManager, messageHelper);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL, true, AMOUNT_TASKS_VALID));
@@ -89,7 +89,8 @@ public class BlastToolRunnerTest {
         when(blastFileManager.getBlastQueryDirectory()).thenReturn(TEST_BLAST_QUERIES_DIRECTORY);
         when(blastFileManager.getBlastDbDirectory()).thenReturn(TEST_BLAST_DB_DIRECTORY);
         when(blastFileManager.getResultDelimiter()).thenReturn(DELIMITER);
-
+        when(commandPerformerMock.perform(any()))
+                .thenReturn(ExecutionResult.builder().exitCode(ExitCodes.SUCCESSFUL_EXECUTION).build());
     }
 
     @Test
@@ -112,7 +113,9 @@ public class BlastToolRunnerTest {
 
     @Test
     void testBlastToolRunnerRunsCancelCommand() throws IOException, InterruptedException {
-        when(commandPerformerMock.perform(any())).thenReturn(ExitCodes.THREAD_INTERRUPTION_EXCEPTION);
+        when(commandPerformerMock.perform(any())).thenReturn(
+                ExecutionResult.builder().exitCode(ExitCodes.THREAD_INTERRUPTION_EXCEPTION).build()
+        );
         TaskEntity task = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         blastToolRunner.runTask(task);
         verify(blastFileManager).removeBlastOutput(task.getId());

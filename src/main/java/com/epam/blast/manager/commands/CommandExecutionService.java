@@ -28,6 +28,7 @@ import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.commands.runners.BlastToolRunner;
+import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.commands.runners.MakeBlastDbRunner;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -63,13 +64,13 @@ public class CommandExecutionService {
         this.messageHelper = messageHelper;
     }
 
-    public int runTask(TaskEntity taskEntity) throws IOException, InterruptedException {
+    public ExecutionResult runTask(TaskEntity taskEntity) throws IOException, InterruptedException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_START_TASK_EXECUTION, taskEntity.getId()));
 
         taskEntity.setStatus(Status.RUNNING);
         taskService.updateTask(taskEntity);
         final TaskType type = taskEntity.getTaskType();
-        int exitValue;
+        ExecutionResult exitValue;
         if (type != null) {
             switch (type) {
                 case MAKE_BLAST_DB:
@@ -79,16 +80,22 @@ public class CommandExecutionService {
                     exitValue = blastToolRunner.runTask(taskEntity);
                     break;
                 default:
-                    log.error(messageHelper.getMessage(
-                            MessageConstants.ERROR_UNRECOGNIZED_COMMAND_TYPE, taskEntity.getId())
-                    );
-                    exitValue = UNRECOGNIZED_COMMAND_TYPE;
+                    final String message = messageHelper.getMessage(
+                            MessageConstants.ERROR_UNRECOGNIZED_COMMAND_TYPE, taskEntity.getId());
+                    log.error(message);
+                    exitValue = ExecutionResult.builder()
+                            .exitCode(UNRECOGNIZED_COMMAND_TYPE)
+                            .reason(message).build();
                     break;
             }
             log.info(messageHelper.getMessage(MessageConstants.INFO_END_TASK_EXECUTION, taskEntity.getId()));
         } else {
-            log.error(messageHelper.getMessage(MessageConstants.ERROR_COMMAND_TYPE_IS_NULL, taskEntity.getId()));
-            exitValue = NULL_COMMAND_TYPE;
+            final String message = messageHelper.getMessage(
+                    MessageConstants.ERROR_COMMAND_TYPE_IS_NULL, taskEntity.getId());
+            log.error(message);
+            exitValue = ExecutionResult.builder()
+                    .exitCode(NULL_COMMAND_TYPE)
+                    .reason(message).build();
         }
         return exitValue;
     }

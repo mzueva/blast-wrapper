@@ -35,6 +35,7 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
+import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -55,10 +56,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
@@ -96,12 +97,13 @@ public class TaskServiceImpl implements TaskService {
                     .requestId(id)
                     .taskType(TaskType.BLAST_TOOL).build();
         }
-        Optional<TaskEntity> task = taskRepository.findById(id);
+        final TaskEntity task = findTask(id);
         return TaskStatus.builder()
-                .requestId(task.orElseThrow().getId())
-                .status(task.orElseThrow().getStatus())
-                .taskType(task.orElseThrow().getTaskType())
-                .createdDate(task.orElseThrow().getCreatedAt())
+                .requestId(task.getId())
+                .status(task.getStatus())
+                .taskType(task.getTaskType())
+                .reason(task.getReason())
+                .createdDate(task.getCreatedAt())
                 .build();
     }
 
@@ -210,6 +212,21 @@ public class TaskServiceImpl implements TaskService {
         }
         checkTaskIsReady(id);
         return blastFileManager.getRawResults(id);
+    }
+
+    @Override
+    public TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result) {
+        taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
+        taskEntity.setReason(cutReasonMessage(result));
+        return updateTask(taskEntity);
+    }
+
+    private String cutReasonMessage(ExecutionResult result) {
+        if (result.getReason().length() > TaskEntity.MAX_STRING_LENGTH) {
+            return result.getReason().substring(0, TaskEntity.MAX_STRING_LENGTH);
+        } else {
+            return result.getReason();
+        }
     }
 
     @Override

@@ -77,7 +77,7 @@ public class BlastToolRunner implements CommandRunner {
     }
 
     @Override
-    public int runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
+    public ExecutionResult runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         final Map<String, String> params = taskEntity.getParams();
         final File queryFile = blastFileManager.getQueryFile(taskEntity);
         final String queryFileName = queryFile.getName();
@@ -114,9 +114,9 @@ public class BlastToolRunner implements CommandRunner {
         return "blast_" + taskId;
     }
 
-    private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
-        final int result = commandPerformer.perform(command);
-        if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
+    private ExecutionResult performCommand(String command, Long taskId) throws IOException, InterruptedException {
+        final ExecutionResult result = commandPerformer.perform(command);
+        if (result.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
             blastFileManager.removeBlastOutput(taskId);
             final String cancelCommand = TaskCancelCommand.builder()
                     .taskName(getTaskName(taskId)).build().generateCmd();

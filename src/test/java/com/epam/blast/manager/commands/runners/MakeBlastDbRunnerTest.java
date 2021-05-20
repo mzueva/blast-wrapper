@@ -96,12 +96,14 @@ class MakeBlastDbRunnerTest {
     private final List<TaskEntity> taskList = new ArrayList<>(AMOUNT_TASKS_TOTAL);
 
     @BeforeEach
-    public void init() {
+    public void init() throws IOException {
         MockitoAnnotations.openMocks(this);
         makeBlastDbRunner = new MakeBlastDbRunner(DEFAULT_DB_DATATYPE_TEST,
                 DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock, messageHelper);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
+        when(commandPerformerMock.perform(any()))
+                .thenReturn(ExecutionResult.builder().exitCode(ExitCodes.SUCCESSFUL_EXECUTION).build());
     }
 
     @Test
@@ -255,7 +257,9 @@ class MakeBlastDbRunnerTest {
 
     @Test
     void testMakeBlastDbRunnerRunsCancelCommand() throws IOException, InterruptedException {
-        when(commandPerformerMock.perform(any())).thenReturn(ExitCodes.THREAD_INTERRUPTION_EXCEPTION);
+        when(commandPerformerMock.perform(any())).thenReturn(
+                ExecutionResult.builder().exitCode(ExitCodes.THREAD_INTERRUPTION_EXCEPTION).build()
+        );
         TaskEntity task = TestTaskMaker.makeTask(TaskType.MAKE_BLAST_DB, true);
         makeBlastDbRunner.runTask(task);
         verify(commandPerformerMock).perform(

@@ -24,11 +24,12 @@
 
 package com.epam.blast.manager.commands.runners;
 
-import com.epam.blast.entity.task.TaskEntity;
+import lombok.Builder;
+import lombok.Value;
 
-import java.io.IOException;
-
-public interface CommandRunner {
-
-    ExecutionResult runTask(final TaskEntity taskEntity) throws IOException, InterruptedException;
+@Value
+@Builder
+public class ExecutionResult {
+    int exitCode;
+    String reason;
 }
