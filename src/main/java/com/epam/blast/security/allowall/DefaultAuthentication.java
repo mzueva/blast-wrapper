@@ -22,13 +22,30 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.config;
+package com.epam.blast.security.allowall;
 
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
+import com.epam.blast.security.jwt.entity.UserContext;
+import org.springframework.security.authentication.AbstractAuthenticationToken;
 
-@Configuration
-@ComponentScan(basePackages = {"com.epam.pipeline.controller"})
-public class RestConfiguration {
+import java.util.Collections;
 
+public class DefaultAuthentication extends AbstractAuthenticationToken {
+
+    final UserContext user = new UserContext();
+
+    public DefaultAuthentication() {
+        super(Collections.emptyList());
+        super.setAuthenticated(true);
+    }
+
+    @Override
+    public Object getCredentials() {
+        return user;
+    }
+
+    @Override
+    public Object getPrincipal() {
+        return user;
+    }
 }
+
