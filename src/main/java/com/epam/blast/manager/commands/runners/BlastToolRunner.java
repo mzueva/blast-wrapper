@@ -146,7 +146,7 @@ public class BlastToolRunner implements CommandRunner {
         final String path = FilenameUtils.getFullPath(dbPath);
         return Pair.of(
                 StringUtils.isNotBlank(path) ? path : blastFileManager.getBlastDbDirectory(),
-                FilenameUtils.getBaseName(dbPath)
+                FilenameUtils.getName(dbPath)
         );
     }
 }
