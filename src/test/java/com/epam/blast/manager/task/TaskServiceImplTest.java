@@ -34,7 +34,7 @@ import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
-import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

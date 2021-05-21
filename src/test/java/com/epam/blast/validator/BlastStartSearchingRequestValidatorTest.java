@@ -1,4 +1,4 @@
-package com.epam.blast.validators;
+package com.epam.blast.validator;
 
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.BlastTool;
