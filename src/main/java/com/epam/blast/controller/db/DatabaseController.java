@@ -29,6 +29,7 @@ import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.manager.task.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,6 +42,10 @@ public class DatabaseController extends AbstractRestController {
     private final TaskService taskService;
 
     @PostMapping("/createdb")
+    @Operation(summary = "Schedules a task for blast DB creation.",
+            description = "Schedules a task for blast DB creation.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            description = "Set of parameters that describe how blast DB should be created.")
     public Result<CreateDbResponse> createDatabase(@RequestBody final CreateDbRequest request) {
         return Result.success(taskService.createTaskForNewDb(request));
     }

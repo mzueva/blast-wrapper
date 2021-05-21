@@ -30,6 +30,7 @@ import com.epam.blast.entity.blasttool.BlastResult;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -50,19 +51,31 @@ public class BlastToolController extends AbstractRestController {
     private final TaskService taskService;
 
     @PostMapping("/blast")
+    @Operation(summary = "Schedules a task for blast computation.",
+            description = "Schedules a task for blast computation with specified parameters.")
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(required = true,
+            description = "Set of parameters that describe blast computation to be scheduled. "
+                    + "Parameters: blastTool, algorithm, maxTargetSequence, expectedThreshold will be validated, "
+                    + "if any of it has invalid value this method will response with error. "
+                    + "Parameter 'options' will be validated and all invalid options will be dropped.")
     public Result<TaskStatus> createTask(@RequestBody final BlastStartSearchingRequest request) {
         return Result.success(taskService.createTaskForBlastToolExecution(request));
     }
 
     @GetMapping("/blast/{id}")
-    public Result<BlastResult> getResult(@PathVariable Long id,
-                                         @RequestParam(required = false) Integer limit) {
+    @Operation(summary = "Returns blast result object by task id.",
+            description = "Returns blast result object by task id, results could be limited by number of alignments.")
+    public Result<BlastResult> getResult(@PathVariable final Long id,
+                                         @RequestParam(required = false) final Integer limit) {
         return Result.success(taskService.getBlastResult(id, limit));
     }
 
     @GetMapping("/blast/{id}/raw")
-    public void getRawResult(@PathVariable Long id, HttpServletResponse response) throws IOException {
-        Pair<String, byte[]> rawResult = taskService.getBlastRawResult(id);
+    @Operation(summary = "Returns blast result raw output by task id.",
+            description = "Returns blast result raw output by task id. "
+                    + "\nThis method will response with a blast output file.")
+    public void getRawResult(@PathVariable final Long id, final HttpServletResponse response) throws IOException {
+        final Pair<String, byte[]> rawResult = taskService.getBlastRawResult(id);
         writeFileToResponse(response, rawResult.getSecond(), rawResult.getFirst());
     }
 

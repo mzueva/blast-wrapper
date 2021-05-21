@@ -29,6 +29,7 @@ import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.commands.ScheduledService;
 import com.epam.blast.manager.task.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -43,11 +44,17 @@ public class TaskController extends AbstractRestController {
     private final ScheduledService scheduledService;
 
     @GetMapping("/task/{id}")
+    @Operation(summary = "Returns status of specific task.",
+            description = "Returns status of specific task if such task exists or response with Result.status "
+                    + "ERROR if task with such id doesn't exist")
     public Result<TaskStatus> getTaskStatus(@PathVariable final Long id) {
         return Result.success(taskService.getTaskStatus(id));
     }
 
     @PutMapping("/task/{id}/cancel")
+    @Operation(summary = "Cancel task with specific id.",
+            description = "Will cancel task and set its status to FAILED, also remove all intermediate file "
+                    + "that are related to this task")
     public Result<TaskStatus> cancelTask(@PathVariable final Long id) {
         return Result.success(scheduledService.cancelTask(id));
     }

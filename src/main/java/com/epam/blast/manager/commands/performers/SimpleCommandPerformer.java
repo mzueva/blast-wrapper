@@ -31,6 +31,8 @@ import com.epam.blast.manager.helper.MessageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -47,9 +49,10 @@ public class SimpleCommandPerformer implements CommandPerformer {
 
     private static final String SPLIT_CHAR = " ";
     private static final String NEW_LINE = "\n";
-    public static final String QUOT = "'";
-    public static final String DOUBLE_QUOT = "\"";
-    public static final String EMPTY = "";
+    private static final String QUOT = "'";
+    private static final String DOUBLE_QUOT = "\"";
+    private static final String EMPTY = "";
+    private static final int MAX_EXIT_REASON_MESSAGE_LINES = 2;
 
     private final MessageHelper messageHelper;
 
@@ -57,16 +60,17 @@ public class SimpleCommandPerformer implements CommandPerformer {
     public ExecutionResult perform(final String command) throws IOException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_COMMAND, command));
         Process process = new ProcessBuilder().command(splitCommandByArguments(command)).start();
-        final String exitMessage = logOutPut(process);
         try {
-            process.waitFor();
+            final Pair<Integer, String> exitStatus = waitForProcessResult(process);
+            return ExecutionResult.builder()
+                    .exitCode(exitStatus.getFirst())
+                    .reason(exitStatus.getSecond()).build();
         } catch (InterruptedException e) {
             process.destroyForcibly();
             return ExecutionResult.builder()
                     .exitCode(ExitCodes.THREAD_INTERRUPTION_EXCEPTION)
                     .reason(e.getMessage()).build();
         }
-        return ExecutionResult.builder().exitCode(process.exitValue()).reason(exitMessage).build();
     }
 
     static List<String> splitCommandByArguments(final String command) {
@@ -110,17 +114,19 @@ public class SimpleCommandPerformer implements CommandPerformer {
                  && !(part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT));
     }
 
-    private String logOutPut(final Process process) throws IOException {
-        final Queue<String> stderr = new CircularFifoQueue<>(2);
+    private Pair<Integer, String> waitForProcessResult(final Process process) throws IOException, InterruptedException {
+        final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
              BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
             reader.lines().forEach(log::info);
             errorReader.lines().forEach(message -> {
-                stderr.add(message);
+                if (StringUtils.isNotBlank(message)) {
+                    stderr.add(message);
+                }
                 log.warn(message);
             });
         }
-
-        return String.join(NEW_LINE, stderr);
+        process.waitFor();
+        return Pair.of(process.exitValue(), String.join(NEW_LINE, stderr));
     }
 }

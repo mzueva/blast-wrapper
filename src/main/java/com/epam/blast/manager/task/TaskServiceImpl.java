@@ -24,7 +24,11 @@
 
 package com.epam.blast.manager.task;
 
-import com.epam.blast.entity.blasttool.*;
+import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.blasttool.BlastResultEntry;
+import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
 import com.epam.blast.entity.db.Reason;
