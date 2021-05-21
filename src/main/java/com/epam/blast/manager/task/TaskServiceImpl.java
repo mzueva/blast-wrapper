@@ -27,6 +27,7 @@ package com.epam.blast.manager.task;
 import com.epam.blast.entity.blasttool.BlastResult;
 import com.epam.blast.entity.blasttool.BlastResultEntry;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
+import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
@@ -35,6 +36,7 @@ import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.exceptions.TaskNotFoundException;
+import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -55,10 +57,10 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
@@ -96,12 +98,13 @@ public class TaskServiceImpl implements TaskService {
                     .requestId(id)
                     .taskType(TaskType.BLAST_TOOL).build();
         }
-        Optional<TaskEntity> task = taskRepository.findById(id);
+        final TaskEntity task = findTask(id);
         return TaskStatus.builder()
-                .requestId(task.orElseThrow().getId())
-                .status(task.orElseThrow().getStatus())
-                .taskType(task.orElseThrow().getTaskType())
-                .createdDate(task.orElseThrow().getCreatedAt())
+                .requestId(task.getId())
+                .status(task.getStatus())
+                .taskType(task.getTaskType())
+                .reason(task.getReason())
+                .createdDate(task.getCreatedAt())
                 .build();
     }
 
@@ -186,15 +189,16 @@ public class TaskServiceImpl implements TaskService {
         if (id == 42L) {
             return BlastResult.builder().size(limit == null ? 10 : limit)
                     .entries(IntStream.iterate(0, i -> i + 1).limit(limit == null ? 10 : limit)
-                            .boxed().map(this::buildStub).collect(Collectors.toList())).build();
+                            .boxed().map(this::buildStub).collect(Collectors.toList())).tool(BlastTool.BLASTP).build();
         } else if (id == 43L) {
             throw  new IllegalStateException(messageHelper.getMessage(
                             MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
                             id, Status.RUNNING)
             );
         }
-        checkTaskIsReady(id);
-        return blastFileManager.getResults(id, limit == null ? Integer.MAX_VALUE : limit);
+        final TaskEntity task = loadTaskForResult(id);
+        return blastFileManager.getResults(task.getId(),
+                geBlastToolFromParam(task), limit == null ? Integer.MAX_VALUE : limit);
     }
 
     @Override
@@ -202,14 +206,22 @@ public class TaskServiceImpl implements TaskService {
         if (id == 42L) {
             return Pair.of(
                     "42.blastout",
-                    ("Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,0.96,14.2,25,9,33.333,3,6,6,0,0,"
+                    ("Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,"
+                            + "0.96,14.2,25,9,33.333,3,6,6,0,0,"
                             + "66.67,7801,N/A,N/A,N/A,20,20,N/A\n"
                             + "Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,0.96,14.2,25,9,33.333,3,6,"
                             + "6,0,0,66.67,7801,N/A,N/A,N/A,20,20,N/A").getBytes(StandardCharsets.UTF_8)
             );
         }
-        checkTaskIsReady(id);
+        loadTaskForResult(id);
         return blastFileManager.getRawResults(id);
+    }
+
+    @Override
+    public TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result) {
+        taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
+        taskEntity.setReason(cutReasonMessage(result));
+        return updateTask(taskEntity);
     }
 
     @Override
@@ -269,7 +281,23 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    private void checkTaskIsReady(final Long id) {
+    private String cutReasonMessage(ExecutionResult result) {
+        if (result.getReason().length() > TaskEntity.MAX_STRING_LENGTH) {
+            return result.getReason().substring(0, TaskEntity.MAX_STRING_LENGTH);
+        } else {
+            return result.getReason();
+        }
+    }
+
+    private BlastTool geBlastToolFromParam(TaskEntity task) {
+        try {
+            return BlastTool.getByValue(task.getParams().get(BLAST_TOOL));
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private TaskEntity loadTaskForResult(final Long id) {
         final TaskEntity loaded = findTask(id);
         Assert.isTrue(loaded.getStatus() == Status.DONE,
                 messageHelper.getMessage(
@@ -277,14 +305,17 @@ public class TaskServiceImpl implements TaskService {
                         id, loaded.getStatus().name()
                 )
         );
+        return loaded;
     }
 
     private BlastResultEntry buildStub(Integer i) {
         return BlastResultEntry.builder()
                 .queryAccVersion("2_S17_L001_R1_001_(paired)_trimmed_(paired)_contig_1")
                 .queryStart(2397L + i).queryEnd(4880L + i).queryLen(4897L)
+                .qseq("LCGRGFIRA")
                 .seqAccVersion("AP018441.1").seqSeqId("gi|1798099803|dbj|AP018441.1|")
                 .seqLen(6484812L).seqStart(1529303L + i).seqEnd(1531784L + i)
+                .sseq("VCTREYVRE").btop("LV1GT1GEFYIV1AE")
                 .expValue(0.0).bitScore(4220.0).score(2285.0).length(2486L)
                 .percentIdent(97.345).numIdent(2420L).mismatch(60L).positive(2420L)
                 .gapOpen(6L).gaps(6L).percentPos(97.35).seqTaxId(2058625L)

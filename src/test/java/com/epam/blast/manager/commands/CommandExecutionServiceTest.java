@@ -107,7 +107,7 @@ class CommandExecutionServiceTest {
                         break;
                 }
             } else {
-                assertEquals(NULL_COMMAND_TYPE, commandService.runTask(taskEntity));
+                assertEquals(NULL_COMMAND_TYPE, commandService.runTask(taskEntity).getExitCode());
             }
         }
         verify(makeBlastDbRunner, times(AMOUNT_TASKS_MAKEDB)).runTask(any(TaskEntity.class));

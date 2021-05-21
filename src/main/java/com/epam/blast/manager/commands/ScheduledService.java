@@ -27,8 +27,10 @@ package com.epam.blast.manager.commands;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskStatus;
+import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
+import com.epam.blast.manager.task.TaskService;
 import com.epam.blast.manager.task.TaskServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,7 +47,6 @@ import java.util.concurrent.Semaphore;
 
 import static com.epam.blast.entity.commands.ExitCodes.IO_EXCEPTION;
 import static com.epam.blast.entity.commands.ExitCodes.OTHER_EXCEPTION;
-import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.commands.ExitCodes.THREAD_INTERRUPTION_EXCEPTION;
 import static java.lang.String.format;
 
@@ -56,11 +57,11 @@ public class ScheduledService {
     private static final String EXCEPTION_MESSAGE_PATTERN = "Exception: %1$s Message: %2$s %n StackTrace: %3$s";
 
     private final ExecutorService executorService;
-    private final TaskServiceImpl taskService;
+    private final TaskService taskService;
     private final CommandExecutionService commandService;
     private final Semaphore semaphore;
     private final MessageHelper messageHelper;
-    private final Map<Long, Future<Integer>> tasksFutures = new ConcurrentHashMap<>();
+    private final Map<Long, Future<ExecutionResult>> tasksFutures = new ConcurrentHashMap<>();
 
     @Autowired
     public ScheduledService(@Value("${blast-wrapper.task-status-checking.thread-amount}") Integer threadsAmount,
@@ -99,26 +100,24 @@ public class ScheduledService {
             });
     }
 
-    private int processTask(TaskEntity taskEntity) {
-        int result = OTHER_EXCEPTION;
+    private ExecutionResult processTask(TaskEntity taskEntity) {
+        ExecutionResult result;
         try {
             result = commandService.runTask(taskEntity);
         } catch (IOException e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
-            result = IO_EXCEPTION;
+            result = ExecutionResult.builder().exitCode(IO_EXCEPTION).reason(e.getMessage()).build();
         } catch (InterruptedException e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
             Thread.currentThread().interrupt();
-            result = THREAD_INTERRUPTION_EXCEPTION;
+            result = ExecutionResult.builder().exitCode(THREAD_INTERRUPTION_EXCEPTION).reason(e.getMessage()).build();
         } catch (Exception e) {
             log.error(format(EXCEPTION_MESSAGE_PATTERN, e.getClass(), e.getMessage(), e));
-            result = OTHER_EXCEPTION;
-        } finally {
-            taskEntity.setStatus((result == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
-            taskService.updateTask(taskEntity);
-            semaphore.release();
-            tasksFutures.remove(taskEntity.getId());
+            result = ExecutionResult.builder().exitCode(OTHER_EXCEPTION).reason(e.getMessage()).build();
         }
+        semaphore.release();
+        tasksFutures.remove(taskEntity.getId());
+        taskService.changeStatus(taskEntity, result);
         return result;
     }
 

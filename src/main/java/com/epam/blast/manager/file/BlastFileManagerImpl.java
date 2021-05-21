@@ -26,6 +26,7 @@ package com.epam.blast.manager.file;
 
 import com.epam.blast.entity.blasttool.BlastResult;
 import com.epam.blast.entity.blasttool.BlastResultEntry;
+import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.manager.commands.commands.BlastToolCommand;
 import com.epam.blast.manager.helper.MessageConstants;
@@ -97,7 +98,7 @@ public class BlastFileManagerImpl implements BlastFileManager {
     }
 
     @Override
-    public BlastResult getResults(final Long taskId, final Integer limit) {
+    public BlastResult getResults(final Long taskId, final BlastTool tool, final Integer limit) {
         try {
             final List<BlastResultEntry> entries = Files.lines(
                     Path.of(blastResultsDirectory, getResultFileName(taskId))
@@ -105,7 +106,7 @@ public class BlastFileManagerImpl implements BlastFileManager {
                     .filter(StringUtils::isNotBlank)
                     .map(this::parseBlastResultEntry)
                     .collect(Collectors.toList());
-            return BlastResult.builder().entries(entries).size(entries.size()).build();
+            return BlastResult.builder().entries(entries).tool(tool).size(entries.size()).build();
         } catch (IOException | IllegalStateException e) {
             throw new IllegalStateException(
                     messageHelper.getMessage(MessageConstants.ERROR_WHILE_READ_TASK_OUTPUT, taskId, e.getMessage()), e
@@ -188,29 +189,32 @@ public class BlastFileManagerImpl implements BlastFileManager {
                 .queryLen(parseNumber(split[1], Long::parseLong))
                 .queryStart(parseNumber(split[2], Long::parseLong))
                 .queryEnd(parseNumber(split[3], Long::parseLong))
-                .seqAccVersion(split[4])
-                .seqSeqId(split[5])
-                .seqLen(parseNumber(split[6], Long::parseLong))
-                .seqStart(parseNumber(split[7], Long::parseLong))
-                .seqEnd(parseNumber(split[8], Long::parseLong))
-                .expValue(parseNumber(split[9], Double::parseDouble))
-                .bitScore(parseNumber(split[10], Double::parseDouble))
-                .score(parseNumber(split[11], Double::parseDouble))
-                .length(parseNumber(split[12], Long::parseLong))
-                .percentIdent(parseNumber(split[13], Double::parseDouble))
-                .numIdent(parseNumber(split[14], Long::parseLong))
-                .mismatch(parseNumber(split[15], Long::parseLong))
-                .positive(parseNumber(split[16], Long::parseLong))
-                .gapOpen(parseNumber(split[17], Long::parseLong))
-                .gaps(parseNumber(split[18], Long::parseLong))
-                .percentPos(parseNumber(split[19], Double::parseDouble))
-                .seqTaxId(parseNumber(split[20], Long::parseLong))
-                .seqSciName(split[21])
-                .seqComName(split[22])
-                .seqStrand(split[23])
-                .queryCovS(parseNumber(split[24], Double::parseDouble))
-                .queryCovHsp(parseNumber(split[25], Double::parseDouble))
-                .queryCovUs(parseNumber(split[26], Double::parseDouble))
+                .qseq(split[4])
+                .seqAccVersion(split[5])
+                .seqSeqId(split[6])
+                .seqLen(parseNumber(split[7], Long::parseLong))
+                .seqStart(parseNumber(split[8], Long::parseLong))
+                .seqEnd(parseNumber(split[9], Long::parseLong))
+                .sseq(split[10])
+                .btop(split[11])
+                .expValue(parseNumber(split[12], Double::parseDouble))
+                .bitScore(parseNumber(split[13], Double::parseDouble))
+                .score(parseNumber(split[14], Double::parseDouble))
+                .length(parseNumber(split[15], Long::parseLong))
+                .percentIdent(parseNumber(split[16], Double::parseDouble))
+                .numIdent(parseNumber(split[17], Long::parseLong))
+                .mismatch(parseNumber(split[18], Long::parseLong))
+                .positive(parseNumber(split[19], Long::parseLong))
+                .gapOpen(parseNumber(split[20], Long::parseLong))
+                .gaps(parseNumber(split[21], Long::parseLong))
+                .percentPos(parseNumber(split[22], Double::parseDouble))
+                .seqTaxId(parseNumber(split[23], Long::parseLong))
+                .seqSciName(split[24])
+                .seqComName(split[25])
+                .seqStrand(split[26])
+                .queryCovS(parseNumber(split[27], Double::parseDouble))
+                .queryCovHsp(parseNumber(split[28], Double::parseDouble))
+                .queryCovUs(parseNumber(split[29], Double::parseDouble))
                 .build();
     }
 

@@ -88,7 +88,7 @@ public class MakeBlastDbRunner implements CommandRunner {
     }
 
     @Override
-    public int runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
+    public ExecutionResult runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         final Map<String, String> params = taskEntity.getParams();
 
         final String inputFileName = getInputFileName(params);
@@ -117,9 +117,9 @@ public class MakeBlastDbRunner implements CommandRunner {
         return performCommand(command, taskEntity.getId());
     }
 
-    private int performCommand(String command, Long taskId) throws IOException, InterruptedException {
-        final int result = commandPerformer.perform(command);
-        if (result == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
+    private ExecutionResult performCommand(String command, Long taskId) throws IOException, InterruptedException {
+        final ExecutionResult result = commandPerformer.perform(command);
+        if (result.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
             final String cancelCommand = TaskCancelCommand.builder()
                     .taskName(getTaskName(taskId)).build().generateCmd();
             if (StringUtils.isNotBlank(cancelCommand)) {

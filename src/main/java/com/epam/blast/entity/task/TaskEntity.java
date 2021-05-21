@@ -58,6 +58,8 @@ import java.util.Map;
 @Table(name = "TASKS", schema = "public")
 public class TaskEntity {
 
+    public static final int MAX_STRING_LENGTH = 2048;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -65,6 +67,9 @@ public class TaskEntity {
 
     @Enumerated(EnumType.STRING)
     Status status;
+
+    @Column(length = MAX_STRING_LENGTH)
+    String reason;
 
     @Enumerated(EnumType.STRING)
     TaskType taskType;
@@ -75,7 +80,7 @@ public class TaskEntity {
     @CollectionTable(name = "query_db_mapping",
             joinColumns = {@JoinColumn(name = "task_id", referencedColumnName = "id")})
     @MapKeyColumn(name = "param")
-    @Column(name = "value")
+    @Column(name = "value", length = MAX_STRING_LENGTH)
     @Fetch(FetchMode.JOIN)
     Map<String, String> params; // "query": "ACGT", "database": "proteins" param - value
 

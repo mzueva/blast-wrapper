@@ -22,36 +22,14 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.manager.file;
+package com.epam.blast.manager.commands.runners;
 
-import com.epam.blast.entity.blasttool.BlastResult;
-import com.epam.blast.entity.blasttool.BlastTool;
-import com.epam.blast.entity.task.TaskEntity;
-import org.springframework.data.util.Pair;
+import lombok.Builder;
+import lombok.Value;
 
-import java.io.File;
-
-public interface BlastFileManager {
-
-    String getResultFileName(Long taskId);
-
-    BlastResult getResults(Long taskId, BlastTool tool, Integer limit);
-
-    Pair<String, byte[]> getRawResults(Long taskId);
-
-    void removeQueryFile(Long taskId);
-
-    File getQueryFile(TaskEntity taskEntity);
-
-    String getBlastQueryDirectory();
-
-    String getBlastDbDirectory();
-
-    String getBlastResultsDirectory();
-
-    String defaultFastaDirectory();
-
-    void removeBlastOutput(Long taskId);
-
-    String getResultDelimiter();
+@Value
+@Builder
+public class ExecutionResult {
+    int exitCode;
+    String reason;
 }

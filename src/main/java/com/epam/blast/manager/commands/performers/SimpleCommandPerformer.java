@@ -25,11 +25,14 @@
 package com.epam.blast.manager.commands.performers;
 
 import com.epam.blast.entity.commands.ExitCodes;
+import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
@@ -37,6 +40,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 @Service
 @Slf4j
@@ -44,26 +48,29 @@ import java.util.List;
 public class SimpleCommandPerformer implements CommandPerformer {
 
     private static final String SPLIT_CHAR = " ";
-    private static final char NEW_LINE = '\n';
-    public static final String QUOT = "'";
-    public static final String DOUBLE_QUOT = "\"";
-    public static final String EMPTY = "";
+    private static final String NEW_LINE = "\n";
+    private static final String QUOT = "'";
+    private static final String DOUBLE_QUOT = "\"";
+    private static final String EMPTY = "";
+    private static final int MAX_EXIT_REASON_MESSAGE_LINES = 2;
 
     private final MessageHelper messageHelper;
 
     @Override
-    public int perform(final String command) throws IOException {
+    public ExecutionResult perform(final String command) throws IOException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_COMMAND, command));
-        Process process = new ProcessBuilder().inheritIO()
-                .command(splitCommandByArguments(command)).start();
+        Process process = new ProcessBuilder().command(splitCommandByArguments(command)).start();
         try {
-            logOutPut(process);
-            process.waitFor();
+            final Pair<Integer, String> exitStatus = waitForProcessResult(process);
+            return ExecutionResult.builder()
+                    .exitCode(exitStatus.getFirst())
+                    .reason(exitStatus.getSecond()).build();
         } catch (InterruptedException e) {
             process.destroyForcibly();
-            return ExitCodes.THREAD_INTERRUPTION_EXCEPTION;
+            return ExecutionResult.builder()
+                    .exitCode(ExitCodes.THREAD_INTERRUPTION_EXCEPTION)
+                    .reason(e.getMessage()).build();
         }
-        return process.exitValue();
     }
 
     static List<String> splitCommandByArguments(final String command) {
@@ -107,20 +114,19 @@ public class SimpleCommandPerformer implements CommandPerformer {
                  && !(part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT));
     }
 
-    private static void logOutPut(final Process process) throws IOException {
-        final StringBuilder buffer = new StringBuilder();
-        String line;
+    private Pair<Integer, String> waitForProcessResult(final Process process) throws IOException, InterruptedException {
+        final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
              BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-            while ((line = reader.readLine()) != null) {
-                buffer.append(line).append(NEW_LINE);
-            }
-            while ((line = errorReader.readLine()) != null) {
-                buffer.append(line).append(NEW_LINE);
-            }
+            reader.lines().forEach(log::info);
+            errorReader.lines().forEach(message -> {
+                if (StringUtils.isNotBlank(message)) {
+                    stderr.add(message);
+                }
+                log.warn(message);
+            });
         }
-        if (!StringUtils.isBlank(buffer)) {
-            log.info(buffer.toString());
-        }
+        process.waitFor();
+        return Pair.of(process.exitValue(), String.join(NEW_LINE, stderr));
     }
 }

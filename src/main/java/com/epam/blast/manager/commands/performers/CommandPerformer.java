@@ -24,9 +24,11 @@
 
 package com.epam.blast.manager.commands.performers;
 
+import com.epam.blast.manager.commands.runners.ExecutionResult;
+
 import java.io.IOException;
 
 public interface CommandPerformer {
 
-    int perform(final String command) throws IOException, InterruptedException;
+    ExecutionResult perform(final String command) throws IOException, InterruptedException;
 }

@@ -26,6 +26,7 @@ package com.epam.blast.manager.file;
 
 import com.epam.blast.entity.blasttool.BlastResult;
 import com.epam.blast.entity.blasttool.BlastResultEntry;
+import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
 import org.apache.commons.io.FileUtils;
@@ -46,15 +47,15 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 class BlastFileManagerImplTest {
 
-    public static final String CORRECT_RESULT_STRING = "Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,"
-            + "0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,20,20,N/A";
-    public static final String CORRECT_RESULT_STRING_2 = "Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,"
-            + "0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,20,25,N/A";
-    public static final String CORRECT_RESULT_STRING_WITH_EMPTY_VALUES = "Query_1,44,2,10,P80049.1,"
-            + "sp|P80049.1|FABPL_GINCI,132,123,"
-            + "131,0.96,14.2,25,9,33.333,3,,6,0,0,66.67,7801,N/A,N/A,N/A,,20,N/A";
-    public static final String INCORRECT_RESULT_STRING = "Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,"
-            + "131,0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,as,20,N/A";
+    public static final String CORRECT_RESULT_STRING = "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
+            + "132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,20,20,N/A";
+    public static final String CORRECT_RESULT_STRING_2 = "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
+            + "132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,20,25,N/A";
+    public static final String CORRECT_RESULT_STRING_WITH_EMPTY_VALUES =
+            "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
+            + "132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,0.96,14.2,25,9,33.333,3,,6,0,0,66.67,7801,N/A,N/A,N/A,,20,N/A";
+    public static final String INCORRECT_RESULT_STRING = "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
+            + "132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,as,20,N/A";
 
     private Path queryDir;
     private Path resultDir;
@@ -92,7 +93,7 @@ class BlastFileManagerImplTest {
 
     @Test
     public void getResultTest() {
-        BlastResult results = blastFileManager.getResults(1L, 100);
+        BlastResult results = blastFileManager.getResults(1L, BlastTool.BLASTP, 100);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(2, results.getSize().intValue());
         Assertions.assertEquals(2, results.getEntries().size());
@@ -101,12 +102,12 @@ class BlastFileManagerImplTest {
     @Test
     public void getResultShouldFailWithAppropriateExceptionTest() {
         Assertions.assertThrows(IllegalStateException.class,
-                () ->  blastFileManager.getResults(2L, 100));
+                () ->  blastFileManager.getResults(2L, BlastTool.BLASTP, 100));
     }
 
     @Test
     public void getResultLimitTest() {
-        BlastResult results = blastFileManager.getResults(1L, 1);
+        BlastResult results = blastFileManager.getResults(1L, BlastTool.BLASTP, 1);
         Assertions.assertNotNull(results);
         Assertions.assertEquals(1, results.getSize().intValue());
         Assertions.assertEquals(1, results.getEntries().size());
