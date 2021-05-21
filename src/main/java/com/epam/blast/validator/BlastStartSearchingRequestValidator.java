@@ -1,7 +1,8 @@
-package com.epam.blast.validators;
+package com.epam.blast.validator;
 
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.entity.blasttool.BlastToolOption;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -9,8 +10,13 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import java.util.stream.Collectors;
 
 @Slf4j
 @Component
@@ -36,6 +42,7 @@ public class BlastStartSearchingRequestValidator {
         queryValidation(request);
         maxTargetSequenceValidation(request);
         expectedThresholdValidation(request);
+        optionsValidation(request);
     }
 
 
@@ -108,6 +115,67 @@ public class BlastStartSearchingRequestValidator {
                     messageHelper.getMessage(MessageConstants.EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE)
             );
         }
+    }
+
+    private String optionsValidation(final BlastStartSearchingRequest request) {
+        final Map<BlastToolOption, String> optionMap = getUnfilteredOptionsMap(request);
+
+        return optionMap.keySet().stream()
+                .filter(option -> {
+                    if (option.getValidator().test(optionMap.get(option))) {
+                        log.debug(
+                                messageHelper.getMessage(MessageConstants.VALID_OPTION_VALUE_INFO_MESSAGE,
+                                        optionMap.get(option), option.getFlag()
+                                )
+                        );
+                        return true;
+                    } else {
+                        log.warn(
+                                messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_VALUE_WARNING_MESSAGE,
+                                        optionMap.get(option), option.getFlag()
+                                )
+                        );
+                        return false;
+                    }
+                })
+                .map(o -> o.getFlag() + " " + optionMap.get(o))
+                .collect(Collectors.joining(" "));
+    }
+
+    private Map<BlastToolOption, String> getUnfilteredOptionsMap(final BlastStartSearchingRequest request) {
+        final Map<String, String> uncheckedMap = Arrays.stream(StringUtils.defaultString(request.getOptions())
+                .split(" -"))
+                .filter(s -> !s.isBlank())
+                .collect(
+                        Collectors.toMap(
+                                s -> s.split(" ", 2)[0].trim(),
+                                s -> {
+                                    try {
+                                        return s.split(" ", 2)[1];
+                                    } catch (ArrayIndexOutOfBoundsException e) {
+                                        return "";
+                                    }
+                                }
+                        )
+                );
+
+        final Map<BlastToolOption, String> optionsMap = new HashMap<>();
+        for (String stringOption : uncheckedMap.keySet()) {
+            try {
+                optionsMap.put(
+                        BlastToolOption.valueOf(
+                                StringUtils.defaultString(stringOption)
+                                        .toUpperCase(Locale.ROOT)
+                                        .replace("-", "")
+                        ),
+                        uncheckedMap.get(stringOption));
+            } catch (IllegalArgumentException ignored) {
+                log.warn(
+                        messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, stringOption)
+                );
+            }
+        }
+        return optionsMap;
     }
 
     private BlastTool getTool(final BlastStartSearchingRequest request) {

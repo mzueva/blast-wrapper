@@ -41,7 +41,7 @@ import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
-import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 
 import lombok.RequiredArgsConstructor;
 
