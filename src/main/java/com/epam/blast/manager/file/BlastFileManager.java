@@ -25,6 +25,7 @@
 package com.epam.blast.manager.file;
 
 import com.epam.blast.entity.blasttool.BlastResult;
+import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.entity.task.TaskEntity;
 import org.springframework.data.util.Pair;
 
@@ -34,7 +35,7 @@ public interface BlastFileManager {
 
     String getResultFileName(Long taskId);
 
-    BlastResult getResults(Long taskId, Integer limit);
+    BlastResult getResults(Long taskId, BlastTool tool, Integer limit);
 
     Pair<String, byte[]> getRawResults(Long taskId);
 

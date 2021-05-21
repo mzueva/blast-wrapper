@@ -25,6 +25,7 @@
 package com.epam.blast.manager.commands;
 
 import com.epam.blast.entity.blasttool.Status;
+import com.epam.blast.entity.commands.ExitCodes;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -41,7 +42,6 @@ import test.utils.TestTaskMaker;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -50,12 +50,11 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import static java.time.Duration.ofSeconds;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTimeout;
 import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -112,31 +111,24 @@ class ScheduledServiceTest {
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(IOException.class);
         scheduledService.runNewTasks();
         checkTestTimeout();
-        verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
-        assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
+        verify(taskService, atLeastOnce()).changeStatus(any(),
+                argThat(argument -> argument.getExitCode() == ExitCodes.IO_EXCEPTION));
 
         taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(InterruptedException.class);
         scheduledService.runNewTasks();
         checkTestTimeout();
-        verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
-        assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
+        verify(taskService, atLeastOnce()).changeStatus(any(),
+                argThat(argument -> argument.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION));
 
         taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
         taskList.set(0, taskEntity);
         when(commandService.runTask(any(TaskEntity.class))).thenThrow(RuntimeException.class);
         scheduledService.runNewTasks();
         checkTestTimeout();
-        verify(taskEntity, atLeastOnce()).setStatus(Status.FAILED);
-        assertEquals(Status.FAILED, Objects.requireNonNull(taskEntity).getStatus());
-
-        taskEntity = TestTaskMaker.makeTask(TaskType.BLAST_TOOL, true);
-        taskList.set(0, taskEntity);
-        doThrow(RuntimeException.class).when(taskEntity).setStatus(any());
-        scheduledService.runNewTasks();
-        checkTestTimeout();
-        assertEquals(Status.CREATED, Objects.requireNonNull(taskEntity).getStatus());
+        verify(taskService, atLeastOnce()).changeStatus(any(),
+                argThat(argument -> argument.getExitCode() == ExitCodes.OTHER_EXCEPTION));
     }
 
     private void checkTestTimeout() throws InterruptedException {

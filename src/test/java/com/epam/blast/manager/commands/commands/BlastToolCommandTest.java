@@ -56,9 +56,9 @@ public class BlastToolCommandTest {
                 + "ncbi/blast "
                 + "blastn -query /blast/queries/Test_query_file_name -db Nurse-shark-proteins "
                 + "-out /blast/results/0.out "
-                + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
-                + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-                + "qcovs qcovhsp qcovus\" -evalue 0.1",
+                + "-outfmt \"10 delim=, qaccver qlen qstart qend qseq saccver sseqid slen sstart send sseq btop "
+                + "evalue bitscore score length pident nident mismatch positive gapopen gaps ppos staxid ssciname "
+                + "scomname sstrand qcovs qcovhsp qcovus\" -evalue 0.1",
         "docker run --rm --name blast_1 "
                 + "-v blastdb_custom:/blast/blastdb_custom:ro "
                 + "-v queries:/blast/queries:ro "
@@ -66,18 +66,19 @@ public class BlastToolCommandTest {
                 + "ncbi/blast "
                 + "blastn -query /blast/queries/52345-45-213123 -db Felis-silvestris-proteins "
                 + "-out /blast/results/200.out "
-                + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
-                + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-                + "qcovs qcovhsp qcovus\" -negative_taxids 1,5,495 -max_target_seqs 200 -evalue 0.001",
+                + "-outfmt \"10 delim=, qaccver qlen qstart qend qseq saccver sseqid slen sstart send sseq btop "
+                + "evalue bitscore score length pident nident mismatch positive gapopen gaps ppos staxid ssciname "
+                + "scomname sstrand qcovs qcovhsp qcovus\" -negative_taxids 1,5,495 -max_target_seqs 200 -evalue 0.001",
         "docker run --rm --name blast_2 "
             + "-v blastdb_custom:/blast/blastdb_custom:ro "
             + "-v queries:/blast/queries:ro "
             + "-v results:/blast/results:rw ncbi/blast blastn "
             + "-query /blast/queries/456 -db Rattus-norvegicus-proteins "
             + "-out /blast/results/43647.out "
-            + "-outfmt \"10 delim=, qaccver qlen qstart qend saccver sseqid slen sstart send evalue bitscore "
-            + "score length pident nident mismatch positive gapopen gaps ppos staxid ssciname scomname sstrand "
-            + "qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"};
+                + "-outfmt \"10 delim=, qaccver qlen qstart qend qseq saccver sseqid slen sstart send sseq btop "
+                + "evalue bitscore score length pident nident mismatch positive gapopen gaps ppos staxid ssciname "
+                + "scomname sstrand qcovs qcovhsp qcovus\" -taxids 4,5,90 -max_target_seqs 43647 -testoption testvalue"
+        };
     public static final String RESULT_DELIMITER = ",";
 
     @Test

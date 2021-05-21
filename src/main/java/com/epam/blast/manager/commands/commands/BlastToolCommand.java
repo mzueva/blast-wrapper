@@ -41,10 +41,10 @@ import static java.io.File.separator;
 @Builder
 public class BlastToolCommand implements BlastWrapperCommand {
 
-    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=%s qaccver qlen qstart qend saccver sseqid slen "
-            + "sstart send evalue bitscore score length pident nident mismatch positive gapopen gaps ppos "
+    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=%s qaccver qlen qstart qend qseq saccver sseqid slen "
+            + "sstart send sseq btop evalue bitscore score length pident nident mismatch positive gapopen gaps ppos "
             + "staxid ssciname scomname sstrand qcovs qcovhsp qcovus\"";
-    public static final int BLAST_FILE_FORMAT_PARTS = 27;
+    public static final int BLAST_FILE_FORMAT_PARTS = 30;
 
     private static final String EMPTY_STRING = "";
     private static final String PATH_SEPARATOR_THYMELEAF_VARIABLE_NAME = "pathSeparator";

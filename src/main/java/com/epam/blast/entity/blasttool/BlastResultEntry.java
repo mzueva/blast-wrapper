@@ -34,11 +34,14 @@ public class BlastResultEntry {
     Long queryLen;
     Long queryStart;
     Long queryEnd;
+    String qseq;
     String seqAccVersion;
     String seqSeqId;
     Long seqLen;
     Long seqStart;
     Long seqEnd;
+    String sseq;
+    String btop;
     Double expValue;
     Double bitScore;
     Double score;

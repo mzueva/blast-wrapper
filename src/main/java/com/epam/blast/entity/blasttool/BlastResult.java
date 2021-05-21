@@ -33,5 +33,6 @@ import java.util.List;
 @Builder
 public class BlastResult {
     Integer size;
+    BlastTool tool;
     List<BlastResultEntry> entries;
 }
