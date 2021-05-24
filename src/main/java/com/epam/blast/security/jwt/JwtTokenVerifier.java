@@ -42,9 +42,6 @@ import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Base64;
 
-import static com.epam.blast.security.jwt.entity.JwtTokenClaims.*;
-
-
 public class JwtTokenVerifier {
 
     private final RSAPublicKey publicKey;
@@ -73,10 +70,10 @@ public class JwtTokenVerifier {
         final JwtTokenClaims tokenClaims = JwtTokenClaims.builder()
                 .jwtTokenId(decodedToken.getId())
                 .userName(decodedToken.getSubject())
-                .userId(decodedToken.getClaim(CLAIM_USER_ID).asString())
-                .orgUnitId(decodedToken.getClaim(CLAIM_ORG_UNIT_ID).asString())
-                .roles(Arrays.asList(decodedToken.getClaim(CLAIM_ROLES).asArray(String.class)))
-                .groups(Arrays.asList(decodedToken.getClaim(CLAIM_GROUPS).asArray(String.class)))
+                .userId(decodedToken.getClaim(JwtTokenClaims.CLAIM_USER_ID).asString())
+                .orgUnitId(decodedToken.getClaim(JwtTokenClaims.CLAIM_ORG_UNIT_ID).asString())
+                .roles(Arrays.asList(decodedToken.getClaim(JwtTokenClaims.CLAIM_ROLES).asArray(String.class)))
+                .groups(Arrays.asList(decodedToken.getClaim(JwtTokenClaims.CLAIM_GROUPS).asArray(String.class)))
                 .issuedAt(decodedToken.getIssuedAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .expiresAt(decodedToken.getExpiresAt().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime())
                 .build();

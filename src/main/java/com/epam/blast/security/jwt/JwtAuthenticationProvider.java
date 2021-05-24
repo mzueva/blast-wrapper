@@ -26,7 +26,6 @@ package com.epam.blast.security.jwt;
 
 import com.epam.blast.security.jwt.entity.JwtAuthenticationToken;
 import com.epam.blast.security.jwt.entity.JwtRawToken;
-import com.epam.blast.security.jwt.entity.JwtTokenClaims;
 import com.epam.blast.security.jwt.entity.UserContext;
 import com.epam.blast.security.jwt.exception.TokenVerificationException;
 import lombok.RequiredArgsConstructor;
@@ -45,16 +44,13 @@ public class JwtAuthenticationProvider implements AuthenticationProvider {
         if (jwtRawToken == null) {
             throw new AuthenticationServiceException("Authentication error: missing token");
         }
-        JwtTokenClaims claims;
+
         try {
-            claims = tokenVerifier.readClaims(jwtRawToken.getToken());
+            final UserContext context = new UserContext(jwtRawToken, tokenVerifier.readClaims(jwtRawToken.getToken()));
+            return new JwtAuthenticationToken(context, context.getAuthorities());
         } catch (TokenVerificationException e) {
             throw new AuthenticationServiceException("Authentication error", e);
         }
-
-        final UserContext context = new UserContext(jwtRawToken, claims);
-
-        return new JwtAuthenticationToken(context, context.getAuthorities());
     }
 
     @Override

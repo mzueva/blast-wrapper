@@ -64,7 +64,9 @@ public class JwtFilterAuthenticationFilter extends OncePerRequestFilter {
             final JwtRawToken rawToken = retrieveToken(request, authorizationHeader);
             final JwtTokenClaims claims = tokenVerifier.readClaims(rawToken.getToken());
             final UserContext context = new UserContext(rawToken, claims);
-            SecurityContextHolder.getContext().setAuthentication(new JwtAuthenticationToken(context, context.getAuthorities()));
+            SecurityContextHolder.getContext().setAuthentication(
+                    new JwtAuthenticationToken(context, context.getAuthorities())
+            );
             log.info("Attempting to authenticate user with name: " + context.getUsername());
         } catch (AuthenticationServiceException | TokenVerificationException e) {
             logger.trace(e.getMessage(), e);
