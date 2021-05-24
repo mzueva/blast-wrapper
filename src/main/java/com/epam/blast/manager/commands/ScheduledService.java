@@ -64,8 +64,8 @@ public class ScheduledService {
     private final Map<Long, Future<ExecutionResult>> tasksFutures = new ConcurrentHashMap<>();
 
     @Autowired
-    public ScheduledService(@Value("${blast-wrapper.task-status-checking.thread-amount}") Integer threadsAmount,
-                            @Value("${blast-wrapper.task-status-checking.threadsPending}") Integer threadsPending,
+    public ScheduledService(@Value("${blast-wrapper.task-status-checking.thread-amount}") final Integer threadsAmount,
+                            @Value("${blast-wrapper.task-status-checking.threadsPending}") final Integer threadsPending,
                             final ExecutorService executorService,
                             final TaskServiceImpl taskService,
                             final CommandExecutionService commandService,
@@ -100,7 +100,7 @@ public class ScheduledService {
             });
     }
 
-    private ExecutionResult processTask(TaskEntity taskEntity) {
+    private ExecutionResult processTask(final TaskEntity taskEntity) {
         ExecutionResult result;
         try {
             result = commandService.runTask(taskEntity);
@@ -121,7 +121,7 @@ public class ScheduledService {
         return result;
     }
 
-    public synchronized TaskStatus cancelTask(Long id) {
+    public synchronized TaskStatus cancelTask(final Long id) {
         final TaskEntity task = taskService.findTask(id);
         if (task.getStatus() == Status.RUNNING) {
             tasksFutures.get(task.getId()).cancel(true);

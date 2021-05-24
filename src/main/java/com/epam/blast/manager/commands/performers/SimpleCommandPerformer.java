@@ -103,7 +103,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
         return result;
     }
 
-    private static boolean isEdgeOfCompositeArg(String part) {
+    private static boolean isEdgeOfCompositeArg(final String part) {
         // check that part of argument starts or ends with " or '
         // if it contains quotas at the start and at the end (both)
         // means that this is not a composite arg at all
