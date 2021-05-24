@@ -30,4 +30,8 @@ public class CommandLineFlags {
     public static final String BLAST_DB_FLAG = "-blastdb_version";
     public static final String TITLE_FLAG = "-title";
     public static final String OUT_FLAG = "-out";
+
+    public static final String DASH = "-";
+    public static final String SPACE = " ";
+    public static final String NOTHING = "";
 }

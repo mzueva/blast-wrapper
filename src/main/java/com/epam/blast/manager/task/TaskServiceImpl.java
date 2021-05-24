@@ -120,9 +120,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request) {
-        blastStartSearchingRequestValidator.validate(request);
         final TaskEntity taskEntity = saveTask(
-                createTask(TaskType.BLAST_TOOL, mapBlastToolParameters(request))
+                createTask(
+                        TaskType.BLAST_TOOL,
+                        mapBlastToolParameters(blastStartSearchingRequestValidator.validate(request))
+                )
         );
         return TaskStatus.builder()
                 .requestId(taskEntity.getId())

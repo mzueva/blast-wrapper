@@ -123,6 +123,7 @@ public class TaskServiceImplTest {
                 .dbName(TASK_02_DB_NAME)
                 .blastTool(BLAST_TOOL)
                 .build();
+        when(blastStartSearchingRequestValidator.validate(any())).thenReturn(request);
         taskService.createTaskForBlastToolExecution(request);
 
         verify(blastStartSearchingRequestValidator, times(1)).validate(any());

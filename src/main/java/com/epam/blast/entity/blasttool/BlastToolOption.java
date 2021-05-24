@@ -1,18 +1,43 @@
+/*
+ *   MIT License
+ *
+ *   Copyright (c) 2021 EPAM Systems
+ *
+ *   Permission is hereby granted, free of charge, to any person obtaining a copy
+ *   of this software and associated documentation files (the "Software"), to deal
+ *   in the Software without restriction, including without limitation the rights
+ *   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ *   copies of the Software, and to permit persons to whom the Software is
+ *   furnished to do so, subject to the following conditions:
+ *
+ *   The above copyright notice and this permission notice shall be included in all
+ *   copies or substantial portions of the Software.
+ *
+ *   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ *   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ *   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ *   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ *   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ *   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ *   SOFTWARE.
+ */
+
 package com.epam.blast.entity.blasttool;
 
 import lombok.Getter;
 
-import java.util.Set;
 import java.util.function.Predicate;
 
-import static com.epam.blast.validator.OptionValidators.IS_NOT_BLANK;
-import static com.epam.blast.validator.OptionValidators.IS_INTEGER;
-import static com.epam.blast.validator.OptionValidators.IS_INT_8;
-import static com.epam.blast.validator.OptionValidators.IS_REAL;
-import static com.epam.blast.validator.OptionValidators.isMore;
-import static com.epam.blast.validator.OptionValidators.isLessOrEquals;
-import static com.epam.blast.validator.OptionValidators.isMoreOrEquals;
-import static com.epam.blast.validator.OptionValidators.isOneOf;
+import static com.epam.blast.validator.OptionValidationPredicates.COMP_BASED_STATS_VALUES;
+import static com.epam.blast.validator.OptionValidationPredicates.IS_INTEGER;
+import static com.epam.blast.validator.OptionValidationPredicates.IS_INT_8;
+import static com.epam.blast.validator.OptionValidationPredicates.IS_NOT_BLANK;
+import static com.epam.blast.validator.OptionValidationPredicates.IS_REAL;
+import static com.epam.blast.validator.OptionValidationPredicates.SEG_VALUES;
+import static com.epam.blast.validator.OptionValidationPredicates.isLessOrEquals;
+import static com.epam.blast.validator.OptionValidationPredicates.isMore;
+import static com.epam.blast.validator.OptionValidationPredicates.isMoreOrEquals;
+import static com.epam.blast.validator.OptionValidationPredicates.isOneOf;
 
 public enum BlastToolOption {
 
@@ -22,8 +47,8 @@ public enum BlastToolOption {
     MATRIX("-matrix", IS_NOT_BLANK),
     THRESHOLD("-threshold", IS_REAL.and(isMoreOrEquals(0))),
     COMP_BASED_STATS("-comp_based_stats",
-            IS_NOT_BLANK.and(isOneOf(Set.of("D", "d", "0", "f", "F", "1", "2", "t", "T", "2005", "3")))),
-    SEG("-seg", IS_NOT_BLANK.and(isOneOf(Set.of("yes", "no")))),
+            IS_NOT_BLANK.and(isOneOf(COMP_BASED_STATS_VALUES))),
+    SEG("-seg", IS_NOT_BLANK.and(isOneOf(SEG_VALUES))),
     SOFT_MASKING("-soft_masking", IS_NOT_BLANK),
     LCASE_MASKING("-lcase_masking", IS_NOT_BLANK),
     DB_SOFT_MASK("-db_soft_mask", IS_NOT_BLANK),
