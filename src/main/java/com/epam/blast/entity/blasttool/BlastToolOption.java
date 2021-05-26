@@ -29,6 +29,8 @@ import lombok.Getter;
 import java.util.function.Predicate;
 
 import static com.epam.blast.validator.OptionValidationPredicates.COMP_BASED_STATS_VALUES;
+import static com.epam.blast.validator.OptionValidationPredicates.DUST_VALUES;
+import static com.epam.blast.validator.OptionValidationPredicates.IS_BOOLEAN;
 import static com.epam.blast.validator.OptionValidationPredicates.IS_INTEGER;
 import static com.epam.blast.validator.OptionValidationPredicates.IS_INT_8;
 import static com.epam.blast.validator.OptionValidationPredicates.IS_NOT_BLANK;
@@ -46,8 +48,7 @@ public enum BlastToolOption {
     GAPEXTEND("-gapextend", IS_NOT_BLANK),
     MATRIX("-matrix", IS_NOT_BLANK),
     THRESHOLD("-threshold", IS_REAL.and(isMoreOrEquals(0))),
-    COMP_BASED_STATS("-comp_based_stats",
-            IS_NOT_BLANK.and(isOneOf(COMP_BASED_STATS_VALUES))),
+    COMP_BASED_STATS("-comp_based_stats", IS_NOT_BLANK.and(isOneOf(COMP_BASED_STATS_VALUES))),
     SEG("-seg", IS_NOT_BLANK.and(isOneOf(SEG_VALUES))),
     SOFT_MASKING("-soft_masking", IS_NOT_BLANK),
     LCASE_MASKING("-lcase_masking", IS_NOT_BLANK),
@@ -66,7 +67,32 @@ public enum BlastToolOption {
     XDROP_GAP_FINAL("-xdrop_gap_final", IS_NOT_BLANK),
     WINDOW_SIZE("-window_size", IS_INTEGER.and(isMoreOrEquals(0))),
     UNGAPPED("-ungapped", IS_NOT_BLANK),
-    USE_SW_TBACK("-use_sw_tback", IS_NOT_BLANK);
+    USE_SW_TBACK("-use_sw_tback", IS_NOT_BLANK),
+    PENALTY("-penalty", IS_INTEGER.and(isLessOrEquals(0))),
+    REWARD("-reward ", IS_INTEGER.and(isMoreOrEquals(0))),
+    USE_INDEX("-use_index", IS_BOOLEAN),
+    DUST("-dust", IS_NOT_BLANK.and(isOneOf(DUST_VALUES))),
+    PERC_IDENTITY("-perc_identity", IS_REAL.and(isMoreOrEquals(0.0)).and(isLessOrEquals(100.0))),
+    NO_GREEDY("-no_greedy", IS_NOT_BLANK),
+    MIN_RAW_GAPPED_SCORE("-min_raw_gapped_score", IS_NOT_BLANK),
+    OFF_DIAGONAL_RANGE("-off_diagonal_range", IS_INTEGER.and(isMoreOrEquals(0))),
+    MAX_INTRON_LENGTH("-max_intron_length", IS_INTEGER.and(isMoreOrEquals(0))),
+    QUERY_GENOCODE("-query_gencode",
+            IS_INTEGER.and(
+                    isMoreOrEquals(1).and(isLessOrEquals(6))
+                    .or(isMoreOrEquals(9).and(isLessOrEquals(16)))
+                    .or(isMoreOrEquals(21).and(isLessOrEquals(31)))
+                    .or(isMoreOrEquals(33).and(isLessOrEquals(33)))
+            )
+    ),
+    DB_GENCODE("-db_gencode",
+            IS_INTEGER.and(
+                    isMoreOrEquals(1).and(isLessOrEquals(6))
+                    .or(isMoreOrEquals(9).and(isLessOrEquals(16)))
+                    .or(isMoreOrEquals(21).and(isLessOrEquals(31)))
+                    .or(isMoreOrEquals(33).and(isLessOrEquals(33)))
+            )
+    );
 
     BlastToolOption(String flag, Predicate<String> validator) {
         this.flag = flag;

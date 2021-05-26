@@ -34,6 +34,7 @@ public final class OptionValidationPredicates {
     public static final Set<String> COMP_BASED_STATS_VALUES
             = Set.of("D", "d", "0", "f", "F", "1", "2", "t", "T", "2005", "3");
     public static final Set<String> SEG_VALUES = Set.of("yes", "no");
+    public static final Set<String> DUST_VALUES = Set.of("yes", "level window linker", "no");
 
     private OptionValidationPredicates() {
     }
@@ -65,6 +66,16 @@ public final class OptionValidationPredicates {
         }
     };
 
+    public static final Predicate<String> IS_BOOLEAN = value -> {
+        try {
+            //noinspection ResultOfMethodCallIgnored
+            Boolean.parseBoolean(value);
+            return true;
+        } catch (NullPointerException | NumberFormatException e) {
+            return false;
+        }
+    };
+
     public static final Predicate<String> IS_NOT_BLANK = StringUtils::isNotBlank;
 
     public static Predicate<String> isOneOf(final Set<String> set) {
@@ -72,82 +83,34 @@ public final class OptionValidationPredicates {
     }
 
     public static Predicate<String> isMore(final int min) {
-        return value -> {
-            try {
-                return Integer.parseInt(value) > min;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Integer.parseInt(value) > min;
     }
 
     public static Predicate<String> isMore(final double min) {
-        return value -> {
-            try {
-                return Double.parseDouble(value) > min;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Double.parseDouble(value) > min;
     }
 
     public static Predicate<String> isMoreOrEquals(final int min) {
-        return value -> {
-            try {
-                return Integer.parseInt(value) >= min;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Integer.parseInt(value) >= min;
     }
 
     public static Predicate<String> isMoreOrEquals(final double min) {
-        return value -> {
-            try {
-                return Double.parseDouble(value) >= min;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Double.parseDouble(value) >= min;
     }
 
     public static Predicate<String> isLess(final int max) {
-        return value -> {
-            try {
-                return Integer.parseInt(value) < max;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Integer.parseInt(value) < max;
     }
 
     public static Predicate<String> isLess(final double max) {
-        return value -> {
-            try {
-                return Double.parseDouble(value) < max;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Double.parseDouble(value) < max;
     }
 
     public static Predicate<String> isLessOrEquals(final int max) {
-        return value -> {
-            try {
-                return Integer.parseInt(value) <= max;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Integer.parseInt(value) <= max;
     }
 
     public static Predicate<String> isLessOrEquals(final double max) {
-        return value -> {
-            try {
-                return Double.parseDouble(value) <= max;
-            } catch (NullPointerException | NumberFormatException e) {
-                return false;
-            }
-        };
+        return value -> Double.parseDouble(value) <= max;
     }
 }

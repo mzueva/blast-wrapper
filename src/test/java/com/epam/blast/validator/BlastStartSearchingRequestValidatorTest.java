@@ -2,6 +2,7 @@ package com.epam.blast.validator;
 
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.BlastTool;
+import com.epam.blast.entity.blasttool.BlastToolOption;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -21,12 +22,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static com.epam.blast.entity.commands.CommandLineFlags.DASH;
+import static com.epam.blast.entity.commands.CommandLineFlags.NOTHING;
+import static com.epam.blast.entity.commands.CommandLineFlags.SPACE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @Slf4j
 @ExtendWith(MockitoExtension.class)
 public class BlastStartSearchingRequestValidatorTest {
+
     public static final String INCORRECT_STRING_INPUT_VALUE = "Incorrect input value.";
     public static final String NULL_AS_STRING = "null";
     public static final String TEST_QUERY = "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC";
@@ -298,6 +304,59 @@ public class BlastStartSearchingRequestValidatorTest {
         }
     }
 
+    /*
+    "options" validation
+    */
+    @Test
+    void testStringToOptionsParsing() {
+        final Map<String, String> optionsInputMap =
+                Arrays.stream(BlastToolOption.values())
+                        .collect(
+                                Collectors.toMap(
+                                        BlastToolOption::getFlag,
+                                        o -> o.getFlag().substring(1)
+                                )
+                        );
+        optionsInputMap.put(BlastToolOption.WORD_SIZE.getFlag(), "-200");
+        optionsInputMap.put(BlastToolOption.GAPOPEN.getFlag(), "- 200");
+        optionsInputMap.put(BlastToolOption.GAPEXTEND.getFlag(), " rty 56 5 ewr r");
+        optionsInputMap.put(BlastToolOption.MATRIX.getFlag(), " 56 yu fj78 5t tyh   ");
+        optionsInputMap.put(BlastToolOption.THRESHOLD.getFlag(), " <>>. ;   ;';. ., ~");
+        optionsInputMap.put(BlastToolOption.COMP_BASED_STATS.getFlag(), " ][]{}''``. trfds ;. ., .");
+        optionsInputMap.put(BlastToolOption.SEG.getFlag(), "254");
+        optionsInputMap.put(BlastToolOption.SOFT_MASKING.getFlag(), " 2 5 4 ");
+        optionsInputMap.put(BlastToolOption.LCASE_MASKING.getFlag(), "2300.45 435.67 232.78");
+        optionsInputMap.put(INCORRECT_STRING_INPUT_VALUE, NOTHING);
+
+        final String optionsString = optionsInputMap.keySet().stream()
+                .map(s -> s.startsWith(DASH)
+                        ? s + SPACE + optionsInputMap.get(s)
+                        : DASH + s + SPACE + optionsInputMap.get(s)
+                )
+                .collect(Collectors.joining(SPACE));
+
+        final Map<BlastToolOption, String> optionsResultMap
+                = validator.getUncheckedOptionsMap(
+                                BlastStartSearchingRequest.builder()
+                                        .blastTool(BlastTool.TBLASTX.toString())
+                                        .algorithm(BlastTool.TBLASTX.toString())
+                                        .dbName(TEST_DB_NAME)
+                                        .query(TEST_QUERY)
+                                        .options(optionsString)
+                                        .build()
+                        );
+
+        for (BlastToolOption blastToolOption : optionsResultMap.keySet()) {
+            assertEquals(
+                    optionsInputMap.get(blastToolOption.getFlag()).replaceAll(DASH + SPACE, NOTHING).trim(),
+                    optionsResultMap.get(blastToolOption)
+            );
+        }
+    }
+
+    /*
+    Methods for internal using
+    */
     private BlastTool getTool(final BlastStartSearchingRequest request) {
         try {
             return BlastTool.valueOf(request.getBlastTool().toUpperCase(Locale.ROOT));

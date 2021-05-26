@@ -256,7 +256,6 @@ public class TaskServiceImplTest {
         verify(taskRepository, times(1)).save(any(TaskEntity.class));
     }
 
-
     @Test
     void testFindTask() {
         when(taskRepository.findById(TASK_01_ID)).thenReturn(Optional.ofNullable(TASK_MAKE_BLAST_DB_01));

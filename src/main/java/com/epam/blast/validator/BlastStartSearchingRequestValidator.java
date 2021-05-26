@@ -72,7 +72,7 @@ public class BlastStartSearchingRequestValidator {
         queryValidation(request);
         maxTargetSequenceValidation(request);
         expectedThresholdValidation(request);
-        String options = optionsValidation(request);
+        String options = optionsValidation(request, getUncheckedOptionsMap(request));
         return recreateWithNewOptions(request, options);
     }
 
@@ -147,8 +147,10 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private String optionsValidation(final BlastStartSearchingRequest request) {
-        final Map<BlastToolOption, String> optionMap = getUncheckedOptionsMap(request);
+    String optionsValidation(final BlastStartSearchingRequest request, final Map<BlastToolOption, String> optionMap) {
+        if (StringUtils.isBlank(request.getOptions())) {
+            return NOTHING;
+        }
 
         return optionMap.keySet().stream()
                 .filter(option -> {
@@ -172,7 +174,7 @@ public class BlastStartSearchingRequestValidator {
                 .collect(Collectors.joining(SPACE));
     }
 
-    public Map<BlastToolOption, String> getUncheckedOptionsMap(final BlastStartSearchingRequest request) {
+    Map<BlastToolOption, String> getUncheckedOptionsMap(final BlastStartSearchingRequest request) {
         final List<String> stringList = Arrays.stream(StringUtils.defaultString(request.getOptions())
                 .replaceAll(DASH + SPACE, NOTHING)
                 .replaceAll(SPLITTER, SPLITTER + DASH)
@@ -204,7 +206,8 @@ public class BlastStartSearchingRequestValidator {
                                         .toUpperCase(Locale.ROOT)
                                         .replace(DASH, NOTHING)
                         ),
-                        uncheckedMap.get(stringOption));
+                        uncheckedMap.get(stringOption)
+                );
             } catch (IllegalArgumentException ignored) {
                 log.warn(
                         messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, stringOption)
