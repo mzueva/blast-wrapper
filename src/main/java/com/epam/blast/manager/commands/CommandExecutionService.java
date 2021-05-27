@@ -64,7 +64,7 @@ public class CommandExecutionService {
         this.messageHelper = messageHelper;
     }
 
-    public ExecutionResult runTask(TaskEntity taskEntity) throws IOException, InterruptedException {
+    public ExecutionResult runTask(final TaskEntity taskEntity) throws IOException, InterruptedException {
         log.info(messageHelper.getMessage(MessageConstants.INFO_START_TASK_EXECUTION, taskEntity.getId()));
 
         taskEntity.setStatus(Status.RUNNING);

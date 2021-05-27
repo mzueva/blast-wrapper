@@ -110,11 +110,12 @@ public class BlastToolRunner implements CommandRunner {
         }
     }
 
-    protected String getTaskName(Long taskId) {
+    protected String getTaskName(final Long taskId) {
         return "blast_" + taskId;
     }
 
-    private ExecutionResult performCommand(String command, Long taskId) throws IOException, InterruptedException {
+    private ExecutionResult performCommand(final String command, final Long taskId)
+            throws IOException, InterruptedException {
         final ExecutionResult result = commandPerformer.perform(command);
         if (result.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
             blastFileManager.removeBlastOutput(taskId);
@@ -146,7 +147,7 @@ public class BlastToolRunner implements CommandRunner {
         final String path = FilenameUtils.getFullPath(dbPath);
         return Pair.of(
                 StringUtils.isNotBlank(path) ? path : blastFileManager.getBlastDbDirectory(),
-                FilenameUtils.getBaseName(dbPath)
+                FilenameUtils.getName(dbPath)
         );
     }
 }

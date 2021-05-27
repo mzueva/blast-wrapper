@@ -283,7 +283,7 @@ public class TaskServiceImpl implements TaskService {
         return result;
     }
 
-    private String cutReasonMessage(ExecutionResult result) {
+    private String cutReasonMessage(final ExecutionResult result) {
         if (result.getReason().length() > TaskEntity.MAX_STRING_LENGTH) {
             return result.getReason().substring(0, TaskEntity.MAX_STRING_LENGTH);
         } else {
@@ -291,7 +291,7 @@ public class TaskServiceImpl implements TaskService {
         }
     }
 
-    private BlastTool geBlastToolFromParam(TaskEntity task) {
+    private BlastTool geBlastToolFromParam(final TaskEntity task) {
         try {
             return BlastTool.getByValue(task.getParams().get(BLAST_TOOL));
         } catch (IllegalArgumentException e) {
@@ -310,7 +310,7 @@ public class TaskServiceImpl implements TaskService {
         return loaded;
     }
 
-    private BlastResultEntry buildStub(Integer i) {
+    private BlastResultEntry buildStub(final Integer i) {
         return BlastResultEntry.builder()
                 .queryAccVersion("2_S17_L001_R1_001_(paired)_trimmed_(paired)_contig_1")
                 .queryStart(2397L + i).queryEnd(4880L + i).queryLen(4897L)
