@@ -72,7 +72,7 @@ public class BlastStartSearchingRequestValidator {
         queryValidation(request);
         maxTargetSequenceValidation(request);
         expectedThresholdValidation(request);
-        String options = optionsValidation(request, getUncheckedOptionsMap(request));
+        String options = optionsValidation(getUncheckedOptionsMap(request));
         return recreateWithNewOptions(request, options);
     }
 
@@ -147,11 +147,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    String optionsValidation(final BlastStartSearchingRequest request, final Map<BlastToolOption, String> optionMap) {
-        if (StringUtils.isBlank(request.getOptions())) {
-            return NOTHING;
-        }
-
+    String optionsValidation(final Map<BlastToolOption, String> optionMap) {
         return optionMap.keySet().stream()
                 .filter(option -> {
                     if (option.getValidator().test(optionMap.get(option))) {
@@ -175,6 +171,10 @@ public class BlastStartSearchingRequestValidator {
     }
 
     Map<BlastToolOption, String> getUncheckedOptionsMap(final BlastStartSearchingRequest request) {
+        if (StringUtils.isBlank(request.getOptions())) {
+            return new HashMap<>();
+        }
+
         final List<String> stringList = Arrays.stream(StringUtils.defaultString(request.getOptions())
                 .replaceAll(DASH + SPACE, NOTHING)
                 .replaceAll(SPLITTER, SPLITTER + DASH)
