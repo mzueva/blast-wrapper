@@ -67,13 +67,7 @@ public final class OptionValidationPredicates {
     };
 
     public static final Predicate<String> IS_BOOLEAN = value -> {
-        try {
-            //noinspection ResultOfMethodCallIgnored
-            Boolean.parseBoolean(value);
-            return true;
-        } catch (NullPointerException | NumberFormatException e) {
-            return false;
-        }
+        return value.equals("true") || value.equals("false");
     };
 
     public static final Predicate<String> IS_NOT_BLANK = StringUtils::isNotBlank;
