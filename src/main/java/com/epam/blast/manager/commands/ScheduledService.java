@@ -40,6 +40,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
@@ -123,14 +124,14 @@ public class ScheduledService {
 
     public synchronized TaskStatus cancelTask(final Long id) {
         final TaskEntity task = taskService.findTask(id);
-        if (task.getStatus() == Status.RUNNING) {
-            tasksFutures.get(task.getId()).cancel(true);
-        } else if (task.getStatus() == Status.CREATED) {
-            task.setStatus(Status.FAILED);
+        if (task.getStatus() == Status.RUNNING || task.getStatus() == Status.CREATED) {
+            Optional.ofNullable(tasksFutures.get(task.getId())).ifPresent(t -> t.cancel(true));
+            task.setStatus(Status.CANCELLED);
+            task.setReason(messageHelper.getMessage(MessageConstants.INFO_TASK_WAS_CANCELLED));
             taskService.updateTask(task);
         } else {
             throw new IllegalStateException(
-                    messageHelper.getMessage(MessageConstants.ERROR_TASK_IS_NOT_RUNNING_DONE, id, task.getStatus())
+                    messageHelper.getMessage(MessageConstants.ERROR_TASK_IS_NOT_RUNNING, id, task.getStatus())
             );
         }
         return taskService.getTaskStatus(id);

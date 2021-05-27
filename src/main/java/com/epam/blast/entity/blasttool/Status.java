@@ -28,5 +28,6 @@ public enum Status {
     CREATED,
     RUNNING,
     FAILED,
+    CANCELLED,
     DONE
 }

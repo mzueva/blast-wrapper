@@ -219,9 +219,15 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result) {
-        taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
-        taskEntity.setReason(cutReasonMessage(result));
+        if (taskIsNotInFinalState(taskEntity)) {
+            taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
+            taskEntity.setReason(cutReasonMessage(result));
+        }
         return updateTask(taskEntity);
+    }
+
+    private boolean taskIsNotInFinalState(TaskEntity taskEntity) {
+        return taskEntity.getStatus() == Status.RUNNING || taskEntity.getStatus() == Status.CREATED;
     }
 
     @Override

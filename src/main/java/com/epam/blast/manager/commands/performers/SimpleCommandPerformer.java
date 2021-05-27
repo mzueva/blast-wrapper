@@ -115,10 +115,9 @@ public class SimpleCommandPerformer implements CommandPerformer {
     }
 
     private Pair<Integer, String> waitForProcessResult(final Process process) throws IOException, InterruptedException {
+        process.waitFor();
         final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-             BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
-            reader.lines().forEach(log::info);
+        try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
             errorReader.lines().forEach(message -> {
                 if (StringUtils.isNotBlank(message)) {
                     stderr.add(message);
@@ -126,7 +125,6 @@ public class SimpleCommandPerformer implements CommandPerformer {
                 log.warn(message);
             });
         }
-        process.waitFor();
         return Pair.of(process.exitValue(), String.join(NEW_LINE, stderr));
     }
 }
