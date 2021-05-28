@@ -30,6 +30,7 @@ import com.epam.blast.entity.blasttool.BlastToolOption;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -52,10 +53,10 @@ public class BlastStartSearchingRequestValidator {
 
     public static final Long TARGET_SEQUENCE_MIN_LIMIT = 0L;
     public static final Double EXPECTED_THRESHOLD_MIN_LIMIT = 0.0;
-    public static final String STARTS_FROM_DIGIT_REGEX = "\\d.*";
+//    public static final String STARTS_FROM_DIGIT_REGEX = "\\d.*";
     private final Long targetSequenceMaxLimit;
     private final MessageHelper messageHelper;
-    public static final String SPLITTER = SPACE + DASH;
+//    public static final String SPLITTER = SPACE + DASH;
 
     public BlastStartSearchingRequestValidator(
             @Value("${blast-wrapper.blast-commands.request-validators.targetSequenceMaxLimit}")
@@ -175,73 +176,56 @@ public class BlastStartSearchingRequestValidator {
             return new HashMap<>();
         }
 
-        final List<String> stringList = Arrays.stream(StringUtils.defaultString(request.getOptions())
-                .replaceAll(DASH + SPACE, NOTHING)
-                .replaceAll(SPLITTER, SPLITTER + DASH)
-                .split(SPLITTER))
-                .map(String::trim)
+        final Map<BlastToolOption, String> optionFlagsMap
+                = Arrays.stream(BlastToolOption.values())
+                .collect(Collectors.toMap(o -> o, o -> ""));
+
+        final List<String> tokens = Arrays.stream(
+                StringUtils.defaultString(request.getOptions()).split(SPACE))
                 .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
 
-        final Map<String, String> uncheckedMap = new HashMap<>();
-        for (int i = 0; i < stringList.size(); i++) {
-            final String str = stringList.get(i);
-            if (!str.matches(DASH + STARTS_FROM_DIGIT_REGEX)) {
-                final Map.Entry<String, String> entry = getNotNumberOption(str);
-                uncheckedMap.put(entry.getKey(), entry.getValue());
-            } else {
-                final Map.Entry<String, String> entry = getNumberOption(str, i, stringList);
-                if (entry != null) {
-                    uncheckedMap.put(entry.getKey(), entry.getValue());
+        BlastToolOption optionFlag = null;
+        StringBuilder currentValue = new StringBuilder();
+        for (String token : tokens) {
+            if (token.matches(DASH + "[a-zA-Z_\\-]*")) {
+                if (optionFlag != null) {
+                    optionFlagsMap.put(optionFlag, currentValue.toString().trim());
+                    optionFlag = null;
                 }
+                if (isOptionFlag(token)) {
+                    optionFlag = flagToOption(token);
+                    currentValue = new StringBuilder();
+                } else {
+                    messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, token.trim());
+                }
+            } else {
+                currentValue.append(SPACE).append(token);
             }
         }
+        optionFlagsMap.put(optionFlag, currentValue.toString().trim());
 
-        final Map<BlastToolOption, String> optionsMap = new HashMap<>();
-        for (String stringOption : uncheckedMap.keySet()) {
-            try {
-                optionsMap.put(
-                        BlastToolOption.valueOf(
-                                StringUtils.defaultString(stringOption)
-                                        .toUpperCase(Locale.ROOT)
-                                        .replace(DASH, NOTHING)
-                        ),
-                        uncheckedMap.get(stringOption).trim()
-                );
-            } catch (IllegalArgumentException ignored) {
-                log.warn(
-                        messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, stringOption)
-                );
-            }
-        }
-        return optionsMap;
+        return optionFlagsMap;
     }
 
-    private Map.Entry<String, String> getNotNumberOption(final String str) {
-        final String key = str.split(SPACE, 2)[0].trim();
-        if (str.split(SPACE, 2).length > 1) {
-            return new AbstractMap.SimpleEntry<>(
-                    key,
-                    str.split(SPACE, 2)[1].trim()
+    private boolean isOptionFlag(final String uncheckedOption) {
+        try {
+            return EnumUtils.isValidEnum(
+                    BlastToolOption.class,
+                    uncheckedOption.trim().substring(1).toUpperCase(Locale.ROOT)
             );
-        } else {
-            return new AbstractMap.SimpleEntry<>(
-                    key,
-                    NOTHING
-            );
+        } catch (IllegalArgumentException e) {
+            return false;
         }
     }
 
-    private Map.Entry<String, String> getNumberOption(final String str,
-                                                           final int i,
-                                                           final List<String> stringList) {
-        if (i - 1 >= 0) {
-            return new AbstractMap.SimpleEntry<>(
-                    getNotNumberOption(stringList.get(i - 1)).getKey(),
-                    str.trim()
+    private BlastToolOption flagToOption(final String flag) {
+        try {
+            return BlastToolOption.valueOf(
+                    BlastToolOption.class,
+                    flag.trim().substring(1).toUpperCase(Locale.ROOT)
             );
-        } else {
-            messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, str.trim());
+        } catch (IllegalArgumentException e) {
             return null;
         }
     }

@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 import static com.epam.blast.entity.commands.CommandLineFlags.DASH;
 import static com.epam.blast.entity.commands.CommandLineFlags.NOTHING;
 import static com.epam.blast.entity.commands.CommandLineFlags.SPACE;
+import static java.lang.String.format;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -66,6 +67,8 @@ public class BlastStartSearchingRequestValidatorTest {
     public static final String NULL_AS_STRING = "null";
     public static final String TEST_QUERY = "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC";
     public static final String TEST_DB_NAME = "Nurse-shark-proteins";
+    public final String SHOULD_NOT_CONTENT_OPTION_MESSAGE
+            = "Result string \"%1$s\" shouldn't contain not valid option \"%2$s.\"";
 
     public static final List<String> TEST_TAX_IDS = List.of("1", "2", "3");
     public static final List<String> TEST_EXECUTED_TAX_IDS = List.of("1", "2", "3");
@@ -349,8 +352,8 @@ public class BlastStartSearchingRequestValidatorTest {
         optionsInputMap.put(BlastToolOption.WORD_SIZE.getFlag(), "-200");
         optionsInputMap.put(BlastToolOption.GAPEXTEND.getFlag(), " rty 56 5 ewr r");
         optionsInputMap.put(BlastToolOption.MATRIX.getFlag(), " 56 yu fj78 5t tyh   ");
-        optionsInputMap.put(BlastToolOption.THRESHOLD.getFlag(), " <>>. ;   ;';. ., ~");
-        optionsInputMap.put(BlastToolOption.COMP_BASED_STATS.getFlag(), " ][]{}''``. trfds ;. ., .");
+        optionsInputMap.put(BlastToolOption.THRESHOLD.getFlag(), " <>>. ; ;';. ., ~");
+        optionsInputMap.put(BlastToolOption.COMP_BASED_STATS.getFlag(), "   ][]{}''``. trfds ;. ., .");
         optionsInputMap.put(BlastToolOption.SEG.getFlag(), "254");
         optionsInputMap.remove(BlastToolOption.SOFT_MASKING.getFlag());
         optionsInputMap.put(DASH + SPACE + BlastToolOption.SOFT_MASKING.getFlag() + SPACE + SPACE, " 2 5 4 ");
@@ -393,6 +396,7 @@ public class BlastStartSearchingRequestValidatorTest {
                         optionsResultMap.get(blastToolOption).trim()
                 );
             } else {
+                log.info(format(SHOULD_NOT_CONTENT_OPTION_MESSAGE, resultString, trim(uncheckedOption)));
                 assertFalse(resultString.contains(trim(uncheckedOption)));
                 assertEquals(
                         INCORRECT_STRING_INPUT_VALUE,
