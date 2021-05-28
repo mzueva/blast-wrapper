@@ -126,7 +126,7 @@ public class ScheduledService {
         final TaskEntity task = taskService.findTask(id);
         if (task.getStatus() == Status.RUNNING || task.getStatus() == Status.CREATED) {
             Optional.ofNullable(tasksFutures.get(task.getId())).ifPresent(t -> t.cancel(true));
-            task.setStatus(Status.CANCELLED);
+            task.setStatus(Status.CANCELED);
             task.setReason(messageHelper.getMessage(MessageConstants.INFO_TASK_WAS_CANCELLED));
             taskService.updateTask(task);
         } else {
