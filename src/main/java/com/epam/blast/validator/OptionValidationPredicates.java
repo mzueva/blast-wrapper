@@ -66,11 +66,11 @@ public final class OptionValidationPredicates {
         }
     };
 
-    public static final Predicate<String> IS_BOOLEAN = value -> {
-        return value.equals("true") || value.equals("false");
-    };
+    public static final Predicate<String> IS_BOOLEAN = value -> value.equals("true") || value.equals("false");
 
     public static final Predicate<String> IS_NOT_BLANK = StringUtils::isNotBlank;
+
+    public static final Predicate<String> IS_BLANK = StringUtils::isBlank;
 
     public static Predicate<String> isOneOf(final Set<String> set) {
         return value -> !set.isEmpty() && set.contains(value.trim());

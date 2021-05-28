@@ -206,7 +206,7 @@ public class BlastStartSearchingRequestValidator {
                                         .toUpperCase(Locale.ROOT)
                                         .replace(DASH, NOTHING)
                         ),
-                        uncheckedMap.get(stringOption)
+                        uncheckedMap.get(stringOption).trim()
                 );
             } catch (IllegalArgumentException ignored) {
                 log.warn(
