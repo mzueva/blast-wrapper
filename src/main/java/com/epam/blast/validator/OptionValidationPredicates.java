@@ -33,8 +33,8 @@ public final class OptionValidationPredicates {
 
     public static final Set<String> COMP_BASED_STATS_VALUES
             = Set.of("D", "d", "0", "f", "F", "1", "2", "t", "T", "2005", "3");
-    public static final Set<String> SEG_VALUES = Set.of("yes", "no");
-    public static final Set<String> DUST_VALUES = Set.of("yes", "level window linker", "no");
+    public static final Set<String> SEG_VALUES = Set.of("yes", "no", "'window locut hicut'");
+    public static final Set<String> DUST_VALUES = Set.of("yes", "'level window linker'", "no");
 
     private OptionValidationPredicates() {
     }

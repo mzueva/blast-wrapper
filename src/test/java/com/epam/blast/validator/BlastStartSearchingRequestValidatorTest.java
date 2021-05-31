@@ -67,7 +67,7 @@ public class BlastStartSearchingRequestValidatorTest {
     public static final String NULL_AS_STRING = "null";
     public static final String TEST_QUERY = "QLCGRGFIRAIIFACGGSRWATSPAMSIKCCIYGCTKKDISVLC";
     public static final String TEST_DB_NAME = "Nurse-shark-proteins";
-    public final String SHOULD_NOT_CONTENT_OPTION_MESSAGE
+    public static final String SHOULD_NOT_CONTENT_OPTION_MESSAGE
             = "Result string \"%1$s\" shouldn't contain not valid option \"%2$s.\"";
 
     public static final List<String> TEST_TAX_IDS = List.of("1", "2", "3");
@@ -352,9 +352,9 @@ public class BlastStartSearchingRequestValidatorTest {
         optionsInputMap.put(BlastToolOption.WORD_SIZE.getFlag(), "-200");
         optionsInputMap.put(BlastToolOption.GAPEXTEND.getFlag(), " rty 56 5 ewr r");
         optionsInputMap.put(BlastToolOption.MATRIX.getFlag(), " 56 yu fj78 5t tyh   ");
-        optionsInputMap.put(BlastToolOption.THRESHOLD.getFlag(), " <>>. ; ;';. ., ~");
+        optionsInputMap.put(BlastToolOption.THRESHOLD.getFlag(), " <>>. ;   ;';. ., ~");
         optionsInputMap.put(BlastToolOption.COMP_BASED_STATS.getFlag(), "   ][]{}''``. trfds ;. ., .");
-        optionsInputMap.put(BlastToolOption.SEG.getFlag(), "254");
+        optionsInputMap.put(BlastToolOption.SEG.getFlag(), "'window locut hicut'");
         optionsInputMap.remove(BlastToolOption.SOFT_MASKING.getFlag());
         optionsInputMap.put(DASH + SPACE + BlastToolOption.SOFT_MASKING.getFlag() + SPACE + SPACE, " 2 5 4 ");
         optionsInputMap.remove(BlastToolOption.LCASE_MASKING.getFlag());
@@ -363,6 +363,12 @@ public class BlastStartSearchingRequestValidatorTest {
         optionsInputMap.put("-use sw tback", INCORRECT_STRING_INPUT_VALUE);
         optionsInputMap.put("-trh_th", INCORRECT_STRING_INPUT_VALUE);
         optionsInputMap.put("-dbsize-", INCORRECT_STRING_INPUT_VALUE);
+        optionsInputMap.remove("-subject_besthit");
+        optionsInputMap.put("-subject_besthit", "");
+        optionsInputMap.remove("-reward");
+        optionsInputMap.put("-reward", "254");
+
+
 
         final String optionsString = optionsInputMap.keySet().stream()
                 .map(s -> s.startsWith(DASH)

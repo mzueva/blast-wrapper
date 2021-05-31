@@ -35,7 +35,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +42,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.epam.blast.entity.commands.CommandLineFlags.DASH;
-import static com.epam.blast.entity.commands.CommandLineFlags.NOTHING;
 import static com.epam.blast.entity.commands.CommandLineFlags.SPACE;
 
 @Slf4j
@@ -53,10 +50,9 @@ public class BlastStartSearchingRequestValidator {
 
     public static final Long TARGET_SEQUENCE_MIN_LIMIT = 0L;
     public static final Double EXPECTED_THRESHOLD_MIN_LIMIT = 0.0;
-//    public static final String STARTS_FROM_DIGIT_REGEX = "\\d.*";
+    public static final String STARTS_AS_NOT_NUMBER = "-[a-zA-Z_\\-]*";
     private final Long targetSequenceMaxLimit;
     private final MessageHelper messageHelper;
-//    public static final String SPLITTER = SPACE + DASH;
 
     public BlastStartSearchingRequestValidator(
             @Value("${blast-wrapper.blast-commands.request-validators.targetSequenceMaxLimit}")
@@ -176,19 +172,16 @@ public class BlastStartSearchingRequestValidator {
             return new HashMap<>();
         }
 
-        final Map<BlastToolOption, String> optionFlagsMap
-                = Arrays.stream(BlastToolOption.values())
-                .collect(Collectors.toMap(o -> o, o -> ""));
+        final Map<BlastToolOption, String> optionFlagsMap = new HashMap<>();
 
         final List<String> tokens = Arrays.stream(
                 StringUtils.defaultString(request.getOptions()).split(SPACE))
-                .filter(StringUtils::isNotBlank)
                 .collect(Collectors.toList());
 
         BlastToolOption optionFlag = null;
         StringBuilder currentValue = new StringBuilder();
         for (String token : tokens) {
-            if (token.matches(DASH + "[a-zA-Z_\\-]*")) {
+            if (token.matches(STARTS_AS_NOT_NUMBER)) {
                 if (optionFlag != null) {
                     optionFlagsMap.put(optionFlag, currentValue.toString().trim());
                     optionFlag = null;
@@ -209,25 +202,16 @@ public class BlastStartSearchingRequestValidator {
     }
 
     private boolean isOptionFlag(final String uncheckedOption) {
-        try {
-            return EnumUtils.isValidEnum(
-                    BlastToolOption.class,
-                    uncheckedOption.trim().substring(1).toUpperCase(Locale.ROOT)
-            );
-        } catch (IllegalArgumentException e) {
-            return false;
-        }
+        return EnumUtils.isValidEnum(
+                BlastToolOption.class,
+                uncheckedOption.trim().substring(1).toUpperCase(Locale.ROOT)
+        );
     }
 
     private BlastToolOption flagToOption(final String flag) {
-        try {
-            return BlastToolOption.valueOf(
-                    BlastToolOption.class,
-                    flag.trim().substring(1).toUpperCase(Locale.ROOT)
-            );
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
+        return BlastToolOption.valueOf(
+                BlastToolOption.class,
+                flag.trim().substring(1).toUpperCase(Locale.ROOT));
     }
 
     private BlastStartSearchingRequest recreateWithNewOptions(final BlastStartSearchingRequest request,
