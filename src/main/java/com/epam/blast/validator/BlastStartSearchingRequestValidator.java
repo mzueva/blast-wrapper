@@ -30,6 +30,7 @@ import com.epam.blast.entity.blasttool.BlastToolOption;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -50,7 +51,8 @@ public class BlastStartSearchingRequestValidator {
 
     public static final Long TARGET_SEQUENCE_MIN_LIMIT = 0L;
     public static final Double EXPECTED_THRESHOLD_MIN_LIMIT = 0.0;
-    public static final String STARTS_AS_NOT_NUMBER = "-[a-zA-Z_\\-]*";
+    public static final String CMD_OPTION_PATTERN = "-[a-zA-Z_\\-]*";
+
     private final Long targetSequenceMaxLimit;
     private final MessageHelper messageHelper;
 
@@ -62,18 +64,22 @@ public class BlastStartSearchingRequestValidator {
         this.messageHelper = messageHelper;
     }
 
-    public BlastStartSearchingRequest validate(BlastStartSearchingRequest request) {
-        toolAndAlgorithmValidation(request);
-        dbNameValidation(request);
-        idsValidation(request);
-        queryValidation(request);
-        maxTargetSequenceValidation(request);
-        expectedThresholdValidation(request);
-        String options = optionsValidation(getUncheckedOptionsMap(request));
-        return recreateWithNewOptions(request, options);
+    public BlastStartSearchingRequest validate(final BlastStartSearchingRequest request) {
+        validateToolAndAlgorithm(request);
+        validateDbName(request);
+        validateTaxIds(request);
+        validateQuery(request);
+        validateMaxTargetSequence(request);
+        validateExpectedThreshold(request);
+        return recreateWithNewOptions(
+            request,
+            BooleanUtils.isTrue(request.getFilterOptions())
+                ? filterOption(getUncheckedOptionsMap(request))
+                : request.getOptions()
+        );
     }
 
-    private void toolAndAlgorithmValidation(final BlastStartSearchingRequest request) {
+    private void validateToolAndAlgorithm(final BlastStartSearchingRequest request) {
         final BlastTool tool = getTool(request);
 
         if (!tool.isSupportsAlg() && StringUtils.isNotBlank(request.getAlgorithm())) {
@@ -100,7 +106,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private void dbNameValidation(final BlastStartSearchingRequest request) {
+    private void validateDbName(final BlastStartSearchingRequest request) {
         if (StringUtils.isBlank(request.getDbName())) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.DB_NAME_IS_REQUIRED_EXCEPTION_MESSAGE)
@@ -108,7 +114,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private void idsValidation(final BlastStartSearchingRequest request) {
+    private void validateTaxIds(final BlastStartSearchingRequest request) {
         if (hasIds(request.getTaxIds()) && hasIds(request.getExcludedTaxIds())) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(
@@ -118,7 +124,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private void queryValidation(final BlastStartSearchingRequest request) {
+    private void validateQuery(final BlastStartSearchingRequest request) {
         if (StringUtils.isBlank(request.getQuery())) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.QUERY_IS_REQUIRED_EXCEPTION_MESSAGE)
@@ -126,7 +132,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private void maxTargetSequenceValidation(final BlastStartSearchingRequest request) {
+    private void validateMaxTargetSequence(final BlastStartSearchingRequest request) {
         if (request.getMaxTargetSequence() != null
                 && (request.getMaxTargetSequence() <= TARGET_SEQUENCE_MIN_LIMIT
                 || request.getMaxTargetSequence() >= targetSequenceMaxLimit)) {
@@ -136,7 +142,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    private void expectedThresholdValidation(final BlastStartSearchingRequest request) {
+    private void validateExpectedThreshold(final BlastStartSearchingRequest request) {
         if (request.getExpectedThreshold() != null && request.getExpectedThreshold() <= EXPECTED_THRESHOLD_MIN_LIMIT) {
             throw new IllegalArgumentException(
                     messageHelper.getMessage(MessageConstants.EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE)
@@ -144,7 +150,7 @@ public class BlastStartSearchingRequestValidator {
         }
     }
 
-    String optionsValidation(final Map<BlastToolOption, String> optionMap) {
+    String filterOption(final Map<BlastToolOption, String> optionMap) {
         return optionMap.keySet().stream()
                 .filter(option -> {
                     if (option.getValidator().test(optionMap.get(option))) {
@@ -178,16 +184,16 @@ public class BlastStartSearchingRequestValidator {
                 StringUtils.defaultString(request.getOptions()).split(SPACE))
                 .collect(Collectors.toList());
 
-        BlastToolOption optionFlag = null;
+        BlastToolOption current = null;
         StringBuilder currentValue = new StringBuilder();
         for (String token : tokens) {
-            if (token.matches(STARTS_AS_NOT_NUMBER)) {
-                if (optionFlag != null) {
-                    optionFlagsMap.put(optionFlag, currentValue.toString().trim());
-                    optionFlag = null;
+            if (token.matches(CMD_OPTION_PATTERN)) {
+                if (current != null) {
+                    optionFlagsMap.put(current, currentValue.toString().trim());
+                    current = null;
                 }
-                if (isOptionFlag(token)) {
-                    optionFlag = flagToOption(token);
+                if (isValidOption(token)) {
+                    current = tokenToOption(token);
                     currentValue = new StringBuilder();
                 } else {
                     messageHelper.getMessage(MessageConstants.NOT_VALID_OPTION_NAME_WARNING_MESSAGE, token.trim());
@@ -196,26 +202,28 @@ public class BlastStartSearchingRequestValidator {
                 currentValue.append(SPACE).append(token);
             }
         }
-        optionFlagsMap.put(optionFlag, currentValue.toString().trim());
+        if (current != null) {
+            optionFlagsMap.put(current, currentValue.toString().trim());
+        }
 
         return optionFlagsMap;
     }
 
-    private boolean isOptionFlag(final String uncheckedOption) {
+    private boolean isValidOption(final String uncheckedOption) {
         return EnumUtils.isValidEnum(
                 BlastToolOption.class,
                 uncheckedOption.trim().substring(1).toUpperCase(Locale.ROOT)
         );
     }
 
-    private BlastToolOption flagToOption(final String flag) {
+    private BlastToolOption tokenToOption(final String token) {
         return BlastToolOption.valueOf(
                 BlastToolOption.class,
-                flag.trim().substring(1).toUpperCase(Locale.ROOT));
+                token.trim().substring(1).toUpperCase(Locale.ROOT));
     }
 
     private BlastStartSearchingRequest recreateWithNewOptions(final BlastStartSearchingRequest request,
-                                                                final String options) {
+                                                              final String options) {
         return BlastStartSearchingRequest.builder()
                 .blastTool(request.getBlastTool())
                 .algorithm(request.getAlgorithm())

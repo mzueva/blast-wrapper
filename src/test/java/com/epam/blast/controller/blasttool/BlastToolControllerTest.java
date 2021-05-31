@@ -55,7 +55,7 @@ class BlastToolControllerTest {
     private BlastToolController controller;
 
     @Test
-    void shouldReturnCreateDbResponseWithId() {
+    void shouldReturnBlastpStatusEntityWithId() {
         when(mockTaskService.createTaskForBlastToolExecution(any())).thenReturn(createBlastpStatus());
         final Result<TaskStatus> result = controller.createTask(createRequest());
 

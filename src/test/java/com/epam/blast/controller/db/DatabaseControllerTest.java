@@ -58,7 +58,7 @@ public class DatabaseControllerTest {
     private TaskServiceImpl mockTaskService;
 
     @Test
-    public void shouldReturnBlastpStatusEntityWithId() {
+    public void shouldReturnCreateDbResponseWithId() {
         when(mockTaskService.createTaskForNewDb(any(CreateDbRequest.class))).thenReturn(createResponse());
 
         Result<CreateDbResponse> result = controller.createDatabase(createRequest());

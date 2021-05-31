@@ -80,7 +80,7 @@ public class OptionValidationTest {
         optionsValuesMap.put(Integer.toString(Integer.MAX_VALUE), Integer.toString(Integer.MAX_VALUE));
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 log.info(format("\"%1$s\" is not valid value for option %2$s.",
@@ -102,7 +102,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -120,7 +120,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -138,7 +138,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForNotBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -156,7 +156,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForRealMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -174,7 +174,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForTheseAreValidChecking(TEST_COMP_BASED_STATS_VALUES);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -192,7 +192,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForTheseAreValidChecking(TEST_SEG_VALUES);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -210,7 +210,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBooleanIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -228,7 +228,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -246,7 +246,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForNotBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -264,7 +264,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForNotBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -286,7 +286,7 @@ public class OptionValidationTest {
         optionsValuesMap.put("858578", INCORRECT_STRING_INPUT_VALUE);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -305,7 +305,7 @@ public class OptionValidationTest {
         optionsValuesMap.put("0", INCORRECT_STRING_INPUT_VALUE);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -323,7 +323,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -347,7 +347,7 @@ public class OptionValidationTest {
         optionsValuesMap.put("858578", INCORRECT_STRING_INPUT_VALUE);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -371,7 +371,7 @@ public class OptionValidationTest {
         optionsValuesMap.put("858578", INCORRECT_STRING_INPUT_VALUE);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -389,7 +389,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -414,7 +414,7 @@ public class OptionValidationTest {
         optionsValuesMap.put(Integer.toString(Byte.MAX_VALUE), Integer.toString(Byte.MAX_VALUE));
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -439,7 +439,7 @@ public class OptionValidationTest {
         optionsValuesMap.put(Integer.toString(Byte.MAX_VALUE), Integer.toString(Byte.MAX_VALUE));
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -457,7 +457,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForRealIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -475,7 +475,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForRealIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -493,7 +493,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForRealIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -511,7 +511,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -529,7 +529,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -547,7 +547,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -565,7 +565,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerLessThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -583,7 +583,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -601,7 +601,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBooleanIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -619,7 +619,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForTheseAreValidChecking(TEST_DUST_VALUES);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -641,7 +641,7 @@ public class OptionValidationTest {
         optionsValuesMap.put("858578", INCORRECT_STRING_INPUT_VALUE);
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -659,7 +659,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForBlankIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -677,7 +677,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerIsValidChecking();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -695,7 +695,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -713,7 +713,7 @@ public class OptionValidationTest {
         final Map<String, String> optionsValuesMap = getForIntegerMoreThenZeroAndEqualsIsValid();
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -748,7 +748,7 @@ public class OptionValidationTest {
         optionsValuesMap.put(Integer.toString(33), Integer.toString(33));
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            final String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            final String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());
@@ -783,7 +783,7 @@ public class OptionValidationTest {
         optionsValuesMap.put(Integer.toString(33), Integer.toString(33));
 
         for (String optionValue : optionsValuesMap.keySet()) {
-            String resultOptionString = validator.optionsValidation(Map.of(checkingOption, optionValue));
+            String resultOptionString = validator.filterOption(Map.of(checkingOption, optionValue));
 
             if (!optionsValuesMap.get(optionValue).equals(INCORRECT_STRING_INPUT_VALUE)) {
                 logValid(optionValue, checkingOption.getFlag());

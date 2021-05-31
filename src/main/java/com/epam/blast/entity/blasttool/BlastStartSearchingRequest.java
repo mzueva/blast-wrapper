@@ -45,4 +45,5 @@ public class BlastStartSearchingRequest {
     Long maxTargetSequence;
     Double expectedThreshold;
     String options;
+    Boolean filterOptions;
 }

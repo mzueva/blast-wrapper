@@ -490,8 +490,8 @@ public class BlastStartSearchingRequestValidatorTest {
         validOptionsInputMap.put(BlastToolOption.QUERY_GENCODE, "1");
         validOptionsInputMap.put(BlastToolOption.DB_GENCODE, "1");
 
-        final String notValidOptionsString = validator.optionsValidation(notValidOptionsInputMap);
-        final String validOptionsString = validator.optionsValidation(validOptionsInputMap);
+        final String notValidOptionsString = validator.filterOption(notValidOptionsInputMap);
+        final String validOptionsString = validator.filterOption(validOptionsInputMap);
 
         for (BlastToolOption uncheckedOption : notValidOptionsInputMap.keySet()) {
             log.info(uncheckedOption.getFlag());
