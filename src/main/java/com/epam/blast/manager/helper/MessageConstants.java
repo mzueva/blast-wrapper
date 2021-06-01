@@ -70,5 +70,8 @@ public final class MessageConstants {
             = "error.taxIds.and.excludedTaxIds.are.both.presented";
     public static final String TARGET_SEQUENCE_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.maxTargetSequence";
     public static final String EXPECTED_THRESHOLD_LIMIT_EXCEPTION_MESSAGE = "error.unappropriated.expectedThreshold";
+    public static final String NOT_VALID_OPTION_NAME_WARNING_MESSAGE = "warning.not.valid.option.name";
+    public static final String NOT_VALID_OPTION_VALUE_WARNING_MESSAGE = "warning.not.valid.option.value";
+    public static final String VALID_OPTION_VALUE_INFO_MESSAGE = "info.valid.option.value";
 
 }

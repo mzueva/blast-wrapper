@@ -34,7 +34,7 @@ import com.epam.blast.entity.task.TaskType;
 import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
-import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -123,6 +123,7 @@ public class TaskServiceImplTest {
                 .dbName(TASK_02_DB_NAME)
                 .blastTool(BLAST_TOOL)
                 .build();
+        when(blastStartSearchingRequestValidator.validate(any())).thenReturn(request);
         taskService.createTaskForBlastToolExecution(request);
 
         verify(blastStartSearchingRequestValidator, times(1)).validate(any());
@@ -254,7 +255,6 @@ public class TaskServiceImplTest {
         taskService.saveTask(TASK_MAKE_BLAST_DB_01);
         verify(taskRepository, times(1)).save(any(TaskEntity.class));
     }
-
 
     @Test
     void testFindTask() {

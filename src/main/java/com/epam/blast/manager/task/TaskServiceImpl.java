@@ -41,7 +41,7 @@ import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
-import com.epam.blast.validators.BlastStartSearchingRequestValidator;
+import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -120,9 +120,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus createTaskForBlastToolExecution(final BlastStartSearchingRequest request) {
-        blastStartSearchingRequestValidator.validate(request);
         final TaskEntity taskEntity = saveTask(
-                createTask(TaskType.BLAST_TOOL, mapBlastToolParameters(request))
+                createTask(
+                        TaskType.BLAST_TOOL,
+                        mapBlastToolParameters(blastStartSearchingRequestValidator.validate(request))
+                )
         );
         return TaskStatus.builder()
                 .requestId(taskEntity.getId())
