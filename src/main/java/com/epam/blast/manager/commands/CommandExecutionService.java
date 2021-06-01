@@ -99,4 +99,21 @@ public class CommandExecutionService {
         }
         return exitValue;
     }
+
+    public void cancelTask(TaskEntity task) {
+        try {
+            switch (task.getTaskType()) {
+                case MAKE_BLAST_DB:
+                    makeBlastDbRunner.cancelTask(task.getId());
+                    break;
+                case BLAST_TOOL:
+                    blastToolRunner.cancelTask(task.getId());
+                    break;
+                default:
+                    break;
+            }
+        } catch (IOException | InterruptedException e) {
+            throw new IllegalStateException(e);
+        }
+    }
 }

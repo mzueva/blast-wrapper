@@ -38,6 +38,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Optional;
@@ -76,6 +77,17 @@ public class ScheduledService {
         this.semaphore = new Semaphore(threadsAmount + threadsPending);
         this.taskService = taskService;
         this.commandService = commandService;
+    }
+
+    @PostConstruct
+    public void init() {
+        log.debug(messageHelper.getMessage(MessageConstants.DEBUG_RUN_CLEANUP));
+        taskService.findAllTasksByStatus(Status.RUNNING)
+                .forEach(taskEntity -> {
+                    log.warn(messageHelper.getMessage(
+                            MessageConstants.WARN_TASK_IS_IN_RUNNING_STATE_AFTER_STARTUP, taskEntity.getId()));
+                    cancelTask(taskEntity.getId(), false);
+                });
     }
 
     @Scheduled(initialDelay = 0, fixedDelayString = "${blast-wrapper.task-status-checking.interval}")
@@ -122,12 +134,17 @@ public class ScheduledService {
         return result;
     }
 
-    public synchronized TaskStatus cancelTask(final Long id) {
+    public synchronized TaskStatus cancelTask(final Long id, final boolean byRequest) {
         final TaskEntity task = taskService.findTask(id);
         if (task.getStatus() == Status.RUNNING || task.getStatus() == Status.CREATED) {
-            Optional.ofNullable(tasksFutures.get(task.getId())).ifPresent(t -> t.cancel(true));
+            if (byRequest) {
+                task.setReason(messageHelper.getMessage(MessageConstants.INFO_TASK_WAS_CANCELLED));
+                Optional.ofNullable(tasksFutures.get(task.getId())).ifPresent(t -> t.cancel(true));
+            } else  {
+                task.setReason(messageHelper.getMessage(MessageConstants.INFO_TASK_WAS_CANCELLED_BY_RESTART));
+                commandService.cancelTask(task);
+            }
             task.setStatus(Status.CANCELED);
-            task.setReason(messageHelper.getMessage(MessageConstants.INFO_TASK_WAS_CANCELLED));
             taskService.updateTask(task);
         } else {
             throw new IllegalStateException(

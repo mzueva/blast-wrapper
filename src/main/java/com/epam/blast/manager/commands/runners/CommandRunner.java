@@ -31,4 +31,6 @@ import java.io.IOException;
 public interface CommandRunner {
 
     ExecutionResult runTask(final TaskEntity taskEntity) throws IOException, InterruptedException;
+
+    void cancelTask(final Long taskId) throws IOException, InterruptedException;
 }

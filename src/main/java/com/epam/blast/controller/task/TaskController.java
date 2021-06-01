@@ -56,7 +56,7 @@ public class TaskController extends AbstractRestController {
             description = "Will cancel task and set its status to FAILED, also remove all intermediate file "
                     + "that are related to this task")
     public Result<TaskStatus> cancelTask(@PathVariable final Long id) {
-        return Result.success(scheduledService.cancelTask(id));
+        return Result.success(scheduledService.cancelTask(id, true));
     }
 
 }

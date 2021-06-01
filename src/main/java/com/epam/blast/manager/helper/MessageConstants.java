@@ -57,6 +57,10 @@ public final class MessageConstants {
     public static final String INFO_CURRENT_ACTIVE_TASKS = "info.current.active.tasks";
     public static final String ERROR_TASK_IS_NOT_RUNNING = "error.task.is.not.running";
     public static final String INFO_TASK_WAS_CANCELLED = "info.task.was.cancelled";
+    public static final String INFO_TASK_WAS_CANCELLED_BY_RESTART = "info.task.was.cancelled.by.restart";
+    public static final String DEBUG_RUN_CLEANUP = "debug.run.startup.cleanup";
+    public static final String WARN_TASK_IS_IN_RUNNING_STATE_AFTER_STARTUP
+            = "warn.task.is.in.running.state.after.startup";
 
     // INPUT VALIDATION
     public static final String INCORRECT_TOOL_TYPE_EXCEPTION_MESSAGE = "error.incorrect.tool.type";

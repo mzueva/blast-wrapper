@@ -110,6 +110,18 @@ public class BlastToolRunner implements CommandRunner {
         }
     }
 
+    @Override
+    public void cancelTask(final Long taskId) throws IOException, InterruptedException {
+        final String cancelCommand = TaskCancelCommand.builder()
+                .taskName(getTaskName(taskId)).build().generateCmd();
+        if (StringUtils.isNotBlank(cancelCommand)) {
+            commandPerformer.perform(cancelCommand);
+        } else {
+            log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
+        }
+        blastFileManager.removeBlastOutput(taskId);
+    }
+
     protected String getTaskName(final Long taskId) {
         return "blast_" + taskId;
     }
@@ -118,14 +130,7 @@ public class BlastToolRunner implements CommandRunner {
             throws IOException, InterruptedException {
         final ExecutionResult result = commandPerformer.perform(command);
         if (result.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
-            blastFileManager.removeBlastOutput(taskId);
-            final String cancelCommand = TaskCancelCommand.builder()
-                    .taskName(getTaskName(taskId)).build().generateCmd();
-            if (StringUtils.isNotBlank(cancelCommand)) {
-                commandPerformer.perform(cancelCommand);
-            } else {
-                log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
-            }
+            cancelTask(taskId);
             Thread.currentThread().interrupt();
         }
         return result;

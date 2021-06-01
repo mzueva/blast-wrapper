@@ -117,16 +117,21 @@ public class MakeBlastDbRunner implements CommandRunner {
         return performCommand(command, taskEntity.getId());
     }
 
+    @Override
+    public void cancelTask(Long taskId) throws IOException, InterruptedException {
+        final String cancelCommand = TaskCancelCommand.builder()
+                .taskName(getTaskName(taskId)).build().generateCmd();
+        if (StringUtils.isNotBlank(cancelCommand)) {
+            commandPerformer.perform(cancelCommand);
+        } else {
+            log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
+        }
+    }
+
     private ExecutionResult performCommand(String command, Long taskId) throws IOException, InterruptedException {
         final ExecutionResult result = commandPerformer.perform(command);
         if (result.getExitCode() == ExitCodes.THREAD_INTERRUPTION_EXCEPTION) {
-            final String cancelCommand = TaskCancelCommand.builder()
-                    .taskName(getTaskName(taskId)).build().generateCmd();
-            if (StringUtils.isNotBlank(cancelCommand)) {
-                commandPerformer.perform(cancelCommand);
-            } else {
-                log.warn(messageHelper.getMessage(MessageConstants.WARN_CANCEL_COMMAND_IS_BLANK));
-            }
+            cancelTask(taskId);
             Thread.currentThread().interrupt();
         }
         return result;
