@@ -29,6 +29,9 @@ import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
 import org.thymeleaf.context.Context;
 
+import java.util.Arrays;
+import java.util.List;
+
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
@@ -41,9 +44,13 @@ import static java.io.File.separator;
 @Builder
 public class BlastToolCommand implements BlastWrapperCommand {
 
-    public static final String BLAST_FILE_FORMAT_STRING = "\"10 delim=%s qaccver qlen qstart qend qseq saccver "
-            + "sseqid slen sstart send sseq btop evalue bitscore score length pident nident mismatch positive gapopen "
-            + "gaps ppos staxid ssciname scomname sstrand qcovs qcovhsp qcovus\"";
+    public static final List<String> HEADERS = Arrays.asList("qaccver", "qlen", "qstart", "qend", "qseq", "saccver",
+            "sseqid", "slen", "sstart", "send", "sseq", "btop", "evalue", "bitscore", "score", "length", "pident",
+            "nident", "mismatch", "positive", "gapopen", "gaps", "ppos", "staxid", "ssciname", "scomname",
+            "sstrand", "qcovs", "qcovhsp", "qcovus");
+
+    public static final String BLAST_FILE_FORMAT_STRING = String.format("\"10 delim=%%s %s\"",
+            String.join(" ", HEADERS));
     public static final int BLAST_FILE_FORMAT_PARTS = 30;
 
     private static final String EMPTY_STRING = "";

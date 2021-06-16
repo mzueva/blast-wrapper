@@ -33,6 +33,7 @@ import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,6 +44,7 @@ import org.springframework.util.Assert;
 import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -118,7 +120,9 @@ public class BlastFileManagerImpl implements BlastFileManager {
     public Pair<String, byte[]> getRawResults(final Long taskId) {
         try {
             final String name = getResultFileName(taskId);
-            return Pair.of(name, Files.readAllBytes(Path.of(blastResultsDirectory, name)));
+            final byte[] content = Files.readAllBytes(Path.of(blastResultsDirectory, name));
+            final String header = String.join(resultDelimiter, BlastToolCommand.HEADERS) + "\n";
+            return Pair.of(name, ArrayUtils.addAll(header.getBytes(Charset.defaultCharset()), content));
         } catch (IOException e) {
             throw new IllegalStateException(
                     messageHelper.getMessage(MessageConstants.ERROR_WHILE_READ_TASK_OUTPUT, taskId, e.getMessage()), e

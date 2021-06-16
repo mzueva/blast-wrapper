@@ -40,6 +40,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.util.Pair;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -47,6 +48,9 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 class BlastFileManagerImplTest {
 
+    public static final String EXPECTED_HEADER = "qaccver,qlen,qstart,qend,qseq,saccver,sseqid,slen,sstart,send,sseq,"
+            + "btop,evalue,bitscore,score,length,pident,nident,mismatch,positive,gapopen,gaps,ppos,staxid,ssciname,"
+            + "scomname,sstrand,qcovs,qcovhsp,qcovus";
     public static final String CORRECT_RESULT_STRING = "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
             + "132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,0.96,14.2,25,9,33.333,3,6,6,0,0,66.67,7801,N/A,N/A,N/A,20,20,N/A";
     public static final String CORRECT_RESULT_STRING_2 = "Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,"
@@ -67,7 +71,6 @@ class BlastFileManagerImplTest {
     MessageHelper messageHelper;
 
     private BlastFileManagerImpl blastFileManager;
-    private Path correctOutputFile;
 
     @BeforeEach
     public void init() throws IOException {
@@ -79,7 +82,7 @@ class BlastFileManagerImplTest {
                 ",", temporaryFileWriter, messageHelper
         );
 
-        correctOutputFile = Path.of(resultDir.toString(), blastFileManager.getResultFileName(1L));
+        final Path correctOutputFile = Path.of(resultDir.toString(), blastFileManager.getResultFileName(1L));
         Path incorrectOutputFile = Path.of(resultDir.toString(), blastFileManager.getResultFileName(2L));
         Files.write(correctOutputFile, List.of(CORRECT_RESULT_STRING, CORRECT_RESULT_STRING_2));
         Files.write(incorrectOutputFile, List.of(CORRECT_RESULT_STRING, INCORRECT_RESULT_STRING));
@@ -134,7 +137,8 @@ class BlastFileManagerImplTest {
     public void getRawResultTest() throws IOException {
         Pair<String, byte[]> rawResults = blastFileManager.getRawResults(1L);
         Assertions.assertEquals(rawResults.getFirst(), "1.blastout");
-        Assertions.assertArrayEquals(rawResults.getSecond(), Files.readAllBytes(correctOutputFile));
+        Assertions.assertArrayEquals(rawResults.getSecond(),
+                (String.join("\n", EXPECTED_HEADER, CORRECT_RESULT_STRING, CORRECT_RESULT_STRING_2) + "\n")
+                        .getBytes(Charset.defaultCharset()));
     }
-
 }
