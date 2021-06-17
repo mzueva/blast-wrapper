@@ -25,7 +25,6 @@
 package com.epam.blast.manager.task;
 
 import com.epam.blast.entity.blasttool.BlastResult;
-import com.epam.blast.entity.blasttool.BlastResultEntry;
 import com.epam.blast.entity.blasttool.BlastStartSearchingRequest;
 import com.epam.blast.entity.blasttool.BlastTool;
 import com.epam.blast.entity.blasttool.Status;
@@ -52,13 +51,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
@@ -91,13 +88,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus getTaskStatus(final Long id) {
-        if (id == 42L) {
-            return TaskStatus.builder()
-                    .status(Status.DONE)
-                    .createdDate(LocalDateTime.now())
-                    .requestId(id)
-                    .taskType(TaskType.BLAST_TOOL).build();
-        }
         final TaskEntity task = findTask(id);
         return TaskStatus.builder()
                 .requestId(task.getId())
@@ -188,16 +178,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public BlastResult getBlastResult(final Long id, final Integer limit) {
-        if (id == 42L) {
-            return BlastResult.builder().size(limit == null ? 10 : limit)
-                    .entries(IntStream.iterate(0, i -> i + 1).limit(limit == null ? 10 : limit)
-                            .boxed().map(this::buildStub).collect(Collectors.toList())).tool(BlastTool.BLASTP).build();
-        } else if (id == 43L) {
-            throw  new IllegalStateException(messageHelper.getMessage(
-                            MessageConstants.ERROR_TASK_IS_NOT_SUCCESSFULLY_DONE,
-                            id, Status.RUNNING)
-            );
-        }
         final TaskEntity task = loadTaskForResult(id);
         return blastFileManager.getResults(task.getId(),
                 geBlastToolFromParam(task), limit == null ? Integer.MAX_VALUE : limit);
@@ -205,16 +185,6 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Pair<String, byte[]> getBlastRawResult(final Long id) {
-        if (id == 42L) {
-            return Pair.of(
-                    "42.blastout",
-                    ("Query_1,44,2,10,LCGRGFIRA,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,VCTREYVRE,LV1GT1GEFYIV1AE,"
-                            + "0.96,14.2,25,9,33.333,3,6,6,0,0,"
-                            + "66.67,7801,N/A,N/A,N/A,20,20,N/A\n"
-                            + "Query_1,44,2,10,P80049.1,sp|P80049.1|FABPL_GINCI,132,123,131,0.96,14.2,25,9,33.333,3,6,"
-                            + "6,0,0,66.67,7801,N/A,N/A,N/A,20,20,N/A").getBytes(StandardCharsets.UTF_8)
-            );
-        }
         loadTaskForResult(id);
         return blastFileManager.getRawResults(id);
     }
@@ -314,21 +284,5 @@ public class TaskServiceImpl implements TaskService {
                 )
         );
         return loaded;
-    }
-
-    private BlastResultEntry buildStub(final Integer i) {
-        return BlastResultEntry.builder()
-                .queryAccVersion("2_S17_L001_R1_001_(paired)_trimmed_(paired)_contig_1")
-                .queryStart(2397L + i).queryEnd(4880L + i).queryLen(4897L)
-                .qseq("LCGRGFIRA")
-                .seqAccVersion("AP018441.1").seqSeqId("gi|1798099803|dbj|AP018441.1|")
-                .seqLen(6484812L).seqStart(1529303L + i).seqEnd(1531784L + i)
-                .sseq("VCTREYVRE").btop("LV1GT1GEFYIV1AE")
-                .expValue(0.0).bitScore(4220.0).score(2285.0).length(2486L)
-                .percentIdent(97.345).numIdent(2420L).mismatch(60L).positive(2420L)
-                .gapOpen(6L).gaps(6L).percentPos(97.35).seqTaxId(2058625L)
-                .seqSciName("Undibacterium sp. YM2").seqComName("Undibacterium sp. YM2")
-                .seqStrand("plus").queryCovS(92.0).queryCovHsp(51.0).queryCovUs(92.0)
-                .build();
     }
 }
