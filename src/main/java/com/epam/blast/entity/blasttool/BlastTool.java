@@ -31,7 +31,7 @@ import java.util.Set;
 
 public enum BlastTool {
 
-    BLASTN("blastn", true, Set.of("megablast", "dc-megablast", "blastn")),
+    BLASTN("blastn", true, Set.of("megablast", "dc-megablast", "blastn", "blastn-short")),
     BLASTP("blastp", true, Set.of("blastp", "blastp-fast", "blastp-short")),
     BLASTX("blastx", true, Set.of("blastx", "blastx-fast")),
     TBLASTN("tblastn", true, Set.of("tblastn", "tblastn-fast")),
