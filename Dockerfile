@@ -15,10 +15,11 @@ RUN cd /tmp && \
 ADD . /blast-wrapper
 RUN cd /blast-wrapper && \
     ./gradlew build && \
+    mkdir -p ${BW_HOME} && \
     mv /blast-wrapper/build/libs/blast-wrapper.jar ${BW_HOME}/ && \
     rm -rf /blast-wrapper
 
-RUN mkdir -p $BW_CONFIG_DIR && \
+RUN mkdir -p ${BW_CONFIG_DIR} && \
     echo "blast-wrapper.blast-commands.request-validators.targetSequenceMaxLimit=200"   > ${BW_CONFIG_DIR}/application.properties && \
     echo "blast-wrapper.blast-commands.blast-db-directory=$BW_HOME/blast-db/"           >> ${BW_CONFIG_DIR}/application.properties && \
     echo "blast-wrapper.blast-commands.blast-results-directory=$BW_HOME/results/"       >> ${BW_CONFIG_DIR}/application.properties && \
