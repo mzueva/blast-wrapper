@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
 
 import java.io.File;
 import java.io.IOException;
@@ -65,15 +66,18 @@ public class BlastToolRunner implements CommandRunner {
     private final CommandPerformer commandPerformer;
     private final BlastFileManager blastFileManager;
     private final MessageHelper messageHelper;
+    private final TemplateEngine templateEngine;
 
     @Autowired
     public BlastToolRunner(
             final SimpleCommandPerformer simpleCommandPerformer,
             final BlastFileManager blastFileManager,
-            final MessageHelper messageHelper) {
+            final MessageHelper messageHelper,
+            final TemplateEngine templateEngine) {
         this.commandPerformer = simpleCommandPerformer;
         this.blastFileManager = blastFileManager;
         this.messageHelper = messageHelper;
+        this.templateEngine = templateEngine;
     }
 
     @Override
@@ -103,7 +107,7 @@ public class BlastToolRunner implements CommandRunner {
                             .expectedThreshold(params.getOrDefault(EXPECTED_THRESHOLD, EMPTY))
                             .options(params.getOrDefault(OPTIONS, EMPTY))
                             .build()
-                            .generateCmd();
+                            .generateCmd(templateEngine);
             return performCommand(command, taskId);
         } finally {
             blastFileManager.removeQueryFile(taskId);
@@ -113,7 +117,7 @@ public class BlastToolRunner implements CommandRunner {
     @Override
     public void cancelTask(final Long taskId) throws IOException, InterruptedException {
         final String cancelCommand = TaskCancelCommand.builder()
-                .taskName(getTaskName(taskId)).build().generateCmd();
+                .taskName(getTaskName(taskId)).build().generateCmd(templateEngine);
         if (StringUtils.isNotBlank(cancelCommand)) {
             commandPerformer.perform(cancelCommand);
         } else {

@@ -40,6 +40,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.thymeleaf.TemplateEngine;
 
 import java.io.File;
 import java.io.IOException;
@@ -69,6 +70,7 @@ public class MakeBlastDbRunner implements CommandRunner {
     private final CommandPerformer commandPerformer;
     private final Set<String> validDbVersions;
     private final MessageHelper messageHelper;
+    private final TemplateEngine templateEngine;
 
     @Autowired
     public MakeBlastDbRunner(
@@ -77,7 +79,8 @@ public class MakeBlastDbRunner implements CommandRunner {
             @Value("${blast-wrapper.command.defaultParseSeqIds}") Boolean defaultParseSeqIds,
             final BlastFileManager blastFileManager,
             final SimpleCommandPerformer simpleCommandPerformer,
-            final MessageHelper messageHelper) {
+            final MessageHelper messageHelper,
+            final TemplateEngine templateEngine) {
         this.defaultDbType = defaultDbType;
         this.defaultDbVersion = defaultDbVersion;
         this.defaultParseSeqIds = defaultParseSeqIds;
@@ -85,6 +88,7 @@ public class MakeBlastDbRunner implements CommandRunner {
         this.commandPerformer = simpleCommandPerformer;
         this.validDbVersions  = new HashSet<>(Arrays.asList(defaultDbVersion.toString(), "4"));
         this.messageHelper = messageHelper;
+        this.templateEngine = templateEngine;
     }
 
     @Override
@@ -113,14 +117,14 @@ public class MakeBlastDbRunner implements CommandRunner {
                         .taxId(taxID)
                         .blastDbVersion(blastDbVersion)
                         .build()
-                        .generateCmd();
+                        .generateCmd(templateEngine);
         return performCommand(command, taskEntity.getId());
     }
 
     @Override
     public void cancelTask(Long taskId) throws IOException, InterruptedException {
         final String cancelCommand = TaskCancelCommand.builder()
-                .taskName(getTaskName(taskId)).build().generateCmd();
+                .taskName(getTaskName(taskId)).build().generateCmd(templateEngine);
         if (StringUtils.isNotBlank(cancelCommand)) {
             commandPerformer.perform(cancelCommand);
         } else {

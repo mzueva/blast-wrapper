@@ -27,6 +27,7 @@ package com.epam.blast.manager.commands.commands;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import test.utils.TemplateEngineUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -101,7 +102,7 @@ public class BlastToolCommandTest {
                             .excludedTaxIds(EXCLUDED_TAX_IDS[i])
                             .options(OPTIONS[i])
                             .build()
-                            .generateCmd();
+                            .generateCmd(TemplateEngineUtils.init());
             assertEquals(COMMANDS_SAMPLES[i], command, command);
         }
     }
@@ -118,7 +119,7 @@ public class BlastToolCommandTest {
                     .dbName(TEST_DB_NAMES[0])
                     .outputFileName(OUT_FILE_NAMES[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("queryFileName is marked non-null but is null", e.getMessage());
@@ -133,7 +134,7 @@ public class BlastToolCommandTest {
                     .dbName(null)
                     .outputFileName(OUT_FILE_NAMES[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("dbName is marked non-null but is null", e.getMessage());
@@ -147,7 +148,7 @@ public class BlastToolCommandTest {
                     .dbName(TEST_DB_NAMES[0])
                     .outputFileName(OUT_FILE_NAMES[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("blastTool is marked non-null but is null", e.getMessage());
@@ -162,7 +163,7 @@ public class BlastToolCommandTest {
                     .dbName(TEST_DB_NAMES[0])
                     .outputFileName(null)
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("outputFileName is marked non-null but is null", e.getMessage());

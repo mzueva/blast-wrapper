@@ -27,6 +27,7 @@ package com.epam.blast.manager.commands.commands;
 import lombok.Builder;
 import lombok.NonNull;
 import org.apache.commons.lang3.StringUtils;
+import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import java.util.Arrays;
@@ -103,15 +104,14 @@ public class BlastToolCommand implements BlastWrapperCommand {
     private final String options;
 
     @Override
-    public String generateCmd() {
-        Context context = buildContext();
-        return TEMPLATE_ENGINE.process(BLAST_COMMAND_TEMPLATE, context)
+    public String generateCmd(final TemplateEngine templateEngine) {
+        return templateEngine.process(BLAST_COMMAND_TEMPLATE, buildContext())
                 .replaceAll(" +", " ")
                 .trim();
     }
 
     private Context buildContext() {
-        Context context = new Context();
+        final Context context = new Context();
         context.setVariable(TASK_NAME, taskName);
         context.setVariable(OUTPUT_FILE_NAME_TEMPLATE, outputFileName);
         context.setVariable(BLAST_TOOL, blastTool);

@@ -38,6 +38,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import test.utils.TemplateEngineUtils;
 import test.utils.TestTaskMaker;
 
 import java.io.File;
@@ -80,7 +81,8 @@ public class BlastToolRunnerTest {
     @BeforeEach
     public void init() throws IOException {
         MockitoAnnotations.openMocks(this);
-        blastToolRunner = new BlastToolRunner(commandPerformerMock, blastFileManager, messageHelper);
+        blastToolRunner = new BlastToolRunner(commandPerformerMock, blastFileManager,
+                messageHelper, TemplateEngineUtils.init());
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
         when(blastFileManager.getQueryFile(any())).thenReturn(temporaryFile);
@@ -123,7 +125,7 @@ public class BlastToolRunnerTest {
         verify(commandPerformerMock).perform(
                 TaskCancelCommand.builder()
                         .taskName(blastToolRunner.getTaskName(task.getId()))
-                        .build().generateCmd()
+                        .build().generateCmd(TemplateEngineUtils.init())
         );
     }
 }

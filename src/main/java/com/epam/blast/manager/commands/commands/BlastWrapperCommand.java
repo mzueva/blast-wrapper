@@ -24,12 +24,8 @@
 
 package com.epam.blast.manager.commands.commands;
 
-import com.epam.blast.utils.TemplateEngineUtils;
 import org.thymeleaf.TemplateEngine;
 
 public interface BlastWrapperCommand {
-
-    TemplateEngine TEMPLATE_ENGINE = TemplateEngineUtils.init();
-
-    String generateCmd();
+    String generateCmd(TemplateEngine template);
 }

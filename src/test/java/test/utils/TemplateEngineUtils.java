@@ -22,7 +22,7 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.utils;
+package test.utils;
 
 import nz.net.ultraq.thymeleaf.LayoutDialect;
 import org.thymeleaf.TemplateEngine;

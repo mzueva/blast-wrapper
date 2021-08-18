@@ -40,6 +40,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import test.utils.TemplateEngineUtils;
 import test.utils.TestTaskMaker;
 
 import java.io.File;
@@ -99,7 +100,8 @@ class MakeBlastDbRunnerTest {
     public void init() throws IOException {
         MockitoAnnotations.openMocks(this);
         makeBlastDbRunner = new MakeBlastDbRunner(DEFAULT_DB_DATATYPE_TEST,
-                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock, messageHelper);
+                DEFAULT_DB_VERSION, DEFAULT_SEQ_IDS, blastFileManager, commandPerformerMock,
+                messageHelper, TemplateEngineUtils.init());
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_VALID));
         taskList.addAll(TestTaskMaker.makeTasks(null, true, AMOUNT_TASKS_NOT_VALID));
         when(commandPerformerMock.perform(any()))
@@ -265,7 +267,7 @@ class MakeBlastDbRunnerTest {
         verify(commandPerformerMock).perform(
                 TaskCancelCommand.builder()
                         .taskName(makeBlastDbRunner.getTaskName(task.getId()))
-                        .build().generateCmd()
+                        .build().generateCmd(TemplateEngineUtils.init())
         );
     }
 
