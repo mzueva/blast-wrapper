@@ -26,6 +26,7 @@ package com.epam.blast.manager.commands.commands;
 
 import lombok.Builder;
 import lombok.NonNull;
+import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
@@ -61,14 +62,13 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
     private final Integer blastDbVersion;
 
     @Override
-    public String generateCmd() {
-        Context context = buildContext();
-        return TEMPLATE_ENGINE.process(MAKEDB_COMMAND_TEMPLATE, context)
+    public String generateCmd(final TemplateEngine template) {
+        return template.process(MAKEDB_COMMAND_TEMPLATE, buildContext())
                 .trim().replaceAll(" +", " ");
     }
 
     private Context buildContext() {
-        Context context = new Context();
+        final Context context = new Context();
         context.setVariable("blastDbDirectory", blastDbDirectory);
         context.setVariable("inputFilePath", inputFilePath);
         context.setVariable("inputFileName", inputFileName);

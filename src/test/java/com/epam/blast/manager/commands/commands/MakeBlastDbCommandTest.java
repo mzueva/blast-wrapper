@@ -27,6 +27,7 @@ package com.epam.blast.manager.commands.commands;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import test.utils.TemplateEngineUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -91,7 +92,7 @@ public class MakeBlastDbCommandTest {
                             .taxId(TEST_TAX_IDS[i])
                             .blastDbVersion(TEST_BLAST_DB_VERSIONS[i])
                             .build()
-                            .generateCmd();
+                            .generateCmd(TemplateEngineUtils.init());
             assertEquals(COMMANDS_SAMPLES[i], command);
         }
     }
@@ -111,7 +112,7 @@ public class MakeBlastDbCommandTest {
                     .taxId(TEST_TAX_IDS[0])
                     .blastDbVersion(TEST_BLAST_DB_VERSIONS[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("inputFileName is marked non-null but is null", e.getMessage());
@@ -129,7 +130,7 @@ public class MakeBlastDbCommandTest {
                     .taxId(TEST_TAX_IDS[0])
                     .blastDbVersion(TEST_BLAST_DB_VERSIONS[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("dbName is marked non-null but is null", e.getMessage());
@@ -147,7 +148,7 @@ public class MakeBlastDbCommandTest {
                     .taxId(TEST_TAX_IDS[0])
                     .blastDbVersion(TEST_BLAST_DB_VERSIONS[0])
                     .build()
-                    .generateCmd();
+                    .generateCmd(TemplateEngineUtils.init());
         } catch (NullPointerException e) {
             assertEquals(NullPointerException.class, e.getClass());
             assertEquals("inputFilePath is marked non-null but is null", e.getMessage());

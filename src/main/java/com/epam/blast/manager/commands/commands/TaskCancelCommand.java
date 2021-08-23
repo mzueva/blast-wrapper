@@ -25,6 +25,7 @@
 package com.epam.blast.manager.commands.commands;
 
 import lombok.Builder;
+import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
 @Builder
@@ -36,15 +37,14 @@ public class TaskCancelCommand implements BlastWrapperCommand {
     private final String taskName;
 
     @Override
-    public String generateCmd() {
-        Context context = buildContext();
-        return TEMPLATE_ENGINE.process(BLAST_COMMAND_TEMPLATE, context)
+    public String generateCmd(final TemplateEngine template) {
+        return template.process(BLAST_COMMAND_TEMPLATE, buildContext())
                 .replaceAll(" +", " ")
                 .trim();
     }
 
     private Context buildContext() {
-        Context context = new Context();
+        final Context context = new Context();
         context.setVariable(TASK_NAME, taskName);
         return context;
     }

@@ -24,19 +24,59 @@
 
 package com.epam.blast.config;
 
+import lombok.extern.slf4j.Slf4j;
+import nz.net.ultraq.thymeleaf.LayoutDialect;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.templatemode.TemplateMode;
+import org.thymeleaf.templateresolver.AbstractConfigurableTemplateResolver;
+import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import org.thymeleaf.templateresolver.FileTemplateResolver;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@Slf4j
 @Configuration
 public class ManagerConfiguration {
+
+    private static final String DEFAULT_COMMAND_TEMPLATES = "commands/templates/";
+    private static final String ENCODING = "UTF-8";
 
     @Bean
     public ExecutorService createExecutorService(
             @Value("${blast-wrapper.task-status-checking.thread-amount}") Integer threadsAmount) {
         return Executors.newFixedThreadPool(threadsAmount);
+    }
+
+    @Bean
+    public TemplateEngine templateEngine(
+            @Value("${blast-wrapper.template.command.dir:}") String templateCommandDir) {
+        TemplateEngine templateEngine = new TemplateEngine();
+        templateEngine.addDialect(new LayoutDialect());
+
+        final AbstractConfigurableTemplateResolver templateResolver;
+        if (StringUtils.isNotBlank(templateCommandDir)
+                && Files.isDirectory(Path.of(templateCommandDir))) {
+            log.info("blast-wrapper.template.command.dir is '" + templateCommandDir + "'");
+            templateResolver = new FileTemplateResolver();
+            templateResolver.setPrefix(templateCommandDir);
+        } else {
+            log.warn("blast-wrapper.template.command.dir is not configured, "
+                    + "default command templates will be used");
+            templateResolver = new ClassLoaderTemplateResolver();
+            templateResolver.setPrefix(DEFAULT_COMMAND_TEMPLATES);
+        }
+        templateResolver.setCharacterEncoding(ENCODING);
+        templateResolver.setCacheable(false);
+        templateResolver.setCheckExistence(true);
+        templateResolver.setTemplateMode(TemplateMode.TEXT);
+        templateEngine.addTemplateResolver(templateResolver);
+        return templateEngine;
     }
 }
