@@ -50,7 +50,7 @@ public class BlastToolCommand implements BlastWrapperCommand {
             "nident", "mismatch", "positive", "gapopen", "gaps", "ppos", "staxid", "ssciname", "scomname",
             "sstrand", "qcovs", "qcovhsp", "qcovus");
 
-    public static final String BLAST_FILE_FORMAT_STRING = String.format("\"10 delim=%%s %s\"",
+    public static final String BLAST_FILE_FORMAT_STRING = String.format("\\\"10 delim=%%s %s\\\"",
             String.join(" ", HEADERS));
     public static final int BLAST_FILE_FORMAT_PARTS = 30;
 
