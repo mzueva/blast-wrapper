@@ -31,7 +31,7 @@ RUN mkdir -p ${BW_CONFIG_DIR} && \
     echo "blast-wrapper.blast-commands.blast-queries-directory=$BW_WORKDIR/queries/"       >> ${BW_CONFIG_DIR}/application.properties && \
     echo "blast-wrapper.template.command.dir=$BW_CMD_TEMPLATES" >> ${BW_CONFIG_DIR}/application.properties
 
-ADD cp src/main/resources/commands.templates $BW_CMD_TEMPLATES
+ADD src/main/resources/commands.templates $BW_CMD_TEMPLATES
 
 EXPOSE 8080
 CMD cd $BW_HOME && java -Xmx2g -jar blast-wrapper.jar
