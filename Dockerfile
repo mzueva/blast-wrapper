@@ -1,6 +1,7 @@
-ARG BW_WORKDIR="/opt/blast-wrapper"
 
 FROM library/centos:7
+
+ARG BW_WORKDIR="/opt/blast-wrapper"
 
 ENV JAVA_DISTR_URL="https://cloud-pipeline-oss-builds.s3.amazonaws.com/tools/java/openjdk-11.0.2_linux-x64_bin.tar.gz"
 ENV JAVA_HOME="/opt/jdk"
