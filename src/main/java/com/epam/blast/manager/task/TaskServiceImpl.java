@@ -40,6 +40,7 @@ import com.epam.blast.manager.file.BlastFileManager;
 import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.repo.task.TaskRepository;
+import com.epam.blast.utils.DateUtils;
 import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 
 import lombok.RequiredArgsConstructor;
@@ -51,7 +52,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
-import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -103,7 +103,7 @@ public class TaskServiceImpl implements TaskService {
         return TaskEntity.builder()
                 .status(Status.CREATED)
                 .taskType(taskType)
-                .createdAt(LocalDateTime.now())
+                .createdAt(DateUtils.nowUTC())
                 .params(incomeParams)
                 .build();
     }

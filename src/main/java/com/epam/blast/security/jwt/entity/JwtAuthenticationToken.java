@@ -24,10 +24,10 @@
 
 package com.epam.blast.security.jwt.entity;
 
+import com.epam.blast.utils.DateUtils;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 
-import java.time.Clock;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.util.Collection;
@@ -44,7 +44,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         super(null);
         this.jwtRawToken = jwtRawToken;
         this.setAuthenticated(false);
-        this.tokenExpiration = toDate(now().plusSeconds(TOKEN_SESSION_TIMEOUT));
+        this.tokenExpiration = toDate(DateUtils.nowUTC().plusSeconds(TOKEN_SESSION_TIMEOUT));
     }
 
     public JwtAuthenticationToken(final UserContext userContext,
@@ -52,7 +52,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         super.setAuthenticated(true);
         this.userContext = userContext;
-        this.tokenExpiration = toDate(now().plusSeconds(TOKEN_SESSION_TIMEOUT));
+        this.tokenExpiration = toDate(DateUtils.nowUTC().plusSeconds(TOKEN_SESSION_TIMEOUT));
     }
 
     @Override
@@ -88,10 +88,6 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
     public void eraseCredentials() {
         super.eraseCredentials();
         this.jwtRawToken = null;
-    }
-
-    private LocalDateTime now() {
-        return LocalDateTime.now(Clock.systemUTC());
     }
 
     private Date toDate(final LocalDateTime time) {
