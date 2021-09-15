@@ -1,0 +1,2 @@
+/opt/blast-wrapper/scripts/submit.sh  "[(${blastTool})]"  "[(${queriesFilePath})]/[(${queryFileName})]" "[(${blastDbDirectory})][(${dbName})]" "[(${blastResultsDirectory})]
+/[(${resultFileName})]" "[(${fileFormatString})]" "[(${taxIds})]" "[(${excludedTaxIds})]" "[(${maxTargetSeqs})]" "[(${expectedThreshold})]" "[(${options})]"
