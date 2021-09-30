@@ -89,7 +89,8 @@ class ScheduledServiceTest {
         MockitoAnnotations.openMocks(this);
         executorService = Executors.newFixedThreadPool(THREADS_AMOUNT);
         scheduledService = new ScheduledService(
-                THREADS_AMOUNT, THREADS_PENDING, executorService, taskService, commandService, messageHelper);
+                THREADS_AMOUNT, THREADS_PENDING, false,
+                executorService, taskService, commandService, messageHelper);
         when(taskService.findAllTasksByStatus(any(Status.class))).thenReturn(taskList);
 
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB, true, AMOUNT_TASKS_MAKEDB));

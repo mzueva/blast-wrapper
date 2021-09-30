@@ -58,7 +58,7 @@ import java.util.Map;
 @Table(name = "TASKS", schema = "public")
 public class TaskEntity {
 
-    public static final int MAX_STRING_LENGTH = Integer.MAX_VALUE;
+    public static final int MAX_STRING_LENGTH = 10485760;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

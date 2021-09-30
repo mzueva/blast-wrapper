@@ -50,6 +50,7 @@ dependencies {
 
     //H2
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'org.postgresql:postgresql:9.4-1206-jdbc4'
 
     //Swagger
     implementation "io.springfox:springfox-swagger2:$swaggerVersion"
