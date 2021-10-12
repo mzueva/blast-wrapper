@@ -64,14 +64,17 @@ public class ScheduledService {
     private final Semaphore semaphore;
     private final MessageHelper messageHelper;
     private final Map<Long, Future<ExecutionResult>> tasksFutures = new ConcurrentHashMap<>();
+    private final boolean distributedDeployment;
 
     @Autowired
     public ScheduledService(@Value("${blast-wrapper.task-status-checking.thread-amount}") final Integer threadsAmount,
                             @Value("${blast-wrapper.task-status-checking.threadsPending}") final Integer threadsPending,
+                            @Value("${blast-wrapper.distributed.deployment}") final boolean  distributedDeployment,
                             final ExecutorService executorService,
                             final TaskServiceImpl taskService,
                             final CommandExecutionService commandService,
                             MessageHelper messageHelper) {
+        this.distributedDeployment = distributedDeployment;
         this.executorService = executorService;
         this.messageHelper = messageHelper;
         this.semaphore = new Semaphore(threadsAmount + threadsPending);
@@ -81,6 +84,10 @@ public class ScheduledService {
 
     @PostConstruct
     public void init() {
+        if (distributedDeployment) {
+            log.debug(messageHelper.getMessage(MessageConstants.DEBUG_STARTUP_DISTRIBUTED));
+            return;
+        }
         log.debug(messageHelper.getMessage(MessageConstants.DEBUG_RUN_CLEANUP));
         taskService.findAllTasksByStatus(Status.RUNNING)
                 .forEach(taskEntity -> {

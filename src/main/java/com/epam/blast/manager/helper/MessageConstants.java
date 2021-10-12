@@ -59,6 +59,7 @@ public final class MessageConstants {
     public static final String INFO_TASK_WAS_CANCELLED = "info.task.was.cancelled";
     public static final String INFO_TASK_WAS_CANCELLED_BY_RESTART = "info.task.was.cancelled.by.restart";
     public static final String DEBUG_RUN_CLEANUP = "debug.run.startup.cleanup";
+    public static final String DEBUG_STARTUP_DISTRIBUTED = "debug.run.startup.distributed.setup";
     public static final String WARN_TASK_IS_IN_RUNNING_STATE_AFTER_STARTUP
             = "warn.task.is.in.running.state.after.startup";
 

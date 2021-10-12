@@ -24,6 +24,17 @@ ext {
     mapstructVersion = "1.4.2.Final"
 }
 
+// >>>>> building for different profiles
+// >>>>> For configuration use -Pprofile=profile_name with run ("local" is used by default)
+loadConfiguration()
+
+def loadConfiguration() {
+    def profile = hasProperty("profile") ? profile : "local"
+    project.ext.setProperty("profile", profile)
+}
+
+apply from: "profiles.gradle"
+
 dependencies {
 
     //Spring
@@ -48,8 +59,13 @@ dependencies {
     //FlywayDb
     implementation 'org.flywaydb:flyway-core'
 
-    //H2
-    runtimeOnly 'com.h2database:h2'
+    if (profile == "distributed") {
+        // Postgresql for distributed deployment
+        runtimeOnly 'org.postgresql:postgresql:9.4-1206-jdbc4'
+    } else {
+        //H2
+        runtimeOnly 'com.h2database:h2'
+    }
 
     //Swagger
     implementation "io.springfox:springfox-swagger2:$swaggerVersion"
@@ -106,3 +122,6 @@ pmd {
     ruleSets = []
     consoleOutput = true
 }
+
+// >>>>> processes profiles
+processResources.dependsOn.add(copyConfiguration)
