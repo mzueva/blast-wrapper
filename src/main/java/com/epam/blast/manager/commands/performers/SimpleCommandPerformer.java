@@ -32,13 +32,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
@@ -61,10 +61,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
         log.info(messageHelper.getMessage(MessageConstants.INFO_RUN_COMMAND, command));
         Process process = new ProcessBuilder().command(splitCommandByArguments(command)).start();
         try {
-            final Pair<Integer, String> exitStatus = waitForProcessResult(process);
-            return ExecutionResult.builder()
-                    .exitCode(exitStatus.getFirst())
-                    .reason(exitStatus.getSecond()).build();
+            return waitForProcessResult(process);
         } catch (InterruptedException e) {
             process.destroyForcibly();
             return ExecutionResult.builder()
@@ -114,17 +111,24 @@ public class SimpleCommandPerformer implements CommandPerformer {
                  && !(part.startsWith(DOUBLE_QUOT) || part.startsWith(QUOT));
     }
 
-    private Pair<Integer, String> waitForProcessResult(final Process process) throws IOException, InterruptedException {
+    private ExecutionResult waitForProcessResult(final Process process) throws IOException, InterruptedException {
         process.waitFor();
         final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
-        try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()))) {
+        final Queue<String> stdout = new LinkedList<>();
+        try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+             BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             errorReader.lines().forEach(message -> {
                 if (StringUtils.isNotBlank(message)) {
                     stderr.add(message);
                 }
                 log.warn(message);
             });
+            outReader.lines().filter(StringUtils::isNotBlank).forEach(stdout::add);
         }
-        return Pair.of(process.exitValue(), String.join(NEW_LINE, stderr));
+        return ExecutionResult.builder()
+            .exitCode(process.exitValue())
+            .reason(String.join(NEW_LINE, stderr))
+            .output(String.join(NEW_LINE, stdout))
+            .build();
     }
 }

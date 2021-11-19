@@ -22,10 +22,41 @@
  *   SOFTWARE.
  */
 
-package com.epam.blast.entity.task;
+package com.epam.blast.manager.commands.commands;
 
-public enum TaskType {
-    MAKE_BLAST_DB,
-    BLAST_TOOL,
-    BLAST_DB_CMD
+import lombok.Builder;
+import lombok.NonNull;
+import org.thymeleaf.TemplateEngine;
+import org.thymeleaf.context.Context;
+
+@Builder
+public class BlastDbCmd implements BlastWrapperCommand {
+
+    private static final String BLASTDBCMD_COMMAND_TEMPLATE = "blastdbcmd_command_template";
+    private static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
+    private static final String BLAST_DB_NAME = "blastDbName";
+    private static final String TASK_NAME = "taskName";
+
+    @NonNull
+    private final String dbName;
+
+    @NonNull
+    private final String taskName;
+
+    @NonNull
+    private final String dbDirectory;
+
+    @Override
+    public String generateCmd(final TemplateEngine template) {
+        return template.process(BLASTDBCMD_COMMAND_TEMPLATE, buildContext());
+    }
+
+
+    private Context buildContext() {
+        final Context context = new Context();
+        context.setVariable(TASK_NAME, taskName);
+        context.setVariable(BLAST_DB_DIRECTORY, dbDirectory);
+        context.setVariable(BLAST_DB_NAME, dbName);
+        return context;
+    }
 }

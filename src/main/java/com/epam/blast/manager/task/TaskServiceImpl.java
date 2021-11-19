@@ -55,7 +55,9 @@ import org.springframework.util.Assert;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
@@ -88,14 +90,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus getTaskStatus(final Long id) {
-        final TaskEntity task = findTask(id);
-        return TaskStatus.builder()
-                .requestId(task.getId())
-                .status(task.getStatus())
-                .taskType(task.getTaskType())
-                .reason(task.getReason())
-                .createdDate(task.getCreatedAt())
-                .build();
+        return toTaskStatus(findTask(id));
     }
 
     @Override
@@ -195,7 +190,32 @@ public class TaskServiceImpl implements TaskService {
             taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
             taskEntity.setReason(cutReasonMessage(result));
         }
+        if (TaskType.BLAST_DB_CMD.equals(taskEntity.getTaskType())) {
+            taskEntity.setSpecies(Stream.of(result.getOutput().split("\n"))
+                                      .map(StringUtils::trim)
+                                      .map(Long::valueOf)
+                                      .collect(Collectors.toSet()));
+        }
         return updateTask(taskEntity);
+    }
+
+    @Override
+    public TaskStatus createTaskForSpeciesListing(final String databaseName) {
+        if (StringUtils.isBlank(databaseName)) {
+            return TaskStatus.builder()
+                .requestId(null)
+                .createdDate(null)
+                .status(Status.FAILED)
+                .taskType(TaskType.BLAST_DB_CMD)
+                .build();
+        }
+        final TaskEntity taskEntity = saveTask(createTask(TaskType.BLAST_DB_CMD, Map.of(DB_NAME, databaseName)));
+        return TaskStatus.builder()
+            .requestId(taskEntity.getId())
+            .createdDate(taskEntity.getCreatedAt())
+            .status(taskEntity.getStatus())
+            .taskType(TaskType.BLAST_DB_CMD)
+            .build();
     }
 
     private boolean taskIsNotInFinalState(TaskEntity taskEntity) {
@@ -284,5 +304,21 @@ public class TaskServiceImpl implements TaskService {
                 )
         );
         return loaded;
+    }
+
+    private TaskStatus toTaskStatus(final TaskEntity task) {
+        final TaskStatus.TaskStatusBuilder<Object> statusBuilder = TaskStatus.builder()
+            .requestId(task.getId())
+            .status(task.getStatus())
+            .taskType(task.getTaskType())
+            .reason(task.getReason())
+            .createdDate(task.getCreatedAt());
+        if (TaskType.BLAST_DB_CMD.equals(task.getTaskType())) {
+            final Set<Long> extractedSpecies = task.getSpecies();
+            if (CollectionUtils.isNotEmpty(extractedSpecies)) {
+                statusBuilder.data(extractedSpecies);
+            }
+        }
+        return statusBuilder.build();
     }
 }

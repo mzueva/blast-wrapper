@@ -61,4 +61,6 @@ public interface TaskService {
     Pair<String, byte[]> getBlastRawResult(final Long id);
 
     TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result);
+
+    TaskStatus createTaskForSpeciesListing(final String databaseName);
 }

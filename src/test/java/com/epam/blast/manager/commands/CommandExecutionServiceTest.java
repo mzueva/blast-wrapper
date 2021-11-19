@@ -28,6 +28,7 @@ package com.epam.blast.manager.commands;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.commands.runners.BlastDbCmdRunner;
 import com.epam.blast.manager.commands.runners.BlastToolRunner;
 import com.epam.blast.manager.commands.runners.MakeBlastDbRunner;
 import com.epam.blast.manager.helper.MessageHelper;
@@ -68,6 +69,9 @@ class CommandExecutionServiceTest {
     private BlastToolRunner blastToolRunner;
 
     @Mock
+    private BlastDbCmdRunner blastDbCmdRunner;
+
+    @Mock
     private TaskServiceImpl taskService;
 
     @Mock
@@ -79,7 +83,8 @@ class CommandExecutionServiceTest {
     @BeforeEach
     public void init() {
         MockitoAnnotations.openMocks(this);
-        commandService = new CommandExecutionService(taskService, makeBlastDbRunner, blastToolRunner, messageHelper);
+        commandService = new CommandExecutionService(taskService, makeBlastDbRunner, blastToolRunner,
+                                                     blastDbCmdRunner, messageHelper);
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.MAKE_BLAST_DB,true, AMOUNT_TASKS_MAKEDB));
         taskList.addAll(TestTaskMaker.makeTasks(TaskType.BLAST_TOOL,true, AMOUNT_TASKS_BLASTP));
         taskList.addAll(TestTaskMaker.makeTasks(null,true, AMOUNT_TASKS_NOT_VALID));

@@ -48,6 +48,7 @@ import javax.persistence.MapKeyColumn;
 import javax.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Set;
 
 @Entity
 @EqualsAndHashCode(of = {"id"})
@@ -84,4 +85,10 @@ public class TaskEntity {
     @Fetch(FetchMode.JOIN)
     Map<String, String> params; // "query": "ACGT", "database": "proteins" param - value
 
+    @ElementCollection
+    @CollectionTable(name = "species_ids_mapping",
+        joinColumns = {@JoinColumn(name = "task_id", referencedColumnName = "id")})
+    @Column(name = "specimen")
+    @Fetch(FetchMode.JOIN)
+    Set<Long> species;
 }

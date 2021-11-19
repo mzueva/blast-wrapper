@@ -28,9 +28,11 @@ import com.epam.blast.controller.AbstractRestController;
 import com.epam.blast.controller.common.Result;
 import com.epam.blast.entity.db.CreateDbRequest;
 import com.epam.blast.entity.db.CreateDbResponse;
+import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -48,5 +50,12 @@ public class DatabaseController extends AbstractRestController {
             description = "Set of parameters that describe how blast DB should be created.")
     public Result<CreateDbResponse> createDatabase(@RequestBody final CreateDbRequest request) {
         return Result.success(taskService.createTaskForNewDb(request));
+    }
+
+    @PostMapping("/db/{name}/listspecies")
+    @Operation(summary = "Schedules a task for blast DB species listing.",
+            description = "Schedules a task for blast DB species listing.")
+    public Result<TaskStatus> createTaskForSpeciesListing(@PathVariable("name") final String databaseName) {
+        return Result.success(taskService.createTaskForSpeciesListing(databaseName));
     }
 }

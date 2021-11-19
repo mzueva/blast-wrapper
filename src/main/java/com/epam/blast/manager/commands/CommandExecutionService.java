@@ -27,6 +27,7 @@ package com.epam.blast.manager.commands;
 import com.epam.blast.entity.blasttool.Status;
 import com.epam.blast.entity.task.TaskEntity;
 import com.epam.blast.entity.task.TaskType;
+import com.epam.blast.manager.commands.runners.BlastDbCmdRunner;
 import com.epam.blast.manager.commands.runners.BlastToolRunner;
 import com.epam.blast.manager.commands.runners.ExecutionResult;
 import com.epam.blast.manager.commands.runners.MakeBlastDbRunner;
@@ -50,6 +51,7 @@ public class CommandExecutionService {
     private final TaskService taskService;
     private final MakeBlastDbRunner makeBlastDbRunner;
     private final BlastToolRunner blastToolRunner;
+    private final BlastDbCmdRunner blastDbCmdRunner;
     private final MessageHelper messageHelper;
 
     @Autowired
@@ -57,10 +59,12 @@ public class CommandExecutionService {
             final TaskServiceImpl taskService,
             final MakeBlastDbRunner makeBlastDbRunner,
             final BlastToolRunner blastToolRunner,
+            final BlastDbCmdRunner blastDbCmdRunner,
             final MessageHelper messageHelper) {
         this.taskService = taskService;
         this.makeBlastDbRunner = makeBlastDbRunner;
         this.blastToolRunner = blastToolRunner;
+        this.blastDbCmdRunner = blastDbCmdRunner;
         this.messageHelper = messageHelper;
     }
 
@@ -78,6 +82,9 @@ public class CommandExecutionService {
                     break;
                 case BLAST_TOOL:
                     exitValue = blastToolRunner.runTask(taskEntity);
+                    break;
+                case BLAST_DB_CMD:
+                    exitValue = blastDbCmdRunner.runTask(taskEntity);
                     break;
                 default:
                     final String message = messageHelper.getMessage(
@@ -108,6 +115,9 @@ public class CommandExecutionService {
                     break;
                 case BLAST_TOOL:
                     blastToolRunner.cancelTask(task.getId());
+                    break;
+                case BLAST_DB_CMD:
+                    blastDbCmdRunner.cancelTask(task.getId());
                     break;
                 default:
                     break;

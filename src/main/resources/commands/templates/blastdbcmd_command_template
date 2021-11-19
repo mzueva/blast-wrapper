@@ -1,0 +1,1 @@
+docker run --rm --name [(${taskName})] -v [(${blastDbDirectory})]:/blast/blastdb_custom:ro ncbi/blast blastdbcmd -db [(${blastDbName})] -outfmt "%T" -entry all
