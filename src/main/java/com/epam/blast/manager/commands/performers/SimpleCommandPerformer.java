@@ -38,9 +38,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -114,7 +114,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
     private ExecutionResult waitForProcessResult(final Process process) throws IOException, InterruptedException {
         process.waitFor();
         final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
-        final Queue<String> stdout = new LinkedList<>();
+        final List<String> stdout;
         try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
              BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
             errorReader.lines().forEach(message -> {
@@ -123,7 +123,7 @@ public class SimpleCommandPerformer implements CommandPerformer {
                 }
                 log.warn(message);
             });
-            outReader.lines().filter(StringUtils::isNotBlank).forEach(stdout::add);
+            stdout = outReader.lines().filter(StringUtils::isNotBlank).collect(Collectors.toList());
         }
         return ExecutionResult.builder()
             .exitCode(process.exitValue())
