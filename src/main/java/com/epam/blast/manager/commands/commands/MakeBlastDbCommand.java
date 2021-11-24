@@ -29,18 +29,19 @@ import lombok.NonNull;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_DIRECTORY;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
 import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
+import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
 
 @Builder
 public class MakeBlastDbCommand implements BlastWrapperCommand {
 
     private static final String MAKEDB_COMMAND_TEMPLATE = "makedb_command_template";
-    private static final String TASK_NAME = "taskName";
 
     @NonNull
     private final String inputFileName;
@@ -69,7 +70,7 @@ public class MakeBlastDbCommand implements BlastWrapperCommand {
 
     private Context buildContext() {
         final Context context = new Context();
-        context.setVariable("blastDbDirectory", blastDbDirectory);
+        context.setVariable(BLAST_DB_DIRECTORY, blastDbDirectory);
         context.setVariable("inputFilePath", inputFilePath);
         context.setVariable("inputFileName", inputFileName);
         context.setVariable(DB_TYPE, dbType);

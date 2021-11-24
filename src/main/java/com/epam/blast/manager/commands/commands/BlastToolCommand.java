@@ -33,12 +33,14 @@ import org.thymeleaf.context.Context;
 import java.util.Arrays;
 import java.util.List;
 
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_DIRECTORY;
 import static com.epam.blast.entity.task.TaskEntityParams.BLAST_TOOL;
 import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.EXCLUDED_TAX_IDS;
 import static com.epam.blast.entity.task.TaskEntityParams.EXPECTED_THRESHOLD;
 import static com.epam.blast.entity.task.TaskEntityParams.MAX_TARGET_SEQS;
 import static com.epam.blast.entity.task.TaskEntityParams.OPTIONS;
+import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
 import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 import static java.io.File.separator;
 
@@ -67,13 +69,11 @@ public class BlastToolCommand implements BlastWrapperCommand {
 
     private static final String BLAST_RESULTS_DIRECTORY = "blastResultsDirectory";
     private static final String QUERIES_FILE_PATH = "queriesFilePath";
-    private static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
 
     private static final String TAXIDS_BLAST_PARAM_NAME = "taxids";
     private static final String E_VALUE_BLAST_PARAM_NAME = "evalue";
     private static final String MAX_TARGET_SEQS_BLAST_PARAM_NAME = "max_target_seqs";
     private static final String NEGATIVE_TAXIDS_BLAST_PARAM_NAME = "negative_taxids";
-    private static final String TASK_NAME = "taskName";
 
     private final String blastDbDirectory;
     private final String blastQueriesDirectory;

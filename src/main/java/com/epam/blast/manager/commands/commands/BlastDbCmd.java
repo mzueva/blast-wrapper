@@ -24,6 +24,10 @@
 
 package com.epam.blast.manager.commands.commands;
 
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_DIRECTORY;
+import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
+import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
+
 import lombok.Builder;
 import lombok.NonNull;
 import org.thymeleaf.TemplateEngine;
@@ -33,9 +37,6 @@ import org.thymeleaf.context.Context;
 public class BlastDbCmd implements BlastWrapperCommand {
 
     private static final String BLASTDBCMD_COMMAND_TEMPLATE = "blastdbcmd_command_template";
-    private static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
-    private static final String BLAST_DB_NAME = "blastDbName";
-    private static final String TASK_NAME = "taskName";
 
     @NonNull
     private final String dbName;
@@ -56,7 +57,7 @@ public class BlastDbCmd implements BlastWrapperCommand {
         final Context context = new Context();
         context.setVariable(TASK_NAME, taskName);
         context.setVariable(BLAST_DB_DIRECTORY, dbDirectory);
-        context.setVariable(BLAST_DB_NAME, dbName);
+        context.setVariable(DB_NAME, dbName);
         return context;
     }
 }
