@@ -45,6 +45,7 @@ import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
@@ -52,10 +53,15 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.epam.blast.entity.commands.ExitCodes.SUCCESSFUL_EXECUTION;
 import static com.epam.blast.entity.task.TaskEntityParams.ALGORITHM;
@@ -77,6 +83,7 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
@@ -88,14 +95,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskStatus getTaskStatus(final Long id) {
-        final TaskEntity task = findTask(id);
-        return TaskStatus.builder()
-                .requestId(task.getId())
-                .status(task.getStatus())
-                .taskType(task.getTaskType())
-                .reason(task.getReason())
-                .createdDate(task.getCreatedAt())
-                .build();
+        return toTaskStatus(findTask(id));
     }
 
     @Override
@@ -103,7 +103,7 @@ public class TaskServiceImpl implements TaskService {
         return TaskEntity.builder()
                 .status(Status.CREATED)
                 .taskType(taskType)
-                .createdAt(DateUtils.nowUTC())
+                .createdAt(DateUtils.nowUtc())
                 .params(incomeParams)
                 .build();
     }
@@ -190,12 +190,48 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Set<Long> getSpeciesListing(final Long taskId) {
+        loadTaskForResult(taskId);
+        try {
+            final String output = Files.readString(Paths.get(blastFileManager.getBlastResultsDirectory(),
+                    blastFileManager.getResultFileName(taskId)));
+            return Stream.of(output.split("\n"))
+                    .filter(StringUtils::isNotBlank)
+                    .map(s -> StringUtils.strip(s.trim(), "\""))
+                    .map(Long::valueOf)
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            log.error("Failed to load results for task " + taskId, e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @Override
     public TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result) {
         if (taskIsNotInFinalState(taskEntity)) {
             taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
             taskEntity.setReason(cutReasonMessage(result));
         }
         return updateTask(taskEntity);
+    }
+
+    @Override
+    public TaskStatus createTaskForSpeciesListing(final String databaseName) {
+        if (StringUtils.isBlank(databaseName)) {
+            return TaskStatus.builder()
+                .requestId(null)
+                .createdDate(null)
+                .status(Status.FAILED)
+                .taskType(TaskType.BLAST_DB_CMD)
+                .build();
+        }
+        final TaskEntity taskEntity = saveTask(createTask(TaskType.BLAST_DB_CMD, Map.of(DB_NAME, databaseName)));
+        return TaskStatus.builder()
+            .requestId(taskEntity.getId())
+            .createdDate(taskEntity.getCreatedAt())
+            .status(taskEntity.getStatus())
+            .taskType(TaskType.BLAST_DB_CMD)
+            .build();
     }
 
     private boolean taskIsNotInFinalState(TaskEntity taskEntity) {
@@ -284,5 +320,15 @@ public class TaskServiceImpl implements TaskService {
                 )
         );
         return loaded;
+    }
+
+    private TaskStatus toTaskStatus(final TaskEntity task) {
+        final TaskStatus.TaskStatusBuilder statusBuilder = TaskStatus.builder()
+            .requestId(task.getId())
+            .status(task.getStatus())
+            .taskType(task.getTaskType())
+            .reason(task.getReason())
+            .createdDate(task.getCreatedAt());
+        return statusBuilder.build();
     }
 }

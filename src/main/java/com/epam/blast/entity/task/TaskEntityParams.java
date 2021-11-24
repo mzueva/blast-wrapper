@@ -36,6 +36,8 @@ public final class TaskEntityParams {
     public static final String PARSE_SEQ_ID = "parseSeqIds";
     public static final String BLAST_DB_VERSION = "blastDbVersion";
     public static final String TAX_ID = "taxId";
+    public static final String BLAST_DB_DIRECTORY = "blastDbDirectory";
+    public static final String TASK_NAME = "taskName";
 
     public static final String TAX_IDS = "taxIds";
     public static final String EXCLUDED_TAX_IDS = "excludedTaxIds";

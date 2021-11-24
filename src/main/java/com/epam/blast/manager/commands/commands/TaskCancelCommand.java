@@ -24,6 +24,8 @@
 
 package com.epam.blast.manager.commands.commands;
 
+import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
+
 import lombok.Builder;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -32,7 +34,6 @@ import org.thymeleaf.context.Context;
 public class TaskCancelCommand implements BlastWrapperCommand {
 
     private static final String BLAST_COMMAND_TEMPLATE = "cancel_command_template";
-    private static final String TASK_NAME = "taskName";
 
     private final String taskName;
 

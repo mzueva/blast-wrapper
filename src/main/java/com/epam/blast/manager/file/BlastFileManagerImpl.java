@@ -33,6 +33,7 @@ import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import com.epam.blast.utils.TemporaryFileWriter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -150,22 +151,22 @@ public class BlastFileManagerImpl implements BlastFileManager {
 
     @Override
     public String getBlastQueryDirectory() {
-        return Path.of(blastQueryDirectory).toAbsolutePath().toString();
+        return getAbsolutePath(blastQueryDirectory);
     }
 
     @Override
     public String getBlastDbDirectory() {
-        return Path.of(blastDbDirectory).toAbsolutePath().toString();
+        return getAbsolutePath(blastDbDirectory);
     }
 
     @Override
     public String getBlastResultsDirectory() {
-        return Path.of(blastResultsDirectory).toAbsolutePath().toString();
+        return getAbsolutePath(blastResultsDirectory);
     }
 
     @Override
     public String defaultFastaDirectory() {
-        return Path.of(defaultFastaDirectory).toAbsolutePath().toString();
+        return getAbsolutePath(defaultFastaDirectory);
     }
 
     @Override
@@ -178,6 +179,10 @@ public class BlastFileManagerImpl implements BlastFileManager {
                     taskId, e.getMessage()));
             e.printStackTrace();
         }
+    }
+
+    private String getAbsolutePath(final String path) {
+        return FilenameUtils.normalize(Path.of(path).toAbsolutePath().toString());
     }
 
     BlastResultEntry parseBlastResultEntry(final String line) {

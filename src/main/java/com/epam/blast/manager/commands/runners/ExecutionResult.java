@@ -32,4 +32,5 @@ import lombok.Value;
 public class ExecutionResult {
     int exitCode;
     String reason;
+    String output;
 }

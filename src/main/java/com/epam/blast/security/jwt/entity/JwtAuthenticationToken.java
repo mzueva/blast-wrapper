@@ -44,7 +44,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         super(null);
         this.jwtRawToken = jwtRawToken;
         this.setAuthenticated(false);
-        this.tokenExpiration = toDate(DateUtils.nowUTC().plusSeconds(TOKEN_SESSION_TIMEOUT));
+        this.tokenExpiration = toDate(DateUtils.nowUtc().plusSeconds(TOKEN_SESSION_TIMEOUT));
     }
 
     public JwtAuthenticationToken(final UserContext userContext,
@@ -52,7 +52,7 @@ public class JwtAuthenticationToken extends AbstractAuthenticationToken {
         super(authorities);
         super.setAuthenticated(true);
         this.userContext = userContext;
-        this.tokenExpiration = toDate(DateUtils.nowUTC().plusSeconds(TOKEN_SESSION_TIMEOUT));
+        this.tokenExpiration = toDate(DateUtils.nowUtc().plusSeconds(TOKEN_SESSION_TIMEOUT));
     }
 
     @Override

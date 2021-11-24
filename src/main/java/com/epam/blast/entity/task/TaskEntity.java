@@ -83,5 +83,4 @@ public class TaskEntity {
     @Column(name = "value", length = MAX_STRING_LENGTH)
     @Fetch(FetchMode.JOIN)
     Map<String, String> params; // "query": "ACGT", "database": "proteins" param - value
-
 }

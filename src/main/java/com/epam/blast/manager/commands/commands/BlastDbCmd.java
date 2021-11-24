@@ -24,62 +24,40 @@
 
 package com.epam.blast.manager.commands.commands;
 
+import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_DIRECTORY;
+import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
+import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
+
 import lombok.Builder;
 import lombok.NonNull;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 
-import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_DIRECTORY;
-import static com.epam.blast.entity.task.TaskEntityParams.BLAST_DB_VERSION;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_NAME;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_TITLE;
-import static com.epam.blast.entity.task.TaskEntityParams.DB_TYPE;
-import static com.epam.blast.entity.task.TaskEntityParams.PARSE_SEQ_ID;
-import static com.epam.blast.entity.task.TaskEntityParams.TASK_NAME;
-import static com.epam.blast.entity.task.TaskEntityParams.TAX_ID;
-
 @Builder
-public class MakeBlastDbCommand implements BlastWrapperCommand {
+public class BlastDbCmd implements BlastWrapperCommand {
 
-    private static final String MAKEDB_COMMAND_TEMPLATE = "makedb_command_template";
-
-    @NonNull
-    private final String inputFileName;
+    private static final String BLASTDBCMD_COMMAND_TEMPLATE = "blastdbcmd_command_template";
 
     @NonNull
     private final String dbName;
 
     @NonNull
-    private final String inputFilePath;
-
-    @NonNull
     private final String taskName;
 
-    private final String blastDbDirectory;
-    private final String dbType;
-    private final String parseSeqIds;
-    private final String dbTitle;
-    private final Integer taxId;
-    private final Integer blastDbVersion;
+    @NonNull
+    private final String dbDirectory;
 
     @Override
     public String generateCmd(final TemplateEngine template) {
-        return template.process(MAKEDB_COMMAND_TEMPLATE, buildContext())
-                .trim().replaceAll(" +", " ");
+        return template.process(BLASTDBCMD_COMMAND_TEMPLATE, buildContext());
     }
+
 
     private Context buildContext() {
         final Context context = new Context();
-        context.setVariable(BLAST_DB_DIRECTORY, blastDbDirectory);
-        context.setVariable("inputFilePath", inputFilePath);
-        context.setVariable("inputFileName", inputFileName);
-        context.setVariable(DB_TYPE, dbType);
-        context.setVariable(PARSE_SEQ_ID, parseSeqIds);
-        context.setVariable(DB_NAME, dbName);
-        context.setVariable(DB_TITLE, dbTitle);
-        context.setVariable(TAX_ID, taxId);
-        context.setVariable(BLAST_DB_VERSION, blastDbVersion);
         context.setVariable(TASK_NAME, taskName);
+        context.setVariable(BLAST_DB_DIRECTORY, dbDirectory);
+        context.setVariable(DB_NAME, dbName);
         return context;
     }
 }

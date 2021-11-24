@@ -37,6 +37,7 @@ import org.springframework.data.util.Pair;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public interface TaskService {
 
@@ -61,4 +62,8 @@ public interface TaskService {
     Pair<String, byte[]> getBlastRawResult(final Long id);
 
     TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result);
+
+    TaskStatus createTaskForSpeciesListing(final String databaseName);
+
+    Set<Long> getSpeciesListing(Long taskId);
 }
