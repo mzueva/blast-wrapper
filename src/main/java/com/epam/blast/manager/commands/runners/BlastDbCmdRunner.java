@@ -41,6 +41,9 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @Service
@@ -65,7 +68,11 @@ public class BlastDbCmdRunner implements CommandRunner {
             .build()
             .generateCmd(templateEngine);
 
-        return performCommand(command, taskId);
+        final ExecutionResult result = performCommand(command, taskId);
+        Files.write(Paths.get(blastFileManager.getBlastResultsDirectory(),
+                blastFileManager.getResultFileName(taskEntity.getId())),
+                result.getOutput().getBytes(Charset.defaultCharset()));
+        return result;
     }
 
     @Override

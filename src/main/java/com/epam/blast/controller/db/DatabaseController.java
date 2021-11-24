@@ -32,10 +32,14 @@ import com.epam.blast.entity.task.TaskStatus;
 import com.epam.blast.manager.task.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Set;
 
 @RestController
 @RequiredArgsConstructor
@@ -52,10 +56,17 @@ public class DatabaseController extends AbstractRestController {
         return Result.success(taskService.createTaskForNewDb(request));
     }
 
-    @PostMapping("/db/{name}/listspecies")
+    @PostMapping("/db/listspecies")
     @Operation(summary = "Schedules a task for blast DB species listing.",
             description = "Schedules a task for blast DB species listing.")
-    public Result<TaskStatus> createTaskForSpeciesListing(@PathVariable("name") final String databaseName) {
+    public Result<TaskStatus> createTaskForSpeciesListing(@RequestParam("name") final String databaseName) {
         return Result.success(taskService.createTaskForSpeciesListing(databaseName));
+    }
+
+    @GetMapping("/db/listspecies/{id}")
+    @Operation(summary = "Returns result of blast DB species listing.",
+            description = "Returns result of blast DB species listing.")
+    public Result<Set<Long>> getSpeciesListing(@PathVariable("id") final Long taskId) {
+        return Result.success(taskService.getSpeciesListing(taskId));
     }
 }

@@ -45,6 +45,7 @@ import com.epam.blast.validator.BlastStartSearchingRequestValidator;
 
 import lombok.RequiredArgsConstructor;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.util.Pair;
@@ -52,6 +53,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.Assert;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +83,7 @@ import static com.epam.blast.entity.task.TaskEntityParams.TAX_IDS;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class TaskServiceImpl implements TaskService {
 
     public static final String DELIMITER = ",";
@@ -98,7 +103,7 @@ public class TaskServiceImpl implements TaskService {
         return TaskEntity.builder()
                 .status(Status.CREATED)
                 .taskType(taskType)
-                .createdAt(DateUtils.nowUTC())
+                .createdAt(DateUtils.nowUtc())
                 .params(incomeParams)
                 .build();
     }
@@ -185,16 +190,27 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
+    public Set<Long> getSpeciesListing(final Long taskId) {
+        loadTaskForResult(taskId);
+        try {
+            final String output = Files.readString(Paths.get(blastFileManager.getBlastResultsDirectory(),
+                    blastFileManager.getResultFileName(taskId)));
+            return Stream.of(output.split("\n"))
+                    .filter(StringUtils::isNotBlank)
+                    .map(s -> StringUtils.strip(s.trim(), "\""))
+                    .map(Long::valueOf)
+                    .collect(Collectors.toSet());
+        } catch (IOException e) {
+            log.error("Failed to load results for task " + taskId, e);
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    @Override
     public TaskEntity changeStatus(final TaskEntity taskEntity, final ExecutionResult result) {
         if (taskIsNotInFinalState(taskEntity)) {
             taskEntity.setStatus((result.getExitCode() == SUCCESSFUL_EXECUTION) ? Status.DONE : Status.FAILED);
             taskEntity.setReason(cutReasonMessage(result));
-        }
-        if (TaskType.BLAST_DB_CMD.equals(taskEntity.getTaskType())) {
-            taskEntity.setSpecies(Stream.of(result.getOutput().split("\n"))
-                                      .map(StringUtils::trim)
-                                      .map(Long::valueOf)
-                                      .collect(Collectors.toSet()));
         }
         return updateTask(taskEntity);
     }
@@ -307,18 +323,12 @@ public class TaskServiceImpl implements TaskService {
     }
 
     private TaskStatus toTaskStatus(final TaskEntity task) {
-        final TaskStatus.TaskStatusBuilder<Object> statusBuilder = TaskStatus.builder()
+        final TaskStatus.TaskStatusBuilder statusBuilder = TaskStatus.builder()
             .requestId(task.getId())
             .status(task.getStatus())
             .taskType(task.getTaskType())
             .reason(task.getReason())
             .createdDate(task.getCreatedAt());
-        if (TaskType.BLAST_DB_CMD.equals(task.getTaskType())) {
-            final Set<Long> extractedSpecies = task.getSpecies();
-            if (CollectionUtils.isNotEmpty(extractedSpecies)) {
-                statusBuilder.data(extractedSpecies);
-            }
-        }
         return statusBuilder.build();
     }
 }

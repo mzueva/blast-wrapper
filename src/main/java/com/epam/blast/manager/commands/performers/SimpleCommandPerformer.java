@@ -30,7 +30,6 @@ import com.epam.blast.manager.helper.MessageConstants;
 import com.epam.blast.manager.helper.MessageHelper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.queue.CircularFifoQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -39,8 +38,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Queue;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -112,23 +109,41 @@ public class SimpleCommandPerformer implements CommandPerformer {
     }
 
     private ExecutionResult waitForProcessResult(final Process process) throws IOException, InterruptedException {
-        process.waitFor();
-        final Queue<String> stderr = new CircularFifoQueue<>(MAX_EXIT_REASON_MESSAGE_LINES);
-        final List<String> stdout;
-        try (BufferedReader errorReader = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-             BufferedReader outReader = new BufferedReader(new InputStreamReader(process.getInputStream()))) {
-            errorReader.lines().forEach(message -> {
-                if (StringUtils.isNotBlank(message)) {
-                    stderr.add(message);
-                }
-                log.warn(message);
-            });
-            stdout = outReader.lines().filter(StringUtils::isNotBlank).collect(Collectors.toList());
+        final StringBuilder output = new StringBuilder();
+        final StringBuilder errors = new StringBuilder();
+        final Thread stdReader = new Thread(() -> readOutputStream(output,
+                new InputStreamReader(process.getInputStream())));
+        final Thread errReader = new Thread(() -> readOutputStream(errors,
+                new InputStreamReader(process.getErrorStream())));
+        stdReader.start();
+        errReader.start();
+        final int exitCode = process.waitFor();
+        stdReader.join();
+        errReader.join();
+
+        if (StringUtils.isNotBlank(errors)) {
+            log.warn(errors.toString());
         }
         return ExecutionResult.builder()
-            .exitCode(process.exitValue())
-            .reason(String.join(NEW_LINE, stderr))
-            .output(String.join(NEW_LINE, stdout))
-            .build();
+                .exitCode(exitCode)
+                .reason(errors.toString())
+                .output(output.toString())
+                .build();
+    }
+
+    private void readOutputStream(final StringBuilder content, final InputStreamReader in) {
+        try (BufferedReader reader = new BufferedReader(in)) {
+            appendReaderContent(content, reader);
+        } catch (IOException e) {
+            log.error("An error occurred while reading command output", e);
+        }
+    }
+
+    private void appendReaderContent(final StringBuilder output, final BufferedReader reader)
+            throws IOException {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            output.append(line).append('\n');
+        }
     }
 }

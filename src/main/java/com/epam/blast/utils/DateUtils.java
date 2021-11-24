@@ -9,7 +9,7 @@ public final class DateUtils {
         //no op
     }
 
-    public static LocalDateTime nowUTC() {
+    public static LocalDateTime nowUtc() {
         return LocalDateTime.now(Clock.systemUTC());
     }
 }

@@ -36,12 +36,11 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor(force = true)
 @Builder
-public class TaskStatus<T> {
+public class TaskStatus {
 
     Long requestId;
     Status status;
     String reason;
     TaskType taskType;
     LocalDateTime createdDate;
-    T data;
 }
